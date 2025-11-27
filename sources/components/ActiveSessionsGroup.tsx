@@ -27,15 +27,15 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
     },
     projectCard: {
         backgroundColor: theme.colors.surface,
-        marginBottom: 8,
+        marginBottom: 12,
         marginHorizontal: Platform.select({ ios: 16, default: 12 }),
-        borderRadius: Platform.select({ ios: 10, default: 16 }),
+        borderRadius: 12,
         overflow: 'hidden',
         shadowColor: theme.colors.shadow.color,
-        shadowOffset: { width: 0, height: 0.33 },
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: theme.colors.shadow.opacity,
-        shadowRadius: 0,
-        elevation: 1,
+        shadowRadius: 4,
+        elevation: 2,
     },
     sectionHeader: {
         paddingTop: 12,
@@ -94,9 +94,10 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         marginBottom: 4,
     },
     sessionTitle: {
-        fontSize: 15,
-        fontWeight: '500',
+        fontSize: 16,
+        fontWeight: '600',
         ...Typography.default('semiBold'),
+        letterSpacing: -0.2,
     },
     sessionTitleConnected: {
         color: theme.colors.text,
@@ -121,6 +122,7 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         fontWeight: '500',
         lineHeight: 16,
         ...Typography.default(),
+        letterSpacing: 0.1,
     },
     avatarContainer: {
         position: 'relative',

@@ -3,6 +3,7 @@ import { Settings, settingsDefaults, settingsParse, SettingsSchema } from './set
 import { LocalSettings, localSettingsDefaults, localSettingsParse } from './localSettings';
 import { Purchases, purchasesDefaults, purchasesParse } from './purchases';
 import { Profile, profileDefaults, profileParse } from './profile';
+import { ProviderSettings, providerSettingsDefaults, providerSettingsParse } from './providerSettings';
 import type { PermissionMode } from '@/components/PermissionModeSelector';
 
 const mmkv = new MMKV();
@@ -161,6 +162,24 @@ export function retrieveTempText(id: string): string | null {
         return content;
     }
     return null;
+}
+
+export function loadProviderSettings(): ProviderSettings {
+    const providerSettings = mmkv.getString('provider-settings');
+    if (providerSettings) {
+        try {
+            const parsed = JSON.parse(providerSettings);
+            return providerSettingsParse(parsed);
+        } catch (e) {
+            console.error('Failed to parse provider settings', e);
+            return { ...providerSettingsDefaults };
+        }
+    }
+    return { ...providerSettingsDefaults };
+}
+
+export function saveProviderSettings(settings: ProviderSettings) {
+    mmkv.set('provider-settings', JSON.stringify(settings));
 }
 
 export function clearPersistence() {

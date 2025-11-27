@@ -15,6 +15,7 @@ import { Header } from './navigation/Header';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { FeedItemCard } from './FeedItemCard';
+import { usePopulateIntegrationReleases } from '@/hooks/usePopulateIntegrationReleases';
 
 const styles = StyleSheet.create((theme) => ({
     container: {
@@ -205,9 +206,41 @@ export const InboxView = React.memo(({}: InboxViewProps) => {
     const friendsLoaded = useFriendsLoaded();
     const { theme } = useUnistyles();
     const isTablet = useIsTablet();
+    
+    // Populate integration releases on mount
+    usePopulateIntegrationReleases();
 
     const isLoading = !feedLoaded || !friendsLoaded;
-    const isEmpty = !isLoading && friendRequests.length === 0 && requestedFriends.length === 0 && friends.length === 0 && feedItems.length === 0;
+    
+    // Separate feed items by type
+    const systemNotifications = feedItems.filter(item => item.body.kind === 'system_notification');
+    const integrationUpdates = feedItems.filter(item => item.body.kind === 'integration_update');
+    const socialFeedItems = feedItems.filter(item => 
+        item.body.kind === 'friend_request' || 
+        item.body.kind === 'friend_accepted' || 
+        item.body.kind === 'text'
+    );
+    
+    // Group integration updates by integration name
+    const integrationGroups = React.useMemo(() => {
+        const groups: Record<string, typeof integrationUpdates> = {};
+        integrationUpdates.forEach(item => {
+            if (item.body.kind === 'integration_update') {
+                const integrationName = item.body.integration;
+                if (!groups[integrationName]) {
+                    groups[integrationName] = [];
+                }
+                groups[integrationName].push(item);
+            }
+        });
+        return groups;
+    }, [integrationUpdates]);
+    
+    const isEmpty = !isLoading && 
+        friendRequests.length === 0 && 
+        requestedFriends.length === 0 && 
+        friends.length === 0 && 
+        feedItems.length === 0;
 
     if (isLoading) {
         return (
@@ -274,59 +307,79 @@ export const InboxView = React.memo(({}: InboxViewProps) => {
             }}>
                 <UpdateBanner />
                 
-                {feedItems.length > 0 && (
-                    <>
-                        <ItemGroup title={t('inbox.updates')}>
-                            {feedItems.map((item) => (
-                                <FeedItemCard
-                                    key={item.id}
-                                    item={item}
-                                />
-                            ))}
-                        </ItemGroup>
-                    </>
+                {/* System Notifications - Highest Priority */}
+                {systemNotifications.length > 0 && (
+                    <ItemGroup title={t('inbox.systemNotifications')}>
+                        {systemNotifications.map((item) => (
+                            <FeedItemCard
+                                key={item.id}
+                                item={item}
+                            />
+                        ))}
+                    </ItemGroup>
                 )}
                 
+                {/* Integration Updates - Grouped by integration */}
+                {Object.entries(integrationGroups).map(([integrationName, items]) => (
+                    <ItemGroup key={integrationName} title={integrationName}>
+                        {items.map((item) => (
+                            <FeedItemCard
+                                key={item.id}
+                                item={item}
+                            />
+                        ))}
+                    </ItemGroup>
+                ))}
+                
+                {/* Social Feed Items */}
+                {socialFeedItems.length > 0 && (
+                    <ItemGroup title={t('inbox.updates')}>
+                        {socialFeedItems.map((item) => (
+                            <FeedItemCard
+                                key={item.id}
+                                item={item}
+                            />
+                        ))}
+                    </ItemGroup>
+                )}
+                
+                {/* Friend Requests */}
                 {friendRequests.length > 0 && (
-                    <>
-                        <ItemGroup title={t('friends.pendingRequests')}>
-                            {friendRequests.map((friend) => (
-                                <UserCard
-                                    key={friend.id}
-                                    user={friend}
-                                    onPress={() => router.push(`/user/${friend.id}`)}
-                                />
-                            ))}
-                        </ItemGroup>
-                    </>
+                    <ItemGroup title={t('friends.pendingRequests')}>
+                        {friendRequests.map((friend) => (
+                            <UserCard
+                                key={friend.id}
+                                user={friend}
+                                onPress={() => router.push(`/user/${friend.id}`)}
+                            />
+                        ))}
+                    </ItemGroup>
                 )}
 
+                {/* Requested Friends */}
                 {requestedFriends.length > 0 && (
-                    <>
-                        <ItemGroup title={t('friends.requestPending')}>
-                            {requestedFriends.map((friend) => (
-                                <UserCard
-                                    key={friend.id}
-                                    user={friend}
-                                    onPress={() => router.push(`/user/${friend.id}`)}
-                                />
-                            ))}
-                        </ItemGroup>
-                    </>
+                    <ItemGroup title={t('friends.requestPending')}>
+                        {requestedFriends.map((friend) => (
+                            <UserCard
+                                key={friend.id}
+                                user={friend}
+                                onPress={() => router.push(`/user/${friend.id}`)}
+                            />
+                        ))}
+                    </ItemGroup>
                 )}
 
+                {/* Friends List */}
                 {friends.length > 0 && (
-                    <>
-                        <ItemGroup title={t('friends.myFriends')}>
-                            {friends.map((friend) => (
-                                <UserCard
-                                    key={friend.id}
-                                    user={friend}
-                                    onPress={() => router.push(`/user/${friend.id}`)}
-                                />
-                            ))}
-                        </ItemGroup>
-                    </>
+                    <ItemGroup title={t('friends.myFriends')}>
+                        {friends.map((friend) => (
+                            <UserCard
+                                key={friend.id}
+                                user={friend}
+                                onPress={() => router.push(`/user/${friend.id}`)}
+                            />
+                        ))}
+                    </ItemGroup>
                 )}
             </ScrollView>
         </View>

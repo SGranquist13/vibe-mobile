@@ -31,6 +31,8 @@ import { voiceHooks } from '@/realtime/hooks/voiceHooks';
 import { Message } from './typesMessage';
 import { EncryptionCache } from './encryption/encryptionCache';
 import { systemPrompt } from './prompt/systemPrompt';
+import { loadProviderSettings } from './persistence';
+import { getSystemPromptConfig, getAgentById } from './providerSettings';
 import { fetchArtifact, fetchArtifacts, createArtifact, updateArtifact } from './apiArtifacts';
 import { DecryptedArtifact, Artifact, ArtifactCreateRequest, ArtifactUpdateRequest } from './artifactTypes';
 import { ArtifactEncryption } from './encryption/artifactEncryption';
@@ -249,6 +251,7 @@ class Sync {
         let fallbackModel: string | null = null;
 
         switch (modelMode) {
+            // Claude models
             case 'default':
                 model = null;
                 fallbackModel = null;
@@ -265,11 +268,74 @@ class Sync {
                 model = 'claude-opus-4-1-20250805';
                 fallbackModel = null;
                 break;
+            // Codex models (passed as-is, CLI handles them)
+            case 'gpt-5-codex-high':
+            case 'gpt-5-codex-medium':
+            case 'gpt-5-codex-low':
+            case 'gpt-5-minimal':
+            case 'gpt-5-low':
+            case 'gpt-5-medium':
+            case 'gpt-5-high':
+                model = modelMode;
+                fallbackModel = null;
+                break;
+            // Gemini models
+            case 'gemini-2.0-flash-exp':
+            case 'gemini-2.0-flash-thinking-exp':
+            case 'gemini-1.5-pro':
+            case 'gemini-1.5-flash':
+                model = modelMode;
+                fallbackModel = null;
+                break;
+            // Cursor models
+            case 'cursor-default':
+                model = null; // Cursor uses default model from CLI
+                fallbackModel = null;
+                break;
             default:
                 // If no modelMode is specified, use default behavior (let server decide)
                 model = null;
                 fallbackModel = null;
                 break;
+        }
+
+        // Apply provider settings for system prompt
+        let finalSystemPrompt: string | null = null;
+        let customSystemPrompt: string | null = null;
+        
+        // Get provider type from session metadata
+        const provider = session.metadata?.flavor as 'claude' | 'codex' | 'gemini' | 'cursor' | undefined;
+        const selectedAgentId = session.metadata?.agentId as string | undefined;
+        
+        if (provider) {
+            const providerSettings = loadProviderSettings();
+            
+            // Check for agent system prompt first
+            if (selectedAgentId) {
+                const agent = getAgentById(providerSettings, selectedAgentId);
+                if (agent && (agent.provider === provider || agent.provider === 'all')) {
+                    // Agent system prompt takes precedence
+                    customSystemPrompt = agent.systemPrompt;
+                }
+            }
+            
+            // If no agent prompt, check provider system prompt config
+            if (!customSystemPrompt) {
+                const systemPromptConfig = getSystemPromptConfig(providerSettings, provider);
+                if (systemPromptConfig?.enabled) {
+                    if (systemPromptConfig.mode === 'replace') {
+                        customSystemPrompt = systemPromptConfig.content;
+                    } else {
+                        // Append mode - combine with base system prompt
+                        finalSystemPrompt = systemPromptConfig.content;
+                    }
+                }
+            }
+        }
+        
+        // If no provider-specific prompt, use default
+        if (!finalSystemPrompt && !customSystemPrompt) {
+            finalSystemPrompt = systemPrompt;
         }
 
         // Create user message content with metadata
@@ -284,7 +350,7 @@ class Sync {
                 permissionMode: permissionMode || 'default',
                 model,
                 fallbackModel,
-                appendSystemPrompt: systemPrompt,
+                ...(customSystemPrompt ? { customSystemPrompt } : { appendSystemPrompt: finalSystemPrompt }),
                 ...(displayText && { displayText }) // Add displayText if provided
             }
         };
@@ -1849,7 +1915,7 @@ class Sync {
                 body: feedUpdate.body,
                 cursor: feedUpdate.cursor,
                 createdAt: feedUpdate.createdAt,
-                repeatKey: feedUpdate.repeatKey,
+                repeatKey: feedUpdate.repeatKey ?? null,
                 counter: parseInt(feedUpdate.cursor.substring(2), 10)
             };
             
@@ -1869,6 +1935,12 @@ class Sync {
             
             // Apply to storage (will handle repeatKey replacement)
             storage.getState().applyFeedItems([feedItem]);
+        } else if (updateData.body.t === 'delete-feed-post') {
+            log.log('📰 Received delete-feed-post update');
+            const deleteUpdate = updateData.body;
+            
+            // Remove from storage
+            storage.getState().deleteFeedItem(deleteUpdate.id);
         } else if (updateData.body.t === 'kv-batch-update') {
             log.log('📝 Received kv-batch-update');
             const kvUpdate = updateData.body;

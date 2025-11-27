@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Modal } from '@/modal';
-import { HappyError } from '@/utils/errors';
+import { VibeError } from '@/utils/errors';
 
-export function useHappyAction(action: () => Promise<void>) {
+export function useVibeAction(action: () => Promise<void>) {
     const [loading, setLoading] = React.useState(false);
     const loadingRef = React.useRef(false);
     const doAction = React.useCallback(() => {
@@ -18,15 +18,7 @@ export function useHappyAction(action: () => Promise<void>) {
                         await action();
                         break;
                     } catch (e) {
-                        if (e instanceof HappyError) {
-                            // if (e.canTryAgain) {
-                            //     Modal.alert('Error', e.message, [{ text: 'Try again' }, { text: 'Cancel', style: 'cancel' }]) 
-                            //         break;
-                            //     }
-                            // } else {
-                            //     await alert('Error', e.message, [{ text: 'OK', style: 'cancel' }]);
-                            //     break;
-                            // }
+                        if (e instanceof VibeError) {
                             Modal.alert('Error', e.message, [{ text: 'OK', style: 'cancel' }]);
                             break;
                         } else {
@@ -43,3 +35,6 @@ export function useHappyAction(action: () => Promise<void>) {
     }, [action]);
     return [loading, doAction] as const;
 }
+
+
+

@@ -204,7 +204,7 @@ const style = StyleSheet.create((theme) => ({
         ...Typography.mono(),
         fontSize: 16,
         lineHeight: 21,  // Reduced from 24 to 21
-        backgroundColor: theme.colors.surfaceHighest,
+        backgroundColor: '#ffffff',  // White for contrast with tan background
         color: theme.colors.text,
     },
     link: {
@@ -285,7 +285,7 @@ const style = StyleSheet.create((theme) => ({
     //
 
     codeBlock: {
-        backgroundColor: theme.colors.surfaceHighest,
+        backgroundColor: '#ffffff',  // White for contrast with tan background
         borderRadius: 8,
         marginVertical: 8,
     },
@@ -320,7 +320,7 @@ const style = StyleSheet.create((theme) => ({
         marginVertical: 8,
     },
     optionItem: {
-        backgroundColor: theme.colors.surfaceHighest,
+        backgroundColor: '#ffffff',  // White for contrast with tan background
         borderRadius: 8,
         paddingHorizontal: 16,
         paddingVertical: 12,
@@ -329,7 +329,7 @@ const style = StyleSheet.create((theme) => ({
     },
     optionItemPressed: {
         opacity: 0.7,
-        backgroundColor: theme.colors.surfaceHigh,
+        backgroundColor: '#f5f5f5',  // Light gray when pressed
     },
     optionText: {
         ...Typography.default(),

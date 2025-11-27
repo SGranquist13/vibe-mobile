@@ -7,6 +7,7 @@ import { ItemList } from '@/components/ItemList';
 import { Item } from '@/components/Item';
 import * as Clipboard from 'expo-clipboard';
 import { Modal } from '@/modal';
+import { Typography } from '@/constants/Typography';
 
 export default function LogsScreen() {
     const [logs, setLogs] = React.useState<string[]>([]);
@@ -76,10 +77,10 @@ export default function LogsScreen() {
             borderBottomColor: '#F0F0F0'
         }}>
             <Text style={{
-                fontFamily: 'IBMPlexMono-Regular',
                 fontSize: 12,
                 color: '#333',
-                lineHeight: 16
+                lineHeight: 16,
+                ...Typography.mono(),
             }}>
                 {item}
             </Text>

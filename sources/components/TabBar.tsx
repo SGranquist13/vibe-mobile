@@ -22,6 +22,7 @@ const styles = StyleSheet.create((theme) => ({
         backgroundColor: theme.colors.surface,
         borderTopWidth: 1,
         borderTopColor: theme.colors.divider,
+        ...theme.colors.elevation.level1,
     },
     innerContainer: {
         flexDirection: 'row',
@@ -36,18 +37,29 @@ const styles = StyleSheet.create((theme) => ({
         alignItems: 'center',
         paddingTop: 8,
         paddingBottom: 4,
+        position: 'relative',
     },
     tabContent: {
         alignItems: 'center',
         position: 'relative',
     },
+    // Active tab indicator bar
+    activeIndicator: {
+        position: 'absolute',
+        top: 0,
+        left: '25%',
+        right: '25%',
+        height: 3,
+        backgroundColor: theme.colors.brand.primary,
+        borderRadius: 2,
+    },
     label: {
         fontSize: 10,
-        marginTop: 3,
+        marginTop: 4,
         ...Typography.default(),
     },
     labelActive: {
-        color: theme.colors.text,
+        color: theme.colors.brand.primary,
         ...Typography.default('semiBold'),
     },
     labelInactive: {
@@ -64,10 +76,12 @@ const styles = StyleSheet.create((theme) => ({
         paddingHorizontal: 4,
         justifyContent: 'center',
         alignItems: 'center',
+        ...theme.colors.elevation.level2,
     },
     badgeText: {
         color: '#FFFFFF',
         fontSize: 10,
+        fontWeight: '700',
         ...Typography.default('semiBold'),
     },
     indicatorDot: {
@@ -77,7 +91,7 @@ const styles = StyleSheet.create((theme) => ({
         width: 6,
         height: 6,
         borderRadius: 3,
-        backgroundColor: theme.colors.text,
+        backgroundColor: theme.colors.brand.primary,
     },
 }));
 
@@ -118,12 +132,15 @@ export const TabBar = React.memo(({ activeTab, onTabPress, inboxBadgeCount = 0 }
                             onPress={() => onTabPress(tab.key)}
                             hitSlop={8}
                         >
+                            {/* Active tab indicator */}
+                            {isActive && <View style={styles.activeIndicator} />}
+
                             <View style={styles.tabContent}>
                                 <Image
                                     source={tab.icon}
                                     contentFit="contain"
                                     style={[{ width: 24, height: 24 }]}
-                                    tintColor={isActive ? theme.colors.text : theme.colors.textSecondary}
+                                    tintColor={isActive ? theme.colors.brand.primary : theme.colors.textSecondary}
                                 />
                                 {tab.key === 'inbox' && inboxBadgeCount > 0 && (
                                     <View style={styles.badge}>

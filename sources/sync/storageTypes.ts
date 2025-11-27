@@ -19,9 +19,10 @@ export const MetadataSchema = z.object({
     tools: z.array(z.string()).optional(),
     slashCommands: z.array(z.string()).optional(),
     homeDir: z.string().optional(), // User's home directory on the machine
-    happyHomeDir: z.string().optional(), // Happy configuration directory 
+    vibeHomeDir: z.string().optional(), // Vibe configuration directory 
     hostPid: z.number().optional(), // Process ID of the session
-    flavor: z.string().nullish() // Session flavor/variant identifier
+    flavor: z.string().nullish(), // Session flavor/variant identifier
+    agentId: z.string().optional() // Selected agent ID for this session
 });
 
 export type Metadata = z.infer<typeof MetadataSchema>;
@@ -70,7 +71,7 @@ export interface Session {
     }>;
     draft?: string | null; // Local draft message, not synced to server
     permissionMode?: 'default' | 'acceptEdits' | 'bypassPermissions' | 'plan' | 'read-only' | 'safe-yolo' | 'yolo' | null; // Local permission mode, not synced to server
-    modelMode?: 'default' | 'adaptiveUsage' | 'sonnet' | 'opus' | 'gpt-5-minimal' | 'gpt-5-low' | 'gpt-5-medium' | 'gpt-5-high' | 'gpt-5-codex-low' | 'gpt-5-codex-medium' | 'gpt-5-codex-high' | null; // Local model mode, not synced to server
+    modelMode?: 'default' | 'adaptiveUsage' | 'sonnet' | 'opus' | 'gpt-5-minimal' | 'gpt-5-low' | 'gpt-5-medium' | 'gpt-5-high' | 'gpt-5-codex-low' | 'gpt-5-codex-medium' | 'gpt-5-codex-high' | 'gemini-2.0-flash-exp' | 'gemini-2.0-flash-thinking-exp' | 'gemini-1.5-pro' | 'gemini-1.5-flash' | 'cursor-default' | null; // Local model mode, not synced to server
     // IMPORTANT: latestUsage is extracted from reducerState.latestUsage after message processing.
     // We store it directly on Session to ensure it's available immediately on load.
     // Do NOT store reducerState itself on Session - it's mutable and should only exist in SessionMessages.
@@ -99,8 +100,8 @@ export interface DecryptedMessage {
 export const MachineMetadataSchema = z.object({
     host: z.string(),
     platform: z.string(),
-    happyCliVersion: z.string(),
-    happyHomeDir: z.string(), // Directory for Happy auth, settings, logs (usually .happy/ or .happy-dev/)
+    vibeCliVersion: z.string(),
+    vibeHomeDir: z.string(), // Directory for Vibe auth, settings, logs (usually .vibe/ or .vibe-dev/)
     homeDir: z.string(), // User's home directory (matches CLI field name)
     // Optional fields that may be added in future versions
     username: z.string().optional(),
@@ -110,7 +111,7 @@ export const MachineMetadataSchema = z.object({
     daemonLastKnownStatus: z.enum(['running', 'shutting-down']).optional(),
     daemonLastKnownPid: z.number().optional(),
     shutdownRequestedAt: z.number().optional(),
-    shutdownSource: z.enum(['happy-app', 'happy-cli', 'os-signal', 'unknown']).optional()
+    shutdownSource: z.enum(['vibe-app', 'vibe-cli', 'os-signal', 'unknown']).optional()
 });
 
 export type MachineMetadata = z.infer<typeof MachineMetadataSchema>;

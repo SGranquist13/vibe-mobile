@@ -212,13 +212,21 @@ function NewSessionScreen() {
     // Agent selection
     //
 
-    const [agentType, setAgentType] = React.useState<'claude' | 'codex'>(() => {
+    const [agentType, setAgentType] = React.useState<'claude' | 'codex' | 'gemini' | 'cursor'>(() => {
         // Check if agent type was provided in temp data
         if (tempSessionData?.agentType) {
-            return tempSessionData.agentType;
+            const tempAgent = tempSessionData.agentType;
+            // If experiments disabled and temp agent is gemini/cursor, fall back to claude
+            if (!experimentsEnabled && (tempAgent === 'gemini' || tempAgent === 'cursor')) {
+                return 'claude';
+            }
+            return tempAgent;
         }
         // Initialize with last used agent if valid, otherwise default to 'claude'
+        // If experiments disabled and last agent is gemini/cursor, fall back to claude
         if (lastUsedAgent === 'claude' || lastUsedAgent === 'codex') {
+            return lastUsedAgent;
+        } else if (experimentsEnabled && (lastUsedAgent === 'gemini' || lastUsedAgent === 'cursor')) {
             return lastUsedAgent;
         }
         return 'claude';
@@ -226,12 +234,20 @@ function NewSessionScreen() {
 
     const handleAgentClick = React.useCallback(() => {
         setAgentType(prev => {
-            const newAgent = prev === 'claude' ? 'codex' : 'claude';
+            // Cycle through agents based on experiments flag
+            // If experiments enabled: claude -> codex -> gemini -> cursor -> claude
+            // If experiments disabled: claude -> codex -> claude
+            const agentOrder: Array<'claude' | 'codex' | 'gemini' | 'cursor'> = experimentsEnabled
+                ? ['claude', 'codex', 'gemini', 'cursor']
+                : ['claude', 'codex'];
+            const currentIndex = agentOrder.indexOf(prev);
+            const nextIndex = (currentIndex + 1) % agentOrder.length;
+            const newAgent = agentOrder[nextIndex];
             // Save the new selection immediately
             sync.applySettings({ lastUsedAgent: newAgent });
             return newAgent;
         });
-    }, []);
+    }, [experimentsEnabled]);
 
     //
     // Permission and Model Mode selection
@@ -241,11 +257,18 @@ function NewSessionScreen() {
         // Initialize with last used permission mode if valid, otherwise default to 'default'
         const validClaudeModes: PermissionMode[] = ['default', 'acceptEdits', 'plan', 'bypassPermissions'];
         const validCodexModes: PermissionMode[] = ['default', 'read-only', 'safe-yolo', 'yolo'];
+        // Gemini and Cursor use default permission mode only
+        const validGeminiModes: PermissionMode[] = ['default'];
+        const validCursorModes: PermissionMode[] = ['default'];
 
         if (lastUsedPermissionMode) {
             if (agentType === 'codex' && validCodexModes.includes(lastUsedPermissionMode as PermissionMode)) {
                 return lastUsedPermissionMode as PermissionMode;
             } else if (agentType === 'claude' && validClaudeModes.includes(lastUsedPermissionMode as PermissionMode)) {
+                return lastUsedPermissionMode as PermissionMode;
+            } else if (agentType === 'gemini' && validGeminiModes.includes(lastUsedPermissionMode as PermissionMode)) {
+                return lastUsedPermissionMode as PermissionMode;
+            } else if (agentType === 'cursor' && validCursorModes.includes(lastUsedPermissionMode as PermissionMode)) {
                 return lastUsedPermissionMode as PermissionMode;
             }
         }
@@ -256,29 +279,56 @@ function NewSessionScreen() {
         // Initialize with last used model mode if valid, otherwise default
         const validClaudeModes: ModelMode[] = ['default', 'adaptiveUsage', 'sonnet', 'opus'];
         const validCodexModes: ModelMode[] = ['gpt-5-codex-high', 'gpt-5-codex-medium', 'gpt-5-codex-low', 'default', 'gpt-5-minimal', 'gpt-5-low', 'gpt-5-medium', 'gpt-5-high'];
+        const validGeminiModes: ModelMode[] = ['default', 'gemini-2.0-flash-exp', 'gemini-2.0-flash-thinking-exp', 'gemini-1.5-pro', 'gemini-1.5-flash'];
+        const validCursorModes: ModelMode[] = ['default', 'cursor-default'];
 
         if (lastUsedModelMode) {
             if (agentType === 'codex' && validCodexModes.includes(lastUsedModelMode as ModelMode)) {
                 return lastUsedModelMode as ModelMode;
             } else if (agentType === 'claude' && validClaudeModes.includes(lastUsedModelMode as ModelMode)) {
                 return lastUsedModelMode as ModelMode;
+            } else if (agentType === 'gemini' && validGeminiModes.includes(lastUsedModelMode as ModelMode)) {
+                return lastUsedModelMode as ModelMode;
+            } else if (agentType === 'cursor' && validCursorModes.includes(lastUsedModelMode as ModelMode)) {
+                return lastUsedModelMode as ModelMode;
             }
         }
-        return agentType === 'codex' ? 'gpt-5-codex-high' : 'default';
+        // Default model for each agent type
+        if (agentType === 'codex') return 'gpt-5-codex-high';
+        if (agentType === 'gemini') return 'default';
+        if (agentType === 'cursor') return 'default';
+        return 'default';
     });
 
     // Reset permission and model modes when agent type changes
+    // Also handle experiments flag changes - if disabled, reset to claude/codex
     React.useEffect(() => {
+        // If experiments disabled and current agent is gemini/cursor, switch to claude
+        if (!experimentsEnabled && (agentType === 'gemini' || agentType === 'cursor')) {
+            setAgentType('claude');
+            setPermissionMode('default');
+            setModelMode('default');
+            return;
+        }
+
         if (agentType === 'codex') {
             // Switch to codex-compatible modes
             setPermissionMode('default');
             setModelMode('gpt-5-codex-high');
+        } else if (agentType === 'gemini') {
+            // Switch to gemini-compatible modes
+            setPermissionMode('default');
+            setModelMode('default');
+        } else if (agentType === 'cursor') {
+            // Switch to cursor-compatible modes
+            setPermissionMode('default');
+            setModelMode('default');
         } else {
             // Switch to claude-compatible modes
             setPermissionMode('default');
             setModelMode('default');
         }
-    }, [agentType]);
+    }, [agentType, experimentsEnabled]);
 
     const handlePermissionModeChange = React.useCallback((mode: PermissionMode) => {
         setPermissionMode(mode);

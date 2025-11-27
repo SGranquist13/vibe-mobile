@@ -143,107 +143,58 @@ export const ToolView = React.memo<ToolViewProps>((props) => {
         }
     }
 
+    // Get display text - prefer description, then status, then tool title
+    const displayText = description || status || toolTitle;
+    
     return (
         <View style={styles.container}>
-            {isPressable ? (
-                <TouchableOpacity style={styles.header} onPress={handlePress} activeOpacity={0.8}>
-                    <View style={styles.headerLeft}>
-                        <View style={styles.iconContainer}>
-                            {icon}
-                        </View>
-                        <View style={styles.titleContainer}>
-                            <Text style={styles.toolName} numberOfLines={1}>{toolTitle}{status ? <Text style={styles.status}>{` ${status}`}</Text> : null}</Text>
-                            {description && (
-                                <Text style={styles.toolDescription} numberOfLines={1}>
-                                    {description}
-                                </Text>
+            {/* Timeline line */}
+            <View style={styles.timelineLine} />
+            {/* Icon */}
+            <View style={styles.iconWrapper}>
+                {icon}
+            </View>
+            {/* Text content */}
+            <View style={styles.contentWrapper}>
+                {isPressable ? (
+                    <TouchableOpacity onPress={handlePress} activeOpacity={0.7} style={styles.textContainer}>
+                        <View style={styles.textRow}>
+                            <Text style={styles.toolText} numberOfLines={1}>
+                                {displayText}
+                            </Text>
+                            {tool.state === 'running' && (
+                                <View style={styles.elapsedContainer}>
+                                    <Text style={styles.elapsedInline}> • </Text>
+                                    <ElapsedView from={tool.createdAt} />
+                                </View>
                             )}
                         </View>
-                        {tool.state === 'running' && (
-                            <View style={styles.elapsedContainer}>
-                                <ElapsedView from={tool.createdAt} />
-                            </View>
-                        )}
-                        {statusIcon}
-                    </View>
-                </TouchableOpacity>
-            ) : (
-                <View style={styles.header}>
-                    <View style={styles.headerLeft}>
-                        <View style={styles.iconContainer}>
-                            {icon}
-                        </View>
-                        <View style={styles.titleContainer}>
-                            <Text style={styles.toolName} numberOfLines={1}>{toolTitle}{status ? <Text style={styles.status}>{` ${status}`}</Text> : null}</Text>
-                            {description && (
-                                <Text style={styles.toolDescription} numberOfLines={1}>
-                                    {description}
-                                </Text>
+                    </TouchableOpacity>
+                ) : (
+                    <View style={styles.textContainer}>
+                        <View style={styles.textRow}>
+                            <Text style={styles.toolText} numberOfLines={1}>
+                                {displayText}
+                            </Text>
+                            {tool.state === 'running' && (
+                                <View style={styles.elapsedContainer}>
+                                    <Text style={styles.elapsedInline}> • </Text>
+                                    <ElapsedView from={tool.createdAt} />
+                                </View>
                             )}
                         </View>
-                        {tool.state === 'running' && (
-                            <View style={styles.elapsedContainer}>
-                                <ElapsedView from={tool.createdAt} />
-                            </View>
-                        )}
-                        {statusIcon}
                     </View>
+                )}
+            </View>
+            {/* Status icon on the right */}
+            {statusIcon && (
+                <View style={styles.statusIconWrapper}>
+                    {statusIcon}
                 </View>
             )}
 
-            {/* Content area - either custom children or tool-specific view */}
-            {(() => {
-                // Check if minimal first - minimal tools don't show content
-                if (minimal) {
-                    return null;
-                }
-
-                // Try to use a specific tool view component first
-                const SpecificToolView = getToolViewComponent(tool.name);
-                if (SpecificToolView) {
-                    return (
-                        <View style={styles.content}>
-                            <SpecificToolView tool={tool} metadata={props.metadata} messages={props.messages ?? []} />
-                            {tool.state === 'error' && tool.result &&
-                                !(tool.permission && (tool.permission.status === 'denied' || tool.permission.status === 'canceled')) &&
-                                !hideDefaultError && (
-                                    <ToolError message={String(tool.result)} />
-                                )}
-                        </View>
-                    );
-                }
-
-                // Show error state if present (but not for denied/canceled permissions and not when hideDefaultError is true)
-                if (tool.state === 'error' && tool.result &&
-                    !(tool.permission && (tool.permission.status === 'denied' || tool.permission.status === 'canceled')) &&
-                    !isToolUseError) {
-                    return (
-                        <View style={styles.content}>
-                            <ToolError message={String(tool.result)} />
-                        </View>
-                    );
-                }
-
-                // Fall back to default view
-                return (
-                    <View style={styles.content}>
-                        {/* Default content when no custom view available */}
-                        {tool.input && (
-                            <ToolSectionView title={t('toolView.input')}>
-                                <CodeView code={JSON.stringify(tool.input, null, 2)} />
-                            </ToolSectionView>
-                        )}
-
-                        {tool.state === 'completed' && tool.result && (
-                            <ToolSectionView title={t('toolView.output')}>
-                                <CodeView
-                                    code={typeof tool.result === 'string' ? tool.result : JSON.stringify(tool.result, null, 2)}
-                                />
-                            </ToolSectionView>
-                        )}
-                    </View>
-                );
-            })()}
+            {/* Expanded content - only show when clicked/pressed */}
+            {/* Content is hidden by default in timeline view, accessible via full view */}
 
             {/* Permission footer - always renders when permission exists to maintain consistent height */}
             {tool.permission && sessionId && (
@@ -254,66 +205,70 @@ export const ToolView = React.memo<ToolViewProps>((props) => {
 });
 
 function ElapsedView(props: { from: number }) {
+    const { theme } = useUnistyles();
     const { from } = props;
     const elapsed = useElapsedTime(from);
-    return <Text style={styles.elapsedText}>{elapsed.toFixed(1)}s</Text>;
+    return <Text style={styles.elapsedInline}>{elapsed.toFixed(1)}s</Text>;
 }
 
 const styles = StyleSheet.create((theme) => ({
     container: {
-        backgroundColor: theme.colors.surfaceHigh,
-        borderRadius: 8,
-        marginVertical: 4,
-        overflow: 'hidden'
-    },
-    header: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: 12,
-        backgroundColor: theme.colors.surfaceHighest,
+        paddingVertical: 8,
+        paddingLeft: 20,
+        paddingRight: 20,
+        position: 'relative',
+        minHeight: 32,
     },
-    headerLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-        flex: 1,
+    timelineLine: {
+        position: 'absolute',
+        left: 27, // Center of icon (20px padding + 14px icon center)
+        top: 0,
+        bottom: 0,
+        width: 1,
+        backgroundColor: theme.colors.divider,
     },
-    iconContainer: {
-        width: 24,
-        height: 24,
+    iconWrapper: {
+        width: 28,
+        height: 28,
         alignItems: 'center',
         justifyContent: 'center',
+        marginRight: 12,
+        zIndex: 1,
+        backgroundColor: theme.colors.surface,
+        borderRadius: 14,
     },
-    titleContainer: {
+    contentWrapper: {
         flex: 1,
     },
-    elapsedContainer: {
-        marginLeft: 8,
+    textContainer: {
+        flex: 1,
     },
-    elapsedText: {
+    textRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    toolText: {
+        fontSize: 14,
+        color: theme.colors.text,
+        fontWeight: '400',
+    },
+    elapsedContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginLeft: 4,
+    },
+    elapsedInline: {
         fontSize: 13,
         color: theme.colors.textSecondary,
         fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace', default: 'monospace' }),
     },
-    toolName: {
-        fontSize: 14,
-        fontWeight: '500',
-        color: theme.colors.text,
-    },
-    status: {
-        fontWeight: '400',
-        opacity: 0.3,
-        fontSize: 15,
-    },
-    toolDescription: {
-        fontSize: 13,
-        color: theme.colors.textSecondary,
-        marginTop: 2,
-    },
-    content: {
-        paddingHorizontal: 12,
-        paddingTop: 8,
-        overflow: 'visible'
+    statusIconWrapper: {
+        marginLeft: 8,
+        width: 20,
+        height: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 }));

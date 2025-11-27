@@ -1,24 +1,24 @@
 const variant = process.env.APP_ENV || 'development';
 const name = {
-    development: "Happy (dev)",
-    preview: "Happy (preview)",
-    production: "Happy"
+    development: "Vibe-on-the-Go (dev)",
+    preview: "Vibe-on-the-Go (preview)",
+    production: "Vibe-on-the-Go"
 }[variant];
 const bundleId = {
-    development: "com.slopus.happy.dev",
-    preview: "com.slopus.happy.preview",
-    production: "com.ex3ndr.happy"
+    development: "com.vibeonthego.dev",
+    preview: "com.vibeonthego.preview",
+    production: "com.vibeonthego"
 }[variant];
 
 export default {
     expo: {
         name,
-        slug: "happy",
+        slug: "vibe-on-the-go",
         version: "1.5.1",
         runtimeVersion: "18",
         orientation: "default",
         icon: "./sources/assets/images/icon.png",
-        scheme: "happy",
+        scheme: "vibe",
         userInterfaceStyle: "automatic",
         newArchEnabled: true,
         notification: {
@@ -36,7 +36,7 @@ export default {
                 NSLocalNetworkUsageDescription: "Allow $(PRODUCT_NAME) to find and connect to local devices on your network.",
                 NSBonjourServices: ["_http._tcp", "_https._tcp"]
             },
-            associatedDomains: variant === 'production' ? ["applinks:app.happy.engineering"] : []
+            associatedDomains: variant === 'production' ? [] : []
         },
         android: {
             adaptiveIcon: {
@@ -62,7 +62,7 @@ export default {
                     "data": [
                         {
                             "scheme": "https",
-                            "host": "app.happy.engineering",
+                            "host": "app.vibeonthego.com",
                             "pathPrefix": "/"
                         }
                     ],

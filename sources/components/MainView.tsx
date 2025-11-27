@@ -27,6 +27,13 @@ const styles = StyleSheet.create((theme) => ({
     phoneContainer: {
         flex: 1,
     },
+    tabBarContainer: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+    },
     sidebarContentContainer: {
         flex: 1,
         flexBasis: 0,
@@ -146,18 +153,20 @@ export const MainView = React.memo(({ variant }: MainViewProps) => {
 
     // Regular phone mode with tabs
     return (
-        <>
+        <View style={styles.container}>
             {realtimeStatus !== 'disconnected' && (
                 <VoiceAssistantStatusBar variant="full" />
             )}
             <View style={styles.phoneContainer}>
                 {renderTabContent()}
             </View>
-            <TabBar
-                activeTab={activeTab}
-                onTabPress={handleTabPress}
-                inboxBadgeCount={friendRequests.length}
-            />
-        </>
+            <View style={styles.tabBarContainer}>
+                <TabBar
+                    activeTab={activeTab}
+                    onTabPress={handleTabPress}
+                    inboxBadgeCount={friendRequests.length}
+                />
+            </View>
+        </View>
     );
 });

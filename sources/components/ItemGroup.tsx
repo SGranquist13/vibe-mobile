@@ -26,6 +26,10 @@ export interface ItemGroupProps {
     titleStyle?: StyleProp<TextStyle>;
     footerTextStyle?: StyleProp<TextStyle>;
     containerStyle?: StyleProp<ViewStyle>;
+    /** Accent color variant for left border - 'primary' (teal), 'success', 'warning', 'error', or 'none' */
+    accent?: 'primary' | 'success' | 'warning' | 'error' | 'none';
+    /** Enable dramatic shadow elevation (default: true) */
+    elevated?: boolean;
 }
 
 const stylesheet = StyleSheet.create((theme, runtime) => ({
@@ -38,41 +42,63 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         paddingHorizontal: Platform.select({ ios: 0, default: 4 }),
     },
     header: {
-        paddingTop: Platform.select({ ios: 35, default: 16 }),
-        paddingBottom: Platform.select({ ios: 6, default: 8 }),
+        paddingTop: Platform.select({ ios: 35, default: 20 }),
+        paddingBottom: Platform.select({ ios: 8, default: 10 }),
         paddingHorizontal: Platform.select({ ios: 32, default: 24 }),
     },
     headerNoTitle: {
         paddingTop: Platform.select({ ios: 20, default: 16 }),
     },
     headerText: {
-        ...Typography.default('regular'),
+        ...Typography.default('semiBold'),
         color: theme.colors.groupped.sectionTitle,
         fontSize: Platform.select({ ios: 13, default: 14 }),
         lineHeight: Platform.select({ ios: 18, default: 20 }),
-        letterSpacing: Platform.select({ ios: -0.08, default: 0.1 }),
+        letterSpacing: Platform.select({ ios: 0.5, default: 0.8 }),
         textTransform: 'uppercase',
-        fontWeight: Platform.select({ ios: 'normal', default: '500' }),
     },
     contentContainer: {
         backgroundColor: theme.colors.surface,
         marginHorizontal: Platform.select({ ios: 16, default: 12 }),
-        borderRadius: Platform.select({ ios: 10, default: 16 }),
+        borderRadius: Platform.select({ ios: 12, default: 16 }),
         overflow: 'hidden',
+    },
+    // Elevated shadow variant (dramatic)
+    contentContainerElevated: {
+        ...theme.colors.elevation.level2,
+    },
+    // Base shadow variant (subtle)
+    contentContainerBase: {
         shadowColor: theme.colors.shadow.color,
         shadowOffset: { width: 0, height: 0.33 },
         shadowOpacity: theme.colors.shadow.opacity,
         shadowRadius: 0,
-        elevation: 1
+        elevation: 1,
+    },
+    // Accent border variants
+    accentBorder: {
+        borderLeftWidth: 4,
+    },
+    accentPrimary: {
+        borderLeftColor: theme.colors.brand.primary,
+    },
+    accentSuccess: {
+        borderLeftColor: theme.colors.success,
+    },
+    accentWarning: {
+        borderLeftColor: theme.colors.warning,
+    },
+    accentError: {
+        borderLeftColor: theme.colors.warningCritical,
     },
     footer: {
-        paddingTop: Platform.select({ ios: 6, default: 8 }),
-        paddingBottom: Platform.select({ ios: 8, default: 16 }),
+        paddingTop: Platform.select({ ios: 8, default: 10 }),
+        paddingBottom: Platform.select({ ios: 10, default: 16 }),
         paddingHorizontal: Platform.select({ ios: 32, default: 24 }),
     },
     footerText: {
         ...Typography.default('regular'),
-        color: theme.colors.groupped.sectionTitle,
+        color: theme.colors.textSecondary,
         fontSize: Platform.select({ ios: 13, default: 14 }),
         lineHeight: Platform.select({ ios: 18, default: 20 }),
         letterSpacing: Platform.select({ ios: -0.08, default: 0 }),
@@ -92,8 +118,22 @@ export const ItemGroup = React.memo<ItemGroupProps>((props) => {
         footerStyle,
         titleStyle,
         footerTextStyle,
-        containerStyle
+        containerStyle,
+        accent = 'primary',
+        elevated = true
     } = props;
+
+    // Build container styles with accent and elevation
+    const containerStyles = [
+        styles.contentContainer,
+        elevated ? styles.contentContainerElevated : styles.contentContainerBase,
+        accent !== 'none' && styles.accentBorder,
+        accent === 'primary' && styles.accentPrimary,
+        accent === 'success' && styles.accentSuccess,
+        accent === 'warning' && styles.accentWarning,
+        accent === 'error' && styles.accentError,
+        containerStyle
+    ];
 
     return (
         <View style={[styles.wrapper, style]}>
@@ -115,7 +155,7 @@ export const ItemGroup = React.memo<ItemGroupProps>((props) => {
                 )}
 
                 {/* Content Container */}
-                <View style={[styles.contentContainer, containerStyle]}>
+                <View style={containerStyles}>
                     {React.Children.map(children, (child, index) => {
                         if (React.isValidElement<ItemChildProps>(child)) {
                             // Don't add props to React.Fragment

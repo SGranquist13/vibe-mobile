@@ -1,83 +1,152 @@
-<div align="center"><img src="/logo.png" width="200" title="Happy Coder" alt="Happy Coder"/></div>
-
-<h1 align="center">
-  Mobile and Web Client for Claude Code & Codex
-</h1>
-
-<h4 align="center">
-Use Claude Code or Codex from anywhere with end-to-end encryption.
-</h4>
-
 <div align="center">
+  <img src="logo.png" width="120" alt="Vibe on the Go"/>
   
-[📱 **iOS App**](https://apps.apple.com/us/app/happy-claude-code-client/id6748571505) • [🤖 **Android App**](https://play.google.com/store/apps/details?id=com.ex3ndr.happy) • [🌐 **Web App**](https://app.happy.engineering) • [🎥 **See a Demo**](https://youtu.be/GCS0OG9QMSE) • [⭐ **Star on GitHub**](https://github.com/slopus/happy) • [📚 **Documentation**](https://happy.engineering/docs/)
+  <h1>Vibe on the Go — Mobile App</h1>
+  
+  <p><strong>Your AI coding agents, in your pocket.</strong></p>
+  
+  <p>
+    React Native app for <strong>iOS</strong>, <strong>Android</strong>, and <strong>Web</strong>
+  </p>
 
+  <p>
+    <a href="https://apps.apple.com/us/app/vibe-on-the-go/id6748571505">📱 iOS App</a> •
+    <a href="https://play.google.com/store/apps/details?id=com.vibeonthego">🤖 Android App</a> •
+    <a href="https://app.vibeonthego.com">🌐 Web App</a> •
+    <a href="https://youtu.be/GCS0OG9QMSE">🎥 Demo</a>
+  </p>
 </div>
 
-<img width="5178" height="2364" alt="github" src="https://github.com/user-attachments/assets/14d517e9-71a8-4fcb-98ae-9ebf9f7c149f" />
+---
 
+## 🚀 Getting Started
 
-<h3 align="center">
-Step 1: Download App
-</h3>
+### Download the App
 
 <div align="center">
-<a href="https://apps.apple.com/us/app/happy-claude-code-client/id6748571505"><img width="135" height="39" alt="appstore" src="https://github.com/user-attachments/assets/45e31a11-cf6b-40a2-a083-6dc8d1f01291" /></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://play.google.com/store/apps/details?id=com.ex3ndr.happy"><img width="135" height="39" alt="googleplay" src="https://github.com/user-attachments/assets/acbba639-858f-4c74-85c7-92a4096efbf5" /></a>
+  <a href="https://apps.apple.com/us/app/vibe-on-the-go/id6748571505">
+    <img width="135" alt="Download on App Store" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg"/>
+  </a>
+  &nbsp;&nbsp;&nbsp;
+  <a href="https://play.google.com/store/apps/details?id=com.vibeonthego">
+    <img width="155" alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"/>
+  </a>
 </div>
 
-<h3 align="center">
-Step 2: Install CLI on your computer
-</h3>
+Or visit [app.vibeonthego.com](https://app.vibeonthego.com) for the web version.
+
+### Connect Your Terminal
+
+1. Install the CLI: `npm install -g vibe-cli`
+2. Run `vibe claude` (or `vibe codex`, `vibe gemini`, `vibe cursor`)
+3. Scan the QR code with the app to link devices
+
+---
+
+## ✨ Features
+
+- 📱 **Mobile Access** — Monitor AI agents from anywhere
+- ⚡ **Instant Switching** — Take control with one tap
+- 🔔 **Push Notifications** — Alerts for permissions & errors
+- 🔐 **End-to-End Encrypted** — Zero-knowledge architecture
+- 🎙️ **Voice Assistant** — Talk to your AI (15+ languages)
+- 🌙 **Dark Mode** — Auto-detects system preference
+- 🐙 **GitHub Integration** — Connect your profile
+- 📁 **File Manager** — Browse files with syntax highlighting
+
+---
+
+## 🛠️ Development
+
+### Prerequisites
+
+- Node.js 20+
+- Yarn
+- Expo CLI
+- Server running locally (see [main README](../README.md))
+
+### Setup
 
 ```bash
-npm install -g happy-coder
+# Install dependencies
+yarn install
+
+# Start with local server
+yarn start:local-server
+
+# Or standard start (uses production server)
+yarn start
 ```
 
-<h3 align="center">
-Step 3: Start using `happy` instead of `claude` or `codex`
-</h3>
+### Running on Devices
 
 ```bash
+# Web browser
+# Press 'w' after starting
 
-# Instead of: claude
-# Use: happy
+# iOS Simulator (macOS only)
+# Press 'i' after starting
 
-happy
+# Android Emulator
+# Press 'a' after starting
 
-# Instead of: codex
-# Use: happy codex
-
-happy codex
-
+# Physical device
+# Scan QR code with Expo Go app
 ```
 
-## How does it work?
+### Available Scripts
 
-On your computer, run `happy` instead of `claude` or `happy codex` instead of `codex` to start your AI through our wrapper. When you want to control your coding agent from your phone, it restarts the session in remote mode. To switch back to your computer, just press any key on your keyboard.
+```bash
+yarn start              # Start Expo dev server
+yarn start:local-server # Start with local server URL
+yarn typecheck          # Run TypeScript checks
+yarn lint               # Run ESLint
+```
 
-## 🔥 Why Happy Coder?
+---
 
-- 📱 **Mobile access to Claude Code and Codex** - Check what your AI is building while away from your desk
-- 🔔 **Push notifications** - Get alerted when Claude Code and Codex needs permission or encounters errors  
-- ⚡ **Switch devices instantly** - Take control from phone or desktop with one keypress
-- 🔐 **End-to-end encrypted** - Your code never leaves your devices unencrypted
-- 🛠️ **Open source** - Audit the code yourself. No telemetry, no tracking
+## 📦 Project Structure
 
-## 📦 Project Components
+```
+mobile/
+├── sources/
+│   ├── app/           # Screen components (Expo Router)
+│   ├── components/    # Reusable UI components
+│   ├── sync/          # Real-time sync engine
+│   ├── auth/          # Authentication logic
+│   ├── encryption/    # E2E encryption utilities
+│   ├── hooks/         # React hooks
+│   └── utils/         # Utilities
+├── src-tauri/         # Tauri desktop wrapper
+└── public/            # Static assets
+```
 
-- **[happy-cli](https://github.com/slopus/happy-cli)** - Command-line interface for Claude Code and Codex
-- **[happy-server](https://github.com/slopus/happy-server)** - Backend server for encrypted sync
-- **happy-coder** - This mobile client (you are here)
+---
 
-## 🏠 Who We Are
+## 🔐 Security
 
-We're engineers scattered across Bay Area coffee shops and hacker houses, constantly checking how our AI coding agents are progressing on our pet projects during lunch breaks. Happy Coder was born from the frustration of not being able to peek at our AI coding tools building our side hustles while we're away from our keyboards. We believe the best tools come from scratching your own itch and sharing with the community.
+- **TweetNaCl encryption** — Military-grade cryptography
+- **Local key storage** — Keys never leave your device
+- **Zero-knowledge sync** — Server cannot read your data
+- **No telemetry** — We don't track you
 
-## 📚 Documentation & Contributing
+---
 
-- **[Documentation Website](https://happy.engineering/docs/)** - Learn how to use Happy Coder effectively
-- **[Edit docs at github.com/slopus/slopus.github.io](https://github.com/slopus/slopus.github.io)** - Help improve our documentation and guides
+## 📖 Documentation
 
-## License
+- [**Main Project README**](../README.md) — Full project overview
+- [**Quick Start Guide**](../QUICK_START.md) — Complete setup instructions
+- [**Mobile Development Guide**](CLAUDE.md) — Detailed mobile development docs
+- [**Changelog**](CHANGELOG.md) — Version history
 
-MIT License - see [LICENSE](LICENSE) for details.
+---
+
+## 📄 License
+
+MIT License — See [LICENSE](LICENSE) for details.
+
+---
+
+<div align="center">
+  <p>Part of the <a href="https://github.com/ex3ndr/vibe-on-the-go">Vibe on the Go</a> project.</p>
+</div>

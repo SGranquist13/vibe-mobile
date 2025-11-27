@@ -10,21 +10,21 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         right: 16,
     },
     button: {
-        borderRadius: 20,
+        borderRadius: 28,
         width: 56,
         height: 56,
         padding: 16,
-        shadowColor: theme.colors.shadow.color,
-        shadowOffset: { width: 0, height: 2 },
-        shadowRadius: 3.84,
-        shadowOpacity: theme.colors.shadow.opacity,
-        elevation: 5,
+        alignItems: 'center',
+        justifyContent: 'center',
+        // Dramatic elevation for FAB
+        ...theme.colors.elevation.level3,
     },
     buttonDefault: {
         backgroundColor: theme.colors.fab.background,
     },
     buttonPressed: {
         backgroundColor: theme.colors.fab.backgroundPressed,
+        transform: [{ scale: 0.95 }],
     },
 }));
 

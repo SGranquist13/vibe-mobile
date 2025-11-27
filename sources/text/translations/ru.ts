@@ -22,7 +22,7 @@ function plural({ count, one, few, many }: { count: number; one: string; few: st
 }
 
 /**
- * Russian translations for the Happy app
+ * Russian translations for the Vibe on the Go app
  * Must match the exact structure of the English translations
  */
 export const ru: TranslationStructure = {
@@ -95,7 +95,7 @@ export const ru: TranslationStructure = {
         developer: 'Разработчик',
         developerTools: 'Инструменты разработчика',
         about: 'О программе',
-        aboutFooter: 'Happy Coder — мобильное приложение для работы с Codex и Claude Code. Использует сквозное шифрование, все данные аккаунта хранятся только на вашем устройстве. Не связано с Anthropic.',
+        aboutFooter: 'Vibe on the Go — мобильное приложение для работы с Codex и Claude Code. Использует сквозное шифрование, все данные аккаунта хранятся только на вашем устройстве. Не связано с Anthropic.',
         whatsNew: 'Что нового',
         whatsNewSubtitle: 'Посмотреть последние обновления и улучшения',
         reportIssue: 'Сообщить о проблеме',
@@ -229,7 +229,7 @@ export const ru: TranslationStructure = {
     newSession: {
         // Used by new-session screen and launch flows
         title: 'Начать новую сессию',
-        noMachinesFound: 'Машины не найдены. Сначала запустите сессию Happy на вашем компьютере.',
+        noMachinesFound: 'Машины не найдены. Сначала запустите сессию Vibe на вашем компьютере.',
         allMachinesOffline: 'Все машины находятся offline',
         machineDetails: 'Посмотреть детали машины →',
         directoryDoesNotExist: 'Директория не найдена',
@@ -272,7 +272,7 @@ export const ru: TranslationStructure = {
         // Used by Server Configuration screen (app/(app)/server.tsx)
         serverConfiguration: 'Настройка сервера',
         enterServerUrl: 'Пожалуйста, введите URL сервера',
-        notValidHappyServer: 'Это не валидный сервер Happy',
+        notValidVibeServer: 'Это не валидный сервер vibe-on-the-go',
         changeServer: 'Изменить сервер',
         continueWithServer: 'Продолжить с этим сервером?',
         resetToDefault: 'Сбросить по умолчанию',
@@ -292,9 +292,9 @@ export const ru: TranslationStructure = {
         killSessionConfirm: 'Вы уверены, что хотите завершить эту сессию?',
         archiveSession: 'Архивировать сессию',
         archiveSessionConfirm: 'Вы уверены, что хотите архивировать эту сессию?',
-        happySessionIdCopied: 'ID сессии Happy скопирован в буфер обмена',
-        failedToCopySessionId: 'Не удалось скопировать ID сессии Happy',
-        happySessionId: 'ID сессии Happy',
+        vibeSessionIdCopied: 'ID сессии vibe-on-the-go скопирован в буфер обмена',
+        failedToCopySessionId: 'Не удалось скопировать ID сессии Vibe',
+        vibeSessionId: 'ID сессии vibe-on-the-go',
         claudeCodeSessionId: 'ID сессии Claude Code',
         claudeCodeSessionIdCopied: 'ID сессии Claude Code скопирован в буфер обмена',
         aiProvider: 'Поставщик ИИ',
@@ -317,7 +317,7 @@ export const ru: TranslationStructure = {
         path: 'Путь',
         operatingSystem: 'Операционная система',
         processId: 'ID процесса',
-        happyHome: 'Домашний каталог Happy',
+        vibeHome: 'Домашний каталог vibe-on-the-go',
         copyMetadata: 'Копировать метаданные',
         agentState: 'Состояние агента',
         controlledByUser: 'Управляется пользователем',
@@ -329,7 +329,7 @@ export const ru: TranslationStructure = {
         cliVersionOutdated: 'Требуется обновление CLI',
         cliVersionOutdatedMessage: ({ currentVersion, requiredVersion }: { currentVersion: string; requiredVersion: string }) =>
             `Установлена версия ${currentVersion}. Обновите до ${requiredVersion} или новее`,
-        updateCliInstructions: 'Пожалуйста, выполните npm install -g happy-coder@latest',
+        updateCliInstructions: 'Пожалуйста, выполните npm install -g vibe-cli@latest',
         deleteSession: 'Удалить сессию',
         deleteSessionSubtitle: 'Удалить эту сессию навсегда',
         deleteSessionConfirm: 'Удалить сессию навсегда?',
@@ -342,7 +342,7 @@ export const ru: TranslationStructure = {
         emptyMainScreen: {
             // Used by EmptyMainScreen component
             readyToCode: 'Готовы к программированию?',
-            installCli: 'Установите Happy CLI',
+            installCli: 'Установите Vibe CLI',
             runIt: 'Запустите его',
             scanQrCode: 'Отсканируйте QR-код',
             openCamera: 'Открыть камеру',
@@ -399,6 +399,8 @@ export const ru: TranslationStructure = {
         agent: {
             claude: 'Claude',
             codex: 'Codex',
+            gemini: 'Gemini',
+            cursor: 'Cursor',
         },
         model: {
             title: 'МОДЕЛЬ',
@@ -406,6 +408,10 @@ export const ru: TranslationStructure = {
             adaptiveUsage: 'Opus до 50% использования, затем Sonnet',
             sonnet: 'Sonnet',
             opus: 'Opus',
+            compactDefault: 'По умолчанию',
+            compactAdaptiveUsage: 'Адаптивный',
+            compactSonnet: 'Sonnet',
+            compactOpus: 'Opus',
         },
         codexPermissionMode: {
             title: 'РЕЖИМ РАЗРЕШЕНИЙ CODEX',
@@ -426,6 +432,32 @@ export const ru: TranslationStructure = {
             gpt5Low: 'GPT-5 Низкая',
             gpt5Medium: 'GPT-5 Средняя',
             gpt5High: 'GPT-5 Высокая',
+            compactGpt5CodexLow: 'Codex Низ',
+            compactGpt5CodexMedium: 'Codex Сред',
+            compactGpt5CodexHigh: 'Codex Выс',
+            compactGpt5Minimal: '5 Мин',
+            compactGpt5Low: '5 Низ',
+            compactGpt5Medium: '5 Сред',
+            compactGpt5High: '5 Выс',
+            compactDefault: 'По умолчанию',
+        },
+        geminiModel: {
+            title: 'МОДЕЛЬ GEMINI',
+            gemini20FlashExp: 'Gemini 2.0 Flash (Экспериментальная)',
+            gemini20FlashThinkingExp: 'Gemini 2.0 Flash Thinking (Экспериментальная)',
+            gemini15Pro: 'Gemini 1.5 Pro',
+            gemini15Flash: 'Gemini 1.5 Flash',
+            compactDefault: 'По умолчанию',
+            compactGemini20FlashExp: '2.0 Flash',
+            compactGemini20FlashThinkingExp: '2.0 Think',
+            compactGemini15Pro: '1.5 Pro',
+            compactGemini15Flash: '1.5 Flash',
+        },
+        cursorModel: {
+            title: 'МОДЕЛЬ CURSOR',
+            cursorDefault: 'По умолчанию',
+            compactDefault: 'По умолчанию',
+            compactCursorDefault: 'Cursor',
         },
         context: {
             remaining: ({ percent }: { percent: number }) => `Осталось ${percent}%`,
@@ -445,7 +477,7 @@ export const ru: TranslationStructure = {
     },
 
     sidebar: {
-        sessionsTitle: 'Happy',
+        sessionsTitle: 'Vibe',
     },
 
     toolView: {
@@ -614,7 +646,7 @@ export const ru: TranslationStructure = {
         invalidConnectionLink: 'Неверная ссылка подключения',
         invalidConnectionLinkDescription: 'Ссылка подключения отсутствует или неверна. Проверьте URL и попробуйте снова.',
         connectTerminal: 'Подключить терминал',
-        terminalRequestDescription: 'Терминал запрашивает подключение к вашему аккаунту Happy Coder. Это позволит терминалу безопасно отправлять и получать сообщения.',
+        terminalRequestDescription: 'Терминал запрашивает подключение к вашему аккаунту Vibe on the Go. Это позволит терминалу безопасно отправлять и получать сообщения.',
         connectionDetails: 'Детали подключения',
         publicKey: 'Публичный ключ',
         encryption: 'Шифрование',
@@ -686,7 +718,7 @@ export const ru: TranslationStructure = {
 
     machine: {
         offlineUnableToSpawn: 'Запуск отключен: машина offline',
-        offlineHelp: '• Убедитесь, что компьютер online\n• Выполните `happy daemon status` для диагностики\n• Используете последнюю версию CLI? Обновите командой `npm install -g happy-coder@latest`',
+        offlineHelp: '• Убедитесь, что компьютер online\n• Выполните `vibe daemon status` для диагностики\n• Используете последнюю версию CLI? Обновите командой `npm install -g vibe-cli@latest`',
         launchNewSessionInDirectory: 'Запустить новую сессию в папке',
         daemon: 'Daemon',
         status: 'Статус',

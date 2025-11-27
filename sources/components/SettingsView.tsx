@@ -21,7 +21,7 @@ import { useAllMachines } from '@/sync/storage';
 import { isMachineOnline } from '@/utils/machineUtils';
 import { useUnistyles } from 'react-native-unistyles';
 import { layout } from '@/components/layout';
-import { useHappyAction } from '@/hooks/useHappyAction';
+import { useVibeAction } from '@/hooks/useVibeAction';
 import { getGitHubOAuthParams, disconnectGitHub } from '@/sync/apiGithub';
 import { disconnectService } from '@/sync/apiServices';
 import { useProfile } from '@/sync/storage';
@@ -55,7 +55,7 @@ function ManualAuthModal({ onClose, onSubmit }: { onClose: () => void; onSubmit:
                 }}
                 value={url}
                 onChangeText={setUrl}
-                placeholder={'happy://terminal?...'}
+                placeholder={'vibe://terminal?...'}
                 placeholderTextColor={theme.colors.input.placeholder}
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -104,7 +104,7 @@ export const SettingsView = React.memo(function SettingsView() {
     const { connectTerminal, connectWithUrl, isLoading } = useConnectTerminal();
 
     const handleGitHub = async () => {
-        const url = 'https://github.com/slopus/happy';
+        const url = 'https://github.com/your-username/vibe-on-the-go';
         const supported = await Linking.canOpenURL(url);
         if (supported) {
             await Linking.openURL(url);
@@ -112,7 +112,7 @@ export const SettingsView = React.memo(function SettingsView() {
     };
 
     const handleReportIssue = async () => {
-        const url = 'https://github.com/slopus/happy/issues';
+        const url = 'https://github.com/your-username/vibe-on-the-go/issues';
         const supported = await Linking.canOpenURL(url);
         if (supported) {
             await Linking.openURL(url);
@@ -148,13 +148,13 @@ export const SettingsView = React.memo(function SettingsView() {
     const isAnthropicConnected = profile.connectedServices?.includes('anthropic') || false;
 
     // GitHub connection
-    const [connectingGitHub, connectGitHub] = useHappyAction(async () => {
+    const [connectingGitHub, connectGitHub] = useVibeAction(async () => {
         const params = await getGitHubOAuthParams(auth.credentials!);
         await Linking.openURL(params.url);
     });
 
     // GitHub disconnection
-    const [disconnectingGitHub, handleDisconnectGitHub] = useHappyAction(async () => {
+    const [disconnectingGitHub, handleDisconnectGitHub] = useVibeAction(async () => {
         const confirmed = await Modal.confirm(
             t('modals.disconnectGithub'),
             t('modals.disconnectGithubConfirm'),
@@ -166,12 +166,12 @@ export const SettingsView = React.memo(function SettingsView() {
     });
 
     // Anthropic connection
-    const [connectingAnthropic, connectAnthropic] = useHappyAction(async () => {
+    const [connectingAnthropic, connectAnthropic] = useVibeAction(async () => {
         router.push('/settings/connect/claude');
     });
 
     // Anthropic disconnection
-    const [disconnectingAnthropic, handleDisconnectAnthropic] = useHappyAction(async () => {
+    const [disconnectingAnthropic, handleDisconnectAnthropic] = useVibeAction(async () => {
         const confirmed = await Modal.confirm(
             t('modals.disconnectService', { service: 'Claude' }),
             t('modals.disconnectServiceConfirm', { service: 'Claude' }),
@@ -225,7 +225,7 @@ export const SettingsView = React.memo(function SettingsView() {
 
             {/* Connect Terminal - Only show on native platforms */}
             {Platform.OS !== 'web' && (
-                <ItemGroup>
+                <ItemGroup accent="none">
                     <Item
                         title={t('settings.scanQrCodeToAuthenticate')}
                         icon={<Ionicons name="qr-code-outline" size={29} color="#007AFF" />}
@@ -254,7 +254,7 @@ export const SettingsView = React.memo(function SettingsView() {
                                     ],
                                     'plain-text',
                                     '',
-                                    'happy://terminal?...'
+                                    'vibe://terminal?...'
                                 );
                             } else {
                                 // For Android, show a custom modal
@@ -274,7 +274,7 @@ export const SettingsView = React.memo(function SettingsView() {
             )}
 
             {/* Support Us */}
-            <ItemGroup>
+            <ItemGroup accent="none">
                 <Item
                     title={t('settings.supportUs')}
                     subtitle={isPro ? t('settings.supportUsSubtitlePro') : t('settings.supportUsSubtitle')}
@@ -284,7 +284,7 @@ export const SettingsView = React.memo(function SettingsView() {
                 />
             </ItemGroup>
 
-            <ItemGroup title={t('settings.connectedAccounts')}>
+            <ItemGroup title={t('settings.connectedAccounts')} accent="none">
                 <Item
                     title="Claude Code"
                     subtitle={isAnthropicConnected
@@ -333,7 +333,7 @@ export const SettingsView = React.memo(function SettingsView() {
 
             {/* Machines (sorted: online first, then last seen desc) */}
             {allMachines.length > 0 && (
-                <ItemGroup title={t('settings.machines')}>
+                <ItemGroup title={t('settings.machines')} accent="none">
                     {[...allMachines].map((machine) => {
                         const isOnline = isMachineOnline(machine);
                         const host = machine.metadata?.host || 'Unknown';
@@ -373,7 +373,7 @@ export const SettingsView = React.memo(function SettingsView() {
             )}
 
             {/* Features */}
-            <ItemGroup title={t('settings.features')}>
+            <ItemGroup title={t('settings.features')} accent="none">
                 <Item
                     title={t('settings.account')}
                     subtitle={t('settings.accountSubtitle')}
@@ -398,6 +398,12 @@ export const SettingsView = React.memo(function SettingsView() {
                     icon={<Ionicons name="flask-outline" size={29} color="#FF9500" />}
                     onPress={() => router.push('/settings/features')}
                 />
+                <Item
+                    title={t('providerSettings.title')}
+                    subtitle={t('providerSettings.subtitle')}
+                    icon={<Ionicons name="settings-outline" size={29} color="#5856D6" />}
+                    onPress={() => router.push('/settings/providers')}
+                />
                 {experiments && (
                     <Item
                         title={t('settings.usage')}
@@ -410,7 +416,7 @@ export const SettingsView = React.memo(function SettingsView() {
 
             {/* Developer */}
             {(__DEV__ || devModeEnabled) && (
-                <ItemGroup title={t('settings.developer')}>
+                <ItemGroup title={t('settings.developer')} accent="none">
                     <Item
                         title={t('settings.developerTools')}
                         icon={<Ionicons name="construct-outline" size={29} color="#5856D6" />}
@@ -420,7 +426,7 @@ export const SettingsView = React.memo(function SettingsView() {
             )}
 
             {/* About */}
-            <ItemGroup title={t('settings.about')} footer={t('settings.aboutFooter')}>
+            <ItemGroup title={t('settings.about')} footer={t('settings.aboutFooter')} accent="none">
                 <Item
                     title={t('settings.whatsNew')}
                     subtitle={t('settings.whatsNewSubtitle')}
@@ -430,7 +436,7 @@ export const SettingsView = React.memo(function SettingsView() {
                 <Item
                     title={t('settings.github')}
                     icon={<Ionicons name="logo-github" size={29} color={theme.colors.text} />}
-                    detail="slopus/happy"
+                    detail="your-username/vibe-on-the-go"
                     onPress={handleGitHub}
                 />
                 <Item
@@ -442,7 +448,7 @@ export const SettingsView = React.memo(function SettingsView() {
                     title={t('settings.privacyPolicy')}
                     icon={<Ionicons name="shield-checkmark-outline" size={29} color="#007AFF" />}
                     onPress={async () => {
-                        const url = 'https://happy.engineering/privacy/';
+                        const url = 'https://github.com/your-username/vibe-on-the-go/blob/main/PRIVACY.md';
                         const supported = await Linking.canOpenURL(url);
                         if (supported) {
                             await Linking.openURL(url);
@@ -453,7 +459,7 @@ export const SettingsView = React.memo(function SettingsView() {
                     title={t('settings.termsOfService')}
                     icon={<Ionicons name="document-text-outline" size={29} color="#007AFF" />}
                     onPress={async () => {
-                        const url = 'https://github.com/slopus/happy/blob/main/TERMS.md';
+                        const url = 'https://github.com/your-username/vibe-on-the-go/blob/main/TERMS.md';
                         const supported = await Linking.canOpenURL(url);
                         if (supported) {
                             await Linking.openURL(url);

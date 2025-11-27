@@ -22,6 +22,7 @@ import { useSetting } from '@/sync/storage';
 import { Theme } from '@/theme';
 import { t } from '@/text';
 import { Metadata } from '@/sync/storageTypes';
+import { ContextUsageIndicator } from './ContextUsageIndicator';
 
 interface AgentInputProps {
     value: string;
@@ -56,7 +57,7 @@ interface AgentInputProps {
     };
     alwaysShowContextSize?: boolean;
     onFileViewerPress?: () => void;
-    agentType?: 'claude' | 'codex';
+    agentType?: 'claude' | 'codex' | 'gemini' | 'cursor';
     onAgentClick?: () => void;
     machineName?: string | null;
     onMachineClick?: () => void;
@@ -84,8 +85,8 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         borderRadius: Platform.select({ default: 16, android: 20 }),
         overflow: 'hidden',
         paddingVertical: 2,
-        paddingBottom: 8,
-        paddingHorizontal: 8,
+        paddingBottom: 4,
+        paddingHorizontal: 20,
     },
     inputContainer: {
         flexDirection: 'row',
@@ -95,6 +96,15 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         paddingRight: 8,
         paddingVertical: 4,
         minHeight: 40,
+    },
+    textInputWrapper: {
+        flex: 1,
+    },
+    contextIndicatorContainer: {
+        marginLeft: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
     },
 
     // Overlay styles
@@ -284,15 +294,107 @@ const getContextWarning = (contextSize: number, alwaysShow: boolean = false, the
     return null; // No display needed
 };
 
+// Helper to get compact model display name
+const getCompactModelName = (model: ModelMode | undefined, agentType: 'claude' | 'codex' | 'gemini' | 'cursor'): string => {
+    if (!model || model === 'default') {
+        if (agentType === 'claude') return t('agentInput.model.compactDefault');
+        if (agentType === 'codex') return t('agentInput.codexModel.compactDefault');
+        if (agentType === 'gemini') return t('agentInput.geminiModel.compactDefault');
+        if (agentType === 'cursor') return t('agentInput.cursorModel.compactDefault');
+    }
+
+    // Claude models
+    if (model === 'adaptiveUsage') return t('agentInput.model.compactAdaptiveUsage');
+    if (model === 'sonnet') return t('agentInput.model.compactSonnet');
+    if (model === 'opus') return t('agentInput.model.compactOpus');
+
+    // Codex models
+    if (model === 'gpt-5-codex-low') return t('agentInput.codexModel.compactGpt5CodexLow');
+    if (model === 'gpt-5-codex-medium') return t('agentInput.codexModel.compactGpt5CodexMedium');
+    if (model === 'gpt-5-codex-high') return t('agentInput.codexModel.compactGpt5CodexHigh');
+    if (model === 'gpt-5-minimal') return t('agentInput.codexModel.compactGpt5Minimal');
+    if (model === 'gpt-5-low') return t('agentInput.codexModel.compactGpt5Low');
+    if (model === 'gpt-5-medium') return t('agentInput.codexModel.compactGpt5Medium');
+    if (model === 'gpt-5-high') return t('agentInput.codexModel.compactGpt5High');
+
+    // Gemini models
+    if (model === 'gemini-2.0-flash-exp') return t('agentInput.geminiModel.compactGemini20FlashExp');
+    if (model === 'gemini-2.0-flash-thinking-exp') return t('agentInput.geminiModel.compactGemini20FlashThinkingExp');
+    if (model === 'gemini-1.5-pro') return t('agentInput.geminiModel.compactGemini15Pro');
+    if (model === 'gemini-1.5-flash') return t('agentInput.geminiModel.compactGemini15Flash');
+
+    // Cursor models
+    if (model === 'cursor-default') return t('agentInput.cursorModel.compactCursorDefault');
+
+    return t('agentInput.model.compactDefault');
+};
+
+// Helper to get full model display name
+const getFullModelName = (model: ModelMode | undefined, agentType: 'claude' | 'codex' | 'gemini' | 'cursor'): string => {
+    if (!model || model === 'default') {
+        return t('agentInput.model.default');
+    }
+
+    // Claude models
+    if (model === 'adaptiveUsage') return t('agentInput.model.adaptiveUsage');
+    if (model === 'sonnet') return t('agentInput.model.sonnet');
+    if (model === 'opus') return t('agentInput.model.opus');
+
+    // Codex models
+    if (model === 'gpt-5-codex-low') return t('agentInput.codexModel.gpt5CodexLow');
+    if (model === 'gpt-5-codex-medium') return t('agentInput.codexModel.gpt5CodexMedium');
+    if (model === 'gpt-5-codex-high') return t('agentInput.codexModel.gpt5CodexHigh');
+    if (model === 'gpt-5-minimal') return t('agentInput.codexModel.gpt5Minimal');
+    if (model === 'gpt-5-low') return t('agentInput.codexModel.gpt5Low');
+    if (model === 'gpt-5-medium') return t('agentInput.codexModel.gpt5Medium');
+    if (model === 'gpt-5-high') return t('agentInput.codexModel.gpt5High');
+
+    // Gemini models
+    if (model === 'gemini-2.0-flash-exp') return t('agentInput.geminiModel.gemini20FlashExp');
+    if (model === 'gemini-2.0-flash-thinking-exp') return t('agentInput.geminiModel.gemini20FlashThinkingExp');
+    if (model === 'gemini-1.5-pro') return t('agentInput.geminiModel.gemini15Pro');
+    if (model === 'gemini-1.5-flash') return t('agentInput.geminiModel.gemini15Flash');
+
+    // Cursor models
+    if (model === 'cursor-default') return t('agentInput.cursorModel.cursorDefault');
+
+    return t('agentInput.model.default');
+};
+
+// Helper to get full permission mode display name
+const getFullPermissionModeName = (mode: PermissionMode | undefined, agentType: 'claude' | 'codex' | 'gemini' | 'cursor'): string => {
+    if (!mode || mode === 'default') {
+        return t('agentInput.permissionMode.default');
+    }
+
+    if (agentType === 'codex') {
+        if (mode === 'read-only') return t('agentInput.codexPermissionMode.readOnly');
+        if (mode === 'safe-yolo') return t('agentInput.codexPermissionMode.safeYolo');
+        if (mode === 'yolo') return t('agentInput.codexPermissionMode.yolo');
+    } else {
+        if (mode === 'acceptEdits') return t('agentInput.permissionMode.acceptEdits');
+        if (mode === 'plan') return t('agentInput.permissionMode.plan');
+        if (mode === 'bypassPermissions') return t('agentInput.permissionMode.bypassPermissions');
+    }
+
+    return t('agentInput.permissionMode.default');
+};
+
 export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, AgentInputProps>((props, ref) => {
     const styles = stylesheet;
     const { theme } = useUnistyles();
     const screenWidth = useWindowDimensions().width;
+    const experimentsEnabled = useSetting('experiments');
 
     const hasText = props.value.trim().length > 0;
     
-    // Check if this is a Codex session
-    const isCodex = props.metadata?.flavor === 'codex';
+    // Determine agent type from props or metadata
+    // Note: We allow Gemini/Cursor from metadata (existing sessions) even if experiments disabled
+    // But we won't show them in the selector if experiments are disabled
+    const agentType = props.agentType || (props.metadata?.flavor === 'codex' ? 'codex' : props.metadata?.flavor === 'gemini' ? 'gemini' : props.metadata?.flavor === 'cursor' ? 'cursor' : 'claude');
+    const isCodex = agentType === 'codex';
+    const isGemini = agentType === 'gemini' && experimentsEnabled;
+    const isCursor = agentType === 'cursor' && experimentsEnabled;
 
     // Calculate context warning
     const contextWarning = props.usageData?.contextSize
@@ -367,6 +469,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
 
     // Settings modal state
     const [showSettings, setShowSettings] = React.useState(false);
+    const [showModelDropdown, setShowModelDropdown] = React.useState(false);
 
     // Handle settings button press
     const handleSettingsPress = React.useCallback(() => {
@@ -474,9 +577,16 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
             // Handle Cmd/Ctrl+M for model mode switching
             if (e.key === 'm' && (e.metaKey || e.ctrlKey) && props.onModelModeChange) {
                 e.preventDefault();
-                const modelOrder: ModelMode[] = isCodex
-                    ? ['gpt-5-codex-high', 'gpt-5-codex-medium', 'gpt-5-codex-low', 'default']
-                    : ['default', 'adaptiveUsage', 'sonnet', 'opus'];
+                let modelOrder: ModelMode[];
+                if (isCodex) {
+                    modelOrder = ['gpt-5-codex-high', 'gpt-5-codex-medium', 'gpt-5-codex-low', 'default'];
+                } else if (isGemini) {
+                    modelOrder = ['default', 'gemini-2.0-flash-exp', 'gemini-2.0-flash-thinking-exp', 'gemini-1.5-pro', 'gemini-1.5-flash'];
+                } else if (isCursor) {
+                    modelOrder = ['default', 'cursor-default'];
+                } else {
+                    modelOrder = ['default', 'adaptiveUsage', 'sonnet', 'opus'];
+                }
                 const currentIndex = modelOrder.indexOf(props.modelMode || (isCodex ? 'gpt-5-codex-high' : 'default'));
                 const nextIndex = (currentIndex + 1) % modelOrder.length;
                 props.onModelModeChange(modelOrder[nextIndex]);
@@ -495,7 +605,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
     return (
         <View style={[
             styles.container,
-            { paddingHorizontal: screenWidth > 700 ? 16 : 8 }
+            { paddingHorizontal: 20 }
         ]}>
             <View style={[
                 styles.innerContainer,
@@ -505,7 +615,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                 {suggestions.length > 0 && (
                     <View style={[
                         styles.autocompleteOverlay,
-                        { paddingHorizontal: screenWidth > 700 ? 0 : 8 }
+                        { paddingHorizontal: screenWidth > 700 ? 0 : 20 }
                     ]}>
                         <AgentInputAutocomplete
                             suggestions={suggestions.map(s => {
@@ -519,6 +629,131 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                     </View>
                 )}
 
+                {/* Model dropdown overlay */}
+                {showModelDropdown && (
+                    <>
+                        <TouchableWithoutFeedback onPress={() => setShowModelDropdown(false)}>
+                            <View style={styles.overlayBackdrop} />
+                        </TouchableWithoutFeedback>
+                        <View style={[
+                            styles.settingsOverlay,
+                            { paddingHorizontal: screenWidth > 700 ? 0 : 20 }
+                        ]}>
+                            <FloatingOverlay maxHeight={280} keyboardShouldPersistTaps="always">
+                                {/* Model Section */}
+                                <View style={{ paddingVertical: 8 }}>
+                                    <Text style={{
+                                        fontSize: 12,
+                                        fontWeight: '600',
+                                        color: theme.colors.textSecondary,
+                                        paddingHorizontal: 16,
+                                        paddingBottom: 4,
+                                        ...Typography.default('semiBold')
+                                    }}>
+                                        {isCodex ? t('agentInput.codexModel.title') :
+                                         isGemini ? t('agentInput.geminiModel.title') :
+                                         isCursor ? t('agentInput.cursorModel.title') :
+                                         t('agentInput.model.title')}
+                                    </Text>
+                                    {(() => {
+                                        let models: readonly ModelMode[];
+                                        let modelConfig: Record<string, { label: string }>;
+
+                                        if (isCodex) {
+                                            models = ['gpt-5-codex-high', 'gpt-5-codex-medium', 'gpt-5-codex-low', 'default', 'gpt-5-minimal', 'gpt-5-low', 'gpt-5-medium', 'gpt-5-high'] as const;
+                                            modelConfig = {
+                                                'gpt-5-codex-high': { label: t('agentInput.codexModel.gpt5CodexHigh') },
+                                                'gpt-5-codex-medium': { label: t('agentInput.codexModel.gpt5CodexMedium') },
+                                                'gpt-5-codex-low': { label: t('agentInput.codexModel.gpt5CodexLow') },
+                                                'default': { label: t('agentInput.model.default') },
+                                                'gpt-5-minimal': { label: t('agentInput.codexModel.gpt5Minimal') },
+                                                'gpt-5-low': { label: t('agentInput.codexModel.gpt5Low') },
+                                                'gpt-5-medium': { label: t('agentInput.codexModel.gpt5Medium') },
+                                                'gpt-5-high': { label: t('agentInput.codexModel.gpt5High') },
+                                            };
+                                        } else if (isGemini) {
+                                            models = ['default', 'gemini-2.0-flash-exp', 'gemini-2.0-flash-thinking-exp', 'gemini-1.5-pro', 'gemini-1.5-flash'] as const;
+                                            modelConfig = {
+                                                'default': { label: t('agentInput.model.default') },
+                                                'gemini-2.0-flash-exp': { label: t('agentInput.geminiModel.gemini20FlashExp') },
+                                                'gemini-2.0-flash-thinking-exp': { label: t('agentInput.geminiModel.gemini20FlashThinkingExp') },
+                                                'gemini-1.5-pro': { label: t('agentInput.geminiModel.gemini15Pro') },
+                                                'gemini-1.5-flash': { label: t('agentInput.geminiModel.gemini15Flash') },
+                                            };
+                                        } else if (isCursor) {
+                                            models = ['default', 'cursor-default'] as const;
+                                            modelConfig = {
+                                                'default': { label: t('agentInput.model.default') },
+                                                'cursor-default': { label: t('agentInput.cursorModel.cursorDefault') },
+                                            };
+                                        } else {
+                                            models = ['default', 'adaptiveUsage', 'sonnet', 'opus'] as const;
+                                            modelConfig = {
+                                                'default': { label: t('agentInput.model.default') },
+                                                'adaptiveUsage': { label: t('agentInput.model.adaptiveUsage') },
+                                                'sonnet': { label: t('agentInput.model.sonnet') },
+                                                'opus': { label: t('agentInput.model.opus') },
+                                            };
+                                        }
+
+                                        return models.map((model) => {
+                                            const config = modelConfig[model as keyof typeof modelConfig];
+                                            if (!config) return null;
+                                            const isSelected = props.modelMode === model ||
+                                                (isCodex && model === 'gpt-5-codex-high' && !props.modelMode) ||
+                                                ((!isCodex && !isGemini && !isCursor) && model === 'default' && !props.modelMode);
+
+                                            return (
+                                                <Pressable
+                                                    key={model}
+                                                    onPress={() => {
+                                                        handleModelSelect(model);
+                                                        setShowModelDropdown(false);
+                                                    }}
+                                                    style={({ pressed }) => ({
+                                                        flexDirection: 'row',
+                                                        alignItems: 'center',
+                                                        paddingHorizontal: 16,
+                                                        paddingVertical: 8,
+                                                        backgroundColor: pressed ? theme.colors.surfacePressed : 'transparent'
+                                                    })}
+                                                >
+                                                    <View style={{
+                                                        width: 16,
+                                                        height: 16,
+                                                        borderRadius: 8,
+                                                        borderWidth: 2,
+                                                        borderColor: isSelected ? theme.colors.radio.active : theme.colors.radio.inactive,
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        marginRight: 12
+                                                    }}>
+                                                        {isSelected && (
+                                                            <View style={{
+                                                                width: 6,
+                                                                height: 6,
+                                                                borderRadius: 3,
+                                                                backgroundColor: theme.colors.radio.dot
+                                                            }} />
+                                                        )}
+                                                    </View>
+                                                    <Text style={{
+                                                        fontSize: 14,
+                                                        color: isSelected ? theme.colors.radio.active : theme.colors.text,
+                                                        ...Typography.default()
+                                                    }}>
+                                                        {config.label}
+                                                    </Text>
+                                                </Pressable>
+                                            );
+                                        });
+                                    })()}
+                                </View>
+                            </FloatingOverlay>
+                        </View>
+                    </>
+                )}
+
                 {/* Settings overlay */}
                 {showSettings && (
                     <>
@@ -527,45 +762,46 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                         </TouchableWithoutFeedback>
                         <View style={[
                             styles.settingsOverlay,
-                            { paddingHorizontal: screenWidth > 700 ? 0 : 8 }
+                            { paddingHorizontal: screenWidth > 700 ? 0 : 20 }
                         ]}>
                             <FloatingOverlay maxHeight={280} keyboardShouldPersistTaps="always">
-                                {/* Permission Mode Section */}
-                                <View style={styles.overlaySection}>
-                                    <Text style={styles.overlaySectionTitle}>
-                                        {isCodex ? t('agentInput.codexPermissionMode.title') : t('agentInput.permissionMode.title')}
-                                    </Text>
-                                    {(isCodex 
-                                        ? (['default', 'read-only', 'safe-yolo', 'yolo'] as const)
-                                        : (['default', 'acceptEdits', 'plan', 'bypassPermissions'] as const)
-                                    ).map((mode) => {
-                                        const modeConfig = isCodex ? {
-                                            'default': { label: t('agentInput.codexPermissionMode.default') },
-                                            'read-only': { label: t('agentInput.codexPermissionMode.readOnly') },
-                                            'safe-yolo': { label: t('agentInput.codexPermissionMode.safeYolo') },
-                                            'yolo': { label: t('agentInput.codexPermissionMode.yolo') },
-                                        } : {
-                                            default: { label: t('agentInput.permissionMode.default') },
-                                            acceptEdits: { label: t('agentInput.permissionMode.acceptEdits') },
-                                            plan: { label: t('agentInput.permissionMode.plan') },
-                                            bypassPermissions: { label: t('agentInput.permissionMode.bypassPermissions') },
-                                        };
-                                        const config = modeConfig[mode as keyof typeof modeConfig];
-                                        if (!config) return null;
-                                        const isSelected = props.permissionMode === mode;
+                                {/* Permission Mode Section - only show for Claude and Codex */}
+                                {(agentType === 'claude' || agentType === 'codex') && (
+                                    <View style={styles.overlaySection}>
+                                        <Text style={styles.overlaySectionTitle}>
+                                            {isCodex ? t('agentInput.codexPermissionMode.title') : t('agentInput.permissionMode.title')}
+                                        </Text>
+                                        {(isCodex
+                                            ? (['default', 'read-only', 'safe-yolo', 'yolo'] as const)
+                                            : (['default', 'acceptEdits', 'plan', 'bypassPermissions'] as const)
+                                        ).map((mode) => {
+                                            const modeConfig = isCodex ? {
+                                                'default': { label: t('agentInput.codexPermissionMode.default') },
+                                                'read-only': { label: t('agentInput.codexPermissionMode.readOnly') },
+                                                'safe-yolo': { label: t('agentInput.codexPermissionMode.safeYolo') },
+                                                'yolo': { label: t('agentInput.codexPermissionMode.yolo') },
+                                            } : {
+                                                default: { label: t('agentInput.permissionMode.default') },
+                                                acceptEdits: { label: t('agentInput.permissionMode.acceptEdits') },
+                                                plan: { label: t('agentInput.permissionMode.plan') },
+                                                bypassPermissions: { label: t('agentInput.permissionMode.bypassPermissions') },
+                                            };
+                                            const config = modeConfig[mode as keyof typeof modeConfig];
+                                            if (!config) return null;
+                                            const isSelected = props.permissionMode === mode;
 
-                                        return (
-                                            <Pressable
-                                                key={mode}
-                                                onPress={() => handleSettingsSelect(mode)}
-                                                style={({ pressed }) => ({
-                                                    flexDirection: 'row',
-                                                    alignItems: 'center',
-                                                    paddingHorizontal: 16,
-                                                    paddingVertical: 8,
-                                                    backgroundColor: pressed ? theme.colors.surfacePressed : 'transparent'
-                                                })}
-                                            >
+                                            return (
+                                                <Pressable
+                                                    key={mode}
+                                                    onPress={() => handleSettingsSelect(mode)}
+                                                    style={({ pressed }) => ({
+                                                        flexDirection: 'row',
+                                                        alignItems: 'center',
+                                                        paddingHorizontal: 16,
+                                                        paddingVertical: 8,
+                                                        backgroundColor: pressed ? theme.colors.surfacePressed : 'transparent'
+                                                    })}
+                                                >
                                                 <View style={{
                                                     width: 16,
                                                     height: 16,
@@ -595,92 +831,8 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                             </Pressable>
                                         );
                                     })}
-                                </View>
-
-                                {/* Divider */}
-                                <View style={{
-                                    height: 1,
-                                    backgroundColor: theme.colors.divider,
-                                    marginHorizontal: 16
-                                }} />
-
-                                {/* Model Section */}
-                                <View style={{ paddingVertical: 8 }}>
-                                    <Text style={{
-                                        fontSize: 12,
-                                        fontWeight: '600',
-                                        color: '#666',
-                                        paddingHorizontal: 16,
-                                        paddingBottom: 4,
-                                        ...Typography.default('semiBold')
-                                    }}>
-                                        {isCodex ? t('agentInput.codexModel.title') : t('agentInput.model.title')}
-                                    </Text>
-                                    {(isCodex 
-                                        ? (['gpt-5-codex-high', 'gpt-5-codex-medium', 'gpt-5-codex-low', 'default', 'gpt-5-minimal', 'gpt-5-low', 'gpt-5-medium', 'gpt-5-high'] as const)
-                                        : (['default', 'adaptiveUsage', 'sonnet', 'opus'] as const)
-                                    ).map((model) => {
-                                        const modelConfig = isCodex ? {
-                                            'gpt-5-codex-high': { label: t('agentInput.codexModel.gpt5CodexHigh') },
-                                            'gpt-5-codex-medium': { label: t('agentInput.codexModel.gpt5CodexMedium') },
-                                            'gpt-5-codex-low': { label: t('agentInput.codexModel.gpt5CodexLow') },
-                                            'default': { label: t('agentInput.model.default') },
-                                            'gpt-5-minimal': { label: t('agentInput.codexModel.gpt5Minimal') },
-                                            'gpt-5-low': { label: t('agentInput.codexModel.gpt5Low') },
-                                            'gpt-5-medium': { label: t('agentInput.codexModel.gpt5Medium') },
-                                            'gpt-5-high': { label: t('agentInput.codexModel.gpt5High') },
-                                        } : {
-                                            default: { label: t('agentInput.model.default') },
-                                            adaptiveUsage: { label: t('agentInput.model.adaptiveUsage') },
-                                            sonnet: { label: t('agentInput.model.sonnet') },
-                                            opus: { label: t('agentInput.model.opus') },
-                                        };
-                                        const config = modelConfig[model as keyof typeof modelConfig];
-                                        if (!config) return null;
-                                        const isSelected = props.modelMode === model || (isCodex && model === 'gpt-5-codex-high' && !props.modelMode) || (!isCodex && model === 'default' && !props.modelMode);
-
-                                        return (
-                                            <Pressable
-                                                key={model}
-                                                onPress={() => handleModelSelect(model)}
-                                                style={({ pressed }) => ({
-                                                    flexDirection: 'row',
-                                                    alignItems: 'center',
-                                                    paddingHorizontal: 16,
-                                                    paddingVertical: 8,
-                                                    backgroundColor: pressed ? theme.colors.surfacePressed : 'transparent'
-                                                })}
-                                            >
-                                                <View style={{
-                                                    width: 16,
-                                                    height: 16,
-                                                    borderRadius: 8,
-                                                    borderWidth: 2,
-                                                    borderColor: isSelected ? theme.colors.radio.active : theme.colors.radio.inactive,
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    marginRight: 12
-                                                }}>
-                                                    {isSelected && (
-                                                        <View style={{
-                                                            width: 6,
-                                                            height: 6,
-                                                            borderRadius: 3,
-                                                            backgroundColor: theme.colors.radio.dot
-                                                        }} />
-                                                    )}
-                                                </View>
-                                                <Text style={{
-                                                    fontSize: 14,
-                                                    color: isSelected ? theme.colors.radio.active : theme.colors.text,
-                                                    ...Typography.default()
-                                                }}>
-                                                    {config.label}
-                                                </Text>
-                                            </Pressable>
-                                        );
-                                    })}
-                                </View>
+                                    </View>
+                                )}
                             </FloatingOverlay>
                         </View>
                     </>
@@ -762,25 +914,74 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                 <View style={styles.unifiedPanel}>
                     {/* Input field */}
                     <View style={[styles.inputContainer, props.minHeight ? { minHeight: props.minHeight } : undefined]}>
-                        <MultiTextInput
-                            ref={inputRef}
-                            value={props.value}
-                            paddingTop={Platform.OS === 'web' ? 10 : 8}
-                            paddingBottom={Platform.OS === 'web' ? 10 : 8}
-                            onChangeText={props.onChangeText}
-                            placeholder={props.placeholder}
-                            onKeyPress={handleKeyPress}
-                            onStateChange={handleInputStateChange}
-                            maxHeight={120}
-                        />
+                        <View style={styles.textInputWrapper}>
+                            <MultiTextInput
+                                ref={inputRef}
+                                value={props.value}
+                                paddingTop={Platform.OS === 'web' ? 10 : 8}
+                                paddingBottom={Platform.OS === 'web' ? 10 : 8}
+                                onChangeText={props.onChangeText}
+                                placeholder={props.placeholder}
+                                onKeyPress={handleKeyPress}
+                                onStateChange={handleInputStateChange}
+                                maxHeight={120}
+                            />
+                        </View>
+                        {/* Context usage indicator */}
+                        {props.usageData?.contextSize !== undefined && (
+                            <View style={styles.contextIndicatorContainer}>
+                                <ContextUsageIndicator
+                                    contextSize={props.usageData.contextSize}
+                                    maxContextSize={MAX_CONTEXT_SIZE}
+                                    size={20}
+                                    strokeWidth={2}
+                                />
+                            </View>
+                        )}
                     </View>
 
                     {/* Action buttons below input */}
                     <View style={styles.actionButtonsContainer}>
                         <View style={styles.actionButtonsLeft}>
 
-                            {/* Settings button */}
-                            {props.onPermissionModeChange && (
+                            {/* Model selector - replaces settings wheel */}
+                            {props.onModelModeChange && (
+                                <Pressable
+                                    onPress={() => {
+                                        hapticsLight();
+                                        setShowModelDropdown(prev => !prev);
+                                    }}
+                                    hitSlop={{ top: 5, bottom: 10, left: 0, right: 0 }}
+                                    style={(p) => ({
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        borderRadius: Platform.select({ default: 16, android: 20 }),
+                                        paddingHorizontal: 10,
+                                        paddingVertical: 6,
+                                        justifyContent: 'center',
+                                        height: 32,
+                                        opacity: p.pressed ? 0.7 : 1,
+                                        gap: 6,
+                                    })}
+                                >
+                                    <Text style={{
+                                        fontSize: 13,
+                                        color: theme.colors.button.secondary.tint,
+                                        fontWeight: '600',
+                                        ...Typography.default('semiBold'),
+                                    }}>
+                                        {getFullModelName(props.modelMode, agentType)}
+                                    </Text>
+                                    <Ionicons
+                                        name={showModelDropdown ? "chevron-up" : "chevron-down"}
+                                        size={14}
+                                        color={theme.colors.button.secondary.tint}
+                                    />
+                                </Pressable>
+                            )}
+
+                            {/* Permission mode selector */}
+                            {props.onPermissionModeChange && (agentType === 'claude' || agentType === 'codex') && (
                                 <Pressable
                                     onPress={handleSettingsPress}
                                     hitSlop={{ top: 5, bottom: 10, left: 0, right: 0 }}
@@ -788,16 +989,25 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                         flexDirection: 'row',
                                         alignItems: 'center',
                                         borderRadius: Platform.select({ default: 16, android: 20 }),
-                                        paddingHorizontal: 8,
+                                        paddingHorizontal: 10,
                                         paddingVertical: 6,
                                         justifyContent: 'center',
                                         height: 32,
                                         opacity: p.pressed ? 0.7 : 1,
+                                        gap: 6,
                                     })}
                                 >
-                                    <Octicons
-                                        name={'gear'}
-                                        size={16}
+                                    <Text style={{
+                                        fontSize: 13,
+                                        color: theme.colors.button.secondary.tint,
+                                        fontWeight: '600',
+                                        ...Typography.default('semiBold'),
+                                    }}>
+                                        {getFullPermissionModeName(props.permissionMode, agentType)}
+                                    </Text>
+                                    <Ionicons
+                                        name={showSettings ? "chevron-up" : "chevron-down"}
+                                        size={14}
                                         color={theme.colors.button.secondary.tint}
                                     />
                                 </Pressable>
@@ -834,7 +1044,10 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                         fontWeight: '600',
                                         ...Typography.default('semiBold'),
                                     }}>
-                                        {props.agentType === 'claude' ? t('agentInput.agent.claude') : t('agentInput.agent.codex')}
+                                        {agentType === 'claude' ? t('agentInput.agent.claude') : 
+                                         agentType === 'codex' ? t('agentInput.agent.codex') :
+                                         agentType === 'gemini' ? t('agentInput.agent.gemini') :
+                                         agentType === 'cursor' ? t('agentInput.agent.cursor') : t('agentInput.agent.claude')}
                                     </Text>
                                 </Pressable>
                             )}
@@ -948,6 +1161,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                             {/* Git Status Badge */}
                             <GitStatusButton sessionId={props.sessionId} onPress={props.onFileViewerPress} />
                         </View>
+
 
                         {/* Send/Voice button */}
                         <View

@@ -39,6 +39,10 @@ export interface ItemProps {
     dividerInset?: number;
     pressableStyle?: StyleProp<ViewStyle>;
     copy?: boolean | string;
+    /** Highlight item with teal accent background */
+    highlighted?: boolean;
+    /** Show teal accent indicator on the right */
+    accent?: boolean;
 }
 
 const stylesheet = StyleSheet.create((theme, runtime) => ({
@@ -75,7 +79,8 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         color: theme.colors.text,
     },
     titleSelected: {
-        color: theme.colors.text,
+        color: theme.colors.brand.primary,
+        fontWeight: '600',
     },
     titleDestructive: {
         color: theme.colors.textDestructive,
@@ -105,6 +110,17 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
     },
     pressablePressed: {
         backgroundColor: theme.colors.surfacePressedOverlay,
+    },
+    // Enhanced states
+    highlighted: {
+        backgroundColor: theme.colors.brand.primaryAlpha10,
+    },
+    accentIndicator: {
+        width: 3,
+        height: 20,
+        borderRadius: 2,
+        backgroundColor: theme.colors.brand.primary,
+        marginLeft: 8,
     },
 }));
 
@@ -142,7 +158,9 @@ export const Item = React.memo<ItemProps>((props) => {
         showDivider = true,
         dividerInset = isIOS ? 15 : 16,
         pressableStyle,
-        copy
+        copy,
+        highlighted,
+        accent
     } = props;
 
     // Handle copy functionality
@@ -206,7 +224,12 @@ export const Item = React.memo<ItemProps>((props) => {
     
     const content = (
         <>
-            <View style={[styles.container, containerPadding, style]}>
+            <View style={[
+                styles.container,
+                containerPadding,
+                highlighted && styles.highlighted,
+                style
+            ]}>
                 {/* Left Section */}
                 {(icon || leftElement) && (
                     <View style={styles.iconContainer}>
@@ -216,7 +239,7 @@ export const Item = React.memo<ItemProps>((props) => {
 
                 {/* Center Section */}
                 <View style={styles.centerContent}>
-                    <Text 
+                    <Text
                         style={[styles.title, titleColor, titleStyle]}
                         numberOfLines={subtitle ? 1 : 2}
                     >
@@ -241,9 +264,9 @@ export const Item = React.memo<ItemProps>((props) => {
                 {/* Right Section */}
                 <View style={styles.rightSection}>
                     {detail && !rightElement && (
-                        <Text 
+                        <Text
                             style={[
-                                styles.detail, 
+                                styles.detail,
                                 { marginRight: showAccessory ? 6 : 0 },
                                 detailStyle
                             ]}
@@ -253,18 +276,19 @@ export const Item = React.memo<ItemProps>((props) => {
                         </Text>
                     )}
                     {loading && (
-                        <ActivityIndicator 
-                            size="small" 
+                        <ActivityIndicator
+                            size="small"
                             color={theme.colors.textSecondary}
                             style={{ marginRight: showAccessory ? 6 : 0 }}
                         />
                     )}
                     {rightElement}
+                    {accent && <View style={styles.accentIndicator} />}
                     {showAccessory && (
-                        <Ionicons 
-                            name="chevron-forward" 
-                            size={chevronSize} 
-                            color={theme.colors.groupped.chevron}
+                        <Ionicons
+                            name="chevron-forward"
+                            size={chevronSize}
+                            color={selected ? theme.colors.brand.primary : theme.colors.groupped.chevron}
                             style={{ marginLeft: 4 }}
                         />
                     )}
@@ -273,10 +297,10 @@ export const Item = React.memo<ItemProps>((props) => {
 
             {/* Divider */}
             {showDivider && (
-                <View 
+                <View
                     style={[
                         styles.divider,
-                        { 
+                        {
                             marginLeft: (isAndroid || isWeb) ? 0 : (dividerInset + (icon || leftElement ? (16 + ((isIOS && !isWeb) ? 29 : 32) + 15) : 16))
                         }
                     ]}

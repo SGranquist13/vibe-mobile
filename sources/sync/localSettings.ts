@@ -32,7 +32,7 @@ export const localSettingsDefaults: LocalSettings = {
     debugMode: false,
     devModeEnabled: false,
     commandPaletteEnabled: false,
-    themePreference: 'adaptive',
+    themePreference: 'light',
     markdownCopyV2: false,
     acknowledgedCliVersions: {},
 };

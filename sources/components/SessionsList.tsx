@@ -9,7 +9,7 @@ import { Avatar } from './Avatar';
 import { ActiveSessionsGroup } from './ActiveSessionsGroup';
 import { ActiveSessionsGroupCompact } from './ActiveSessionsGroupCompact';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useSetting } from '@/sync/storage';
+import { useSetting, storage } from '@/sync/storage';
 import { useVisibleSessionListViewData } from '@/hooks/useVisibleSessionListViewData';
 import { Typography } from '@/constants/Typography';
 import { Session } from '@/sync/storageTypes';
@@ -24,6 +24,8 @@ import { t } from '@/text';
 import { useRouter } from 'expo-router';
 import { Item } from './Item';
 import { ItemGroup } from './ItemGroup';
+import { Modal } from '@/modal';
+import { sessionDelete } from '@/sync/ops';
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
@@ -40,14 +42,15 @@ const stylesheet = StyleSheet.create((theme) => ({
     headerSection: {
         backgroundColor: theme.colors.groupped.background,
         paddingHorizontal: 24,
-        paddingTop: 20,
-        paddingBottom: 8,
+        paddingTop: 24,
+        paddingBottom: 10,
     },
     headerText: {
-        fontSize: 14,
+        fontSize: 13,
         fontWeight: '600',
         color: theme.colors.groupped.sectionTitle,
-        letterSpacing: 0.1,
+        letterSpacing: 0.2,
+        textTransform: 'uppercase',
         ...Typography.default('semiBold'),
     },
     projectGroup: {
@@ -84,10 +87,20 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderBottomLeftRadius: 12,
         borderBottomRightRadius: 12,
         marginBottom: 12,
+        shadowColor: theme.colors.shadow.color,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: theme.colors.shadow.opacity,
+        shadowRadius: 4,
+        elevation: 2,
     },
     sessionItemSingle: {
         borderRadius: 12,
         marginBottom: 12,
+        shadowColor: theme.colors.shadow.color,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: theme.colors.shadow.opacity,
+        shadowRadius: 4,
+        elevation: 2,
     },
     sessionItemSelected: {
         backgroundColor: theme.colors.surfaceSelected,
@@ -103,10 +116,11 @@ const stylesheet = StyleSheet.create((theme) => ({
         marginBottom: 2,
     },
     sessionTitle: {
-        fontSize: 15,
-        fontWeight: '500',
+        fontSize: 16,
+        fontWeight: '600',
         flex: 1,
         ...Typography.default('semiBold'),
+        letterSpacing: -0.2,
     },
     sessionTitleConnected: {
         color: theme.colors.text,
@@ -117,8 +131,9 @@ const stylesheet = StyleSheet.create((theme) => ({
     sessionSubtitle: {
         fontSize: 13,
         color: theme.colors.textSecondary,
-        marginBottom: 4,
+        marginBottom: 6,
         ...Typography.default(),
+        lineHeight: 18,
     },
     statusRow: {
         flexDirection: 'row',
@@ -136,6 +151,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontWeight: '500',
         lineHeight: 16,
         ...Typography.default(),
+        letterSpacing: 0.1,
     },
     avatarContainer: {
         position: 'relative',
@@ -159,9 +175,66 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingBottom: 12,
         backgroundColor: theme.colors.groupped.background,
     },
+    deleteButton: {
+        padding: 8,
+        marginLeft: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    deleteIcon: {
+        color: theme.colors.textSecondary,
+    },
+    bulkDeleteContainer: {
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        backgroundColor: theme.colors.groupped.background,
+    },
+    bulkDeleteButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: theme.colors.warningCritical,
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        borderRadius: 12,
+        gap: 8,
+    },
+    bulkDeleteButtonText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#FFFFFF',
+        ...Typography.default('semiBold'),
+    },
+    checkboxContainer: {
+        width: 24,
+        height: 24,
+        borderRadius: 6,
+        borderWidth: 2,
+        borderColor: theme.colors.textSecondary,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 12,
+    },
+    checkboxSelected: {
+        backgroundColor: theme.colors.brand.primary,
+        borderColor: theme.colors.brand.primary,
+    },
+    checkboxIcon: {
+        color: '#FFFFFF',
+    },
 }));
 
-export function SessionsList() {
+export function SessionsList({
+    isSelectionMode = false,
+    selectedSessionIds = new Set(),
+    onToggleSessionSelection,
+    onBulkDelete,
+}: {
+    isSelectionMode?: boolean;
+    selectedSessionIds?: Set<string>;
+    onToggleSessionSelection?: (sessionId: string) => void;
+    onBulkDelete?: () => void;
+}) {
     const styles = stylesheet;
     const safeArea = useSafeAreaInsets();
     const data = useVisibleSessionListViewData();
@@ -170,7 +243,7 @@ export function SessionsList() {
     const navigateToSession = useNavigateToSession();
     const compactSessionView = useSetting('compactSessionView');
     const router = useRouter();
-    const selectable = isTablet;
+    const selectable = isTablet && !isSelectionMode;
     const experiments = useSetting('experiments');
     const dataWithSelected = selectable ? React.useMemo(() => {
         return data?.map(item => ({
@@ -257,10 +330,13 @@ export function SessionsList() {
                         isFirst={isFirst}
                         isLast={isLast}
                         isSingle={isSingle}
+                        isSelectionMode={isSelectionMode}
+                        isSessionSelected={selectedSessionIds.has(item.session.id)}
+                        onToggleSelection={onToggleSessionSelection}
                     />
                 );
         }
-    }, [pathname, dataWithSelected, compactSessionView]);
+    }, [pathname, dataWithSelected, compactSessionView, isTablet, isSelectionMode, selectedSessionIds, onToggleSessionSelection, styles]);
 
 
     // Remove this section as we'll use FlatList for all items now
@@ -278,9 +354,25 @@ export function SessionsList() {
 
     // Footer removed - all sessions now shown inline
 
+    const selectedCount = selectedSessionIds.size;
+    const showDeleteButton = isSelectionMode && selectedCount > 0;
+
     return (
         <View style={styles.container}>
             <View style={styles.contentContainer}>
+                {showDeleteButton && (
+                    <View style={styles.bulkDeleteContainer}>
+                        <Pressable
+                            style={styles.bulkDeleteButton}
+                            onPress={onBulkDelete}
+                        >
+                            <Ionicons name="trash-outline" size={20} color={styles.bulkDeleteButtonText.color} />
+                            <Text style={styles.bulkDeleteButtonText}>
+                                Delete {selectedCount} {selectedCount === 1 ? 'session' : 'sessions'}
+                            </Text>
+                        </Pressable>
+                    </View>
+                )}
                 <FlatList
                     data={dataWithSelected}
                     renderItem={renderItem}
@@ -294,12 +386,24 @@ export function SessionsList() {
 }
 
 // Sub-component that handles session message logic
-const SessionItem = React.memo(({ session, selected, isFirst, isLast, isSingle }: {
+const SessionItem = React.memo(({ 
+    session, 
+    selected, 
+    isFirst, 
+    isLast, 
+    isSingle,
+    isSelectionMode = false,
+    isSessionSelected = false,
+    onToggleSelection,
+}: {
     session: Session;
     selected?: boolean;
     isFirst?: boolean;
     isLast?: boolean;
     isSingle?: boolean;
+    isSelectionMode?: boolean;
+    isSessionSelected?: boolean;
+    onToggleSelection?: (sessionId: string) => void;
 }) => {
     const styles = stylesheet;
     const sessionStatus = useSessionStatus(session);
@@ -312,6 +416,22 @@ const SessionItem = React.memo(({ session, selected, isFirst, isLast, isSingle }
         return getSessionAvatarId(session);
     }, [session]);
 
+    const handlePress = React.useCallback(() => {
+        if (isSelectionMode && onToggleSelection) {
+            onToggleSelection(session.id);
+        } else if (!isTablet) {
+            navigateToSession(session.id);
+        }
+    }, [isSelectionMode, onToggleSelection, session.id, isTablet, navigateToSession]);
+
+    const handlePressIn = React.useCallback(() => {
+        if (isSelectionMode && onToggleSelection) {
+            onToggleSelection(session.id);
+        } else if (isTablet) {
+            navigateToSession(session.id);
+        }
+    }, [isSelectionMode, onToggleSelection, session.id, isTablet, navigateToSession]);
+
     return (
         <Pressable
             style={[
@@ -321,17 +441,22 @@ const SessionItem = React.memo(({ session, selected, isFirst, isLast, isSingle }
                     isFirst ? styles.sessionItemFirst :
                         isLast ? styles.sessionItemLast : {}
             ]}
-            onPressIn={() => {
-                if (isTablet) {
-                    navigateToSession(session.id);
-                }
-            }}
-            onPress={() => {
-                if (!isTablet) {
-                    navigateToSession(session.id);
-                }
-            }}
+            onPressIn={handlePressIn}
+            onPress={handlePress}
         >
+            {isSelectionMode && (
+                <Pressable
+                    style={[
+                        styles.checkboxContainer,
+                        isSessionSelected && styles.checkboxSelected
+                    ]}
+                    onPress={() => onToggleSelection?.(session.id)}
+                >
+                    {isSessionSelected && (
+                        <Ionicons name="checkmark" size={16} style={styles.checkboxIcon} />
+                    )}
+                </Pressable>
+            )}
             <View style={styles.avatarContainer}>
                 <Avatar id={avatarId} size={48} monochrome={!sessionStatus.isConnected} flavor={session.metadata?.flavor} />
                 {session.draft && (

@@ -11,26 +11,25 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         right: 16,
     },
     button: {
-        borderRadius: 12,
-        paddingVertical: 16,
-        paddingHorizontal: 20,
-        shadowColor: theme.colors.shadow.color,
-        shadowOffset: { width: 0, height: 2 },
-        shadowRadius: 3.84,
-        shadowOpacity: theme.colors.shadow.opacity,
-        elevation: 5,
+        borderRadius: 16,
+        paddingVertical: 18,
+        paddingHorizontal: 24,
         alignItems: 'center',
         justifyContent: 'center',
+        // Dramatic elevation
+        ...theme.colors.elevation.level3,
     },
     buttonDefault: {
         backgroundColor: theme.colors.fab.background,
     },
     buttonPressed: {
         backgroundColor: theme.colors.fab.backgroundPressed,
+        transform: [{ scale: 0.98 }],
     },
     text: {
-        fontSize: 16,
-        fontWeight: '600',
+        fontSize: 17,
+        fontWeight: '700',
+        letterSpacing: 0.3,
         color: theme.colors.fab.icon,
     },
 }));

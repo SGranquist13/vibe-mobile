@@ -21,22 +21,73 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.text,
         ...Typography.default('semiBold'),
     },
-    terminalBlock: {
-        backgroundColor: theme.colors.surfaceHighest,
-        borderRadius: 8,
-        padding: 20,
+    terminalWindow: {
+        backgroundColor: theme.colors.terminal.background,
+        borderRadius: 12,
         marginHorizontal: 24,
         marginBottom: 20,
+        overflow: 'hidden',
         borderWidth: 1,
-        borderColor: theme.colors.divider,
+        borderColor: theme.colors.terminal.border,
+        shadowColor: theme.colors.shadow.color,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: theme.colors.shadow.opacity,
+        shadowRadius: 8,
+        elevation: 8,
     },
-    terminalText: {
+    terminalHeader: {
+        backgroundColor: theme.colors.terminal.headerBackground,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.terminal.border,
+    },
+    terminalHeaderDots: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    terminalHeaderDot: {
+        width: 12,
+        height: 12,
+        borderRadius: 6,
+        marginRight: 6,
+    },
+    terminalHeaderDotLast: {
+        marginRight: 0,
+    },
+    terminalContent: {
+        padding: 20,
+    },
+    terminalLine: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    terminalLineLast: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 0,
+    },
+    terminalPrompt: {
         ...Typography.mono(),
         fontSize: 16,
-        color: theme.colors.status.connected,
+        color: theme.colors.terminal.promptSymbol,
+        marginRight: 4,
+        fontWeight: '600',
     },
-    terminalTextFirst: {
-        marginBottom: 8,
+    terminalPromptArrow: {
+        ...Typography.mono(),
+        fontSize: 16,
+        color: theme.colors.terminal.promptSymbol,
+        marginRight: 8,
+        fontWeight: '600',
+    },
+    terminalCommand: {
+        ...Typography.mono(),
+        fontSize: 16,
+        color: theme.colors.terminal.command,
     },
     stepsContainer: {
         marginTop: 12,
@@ -94,13 +145,31 @@ export function EmptyMainScreen() {
         <View style={styles.container}>
             {/* Terminal-style code block */}
             <Text style={styles.title}>{t('components.emptyMainScreen.readyToCode')}</Text>
-            <View style={styles.terminalBlock}>
-                <Text style={[styles.terminalText, styles.terminalTextFirst]}>
-                    $ npm i -g happy-coder
-                </Text>
-                <Text style={styles.terminalText}>
-                    $ happy
-                </Text>
+            <View style={styles.terminalWindow}>
+                <View style={styles.terminalHeader}>
+                    <View style={styles.terminalHeaderDots}>
+                        <View style={[styles.terminalHeaderDot, { backgroundColor: theme.colors.terminal.windowControlRed }]} />
+                        <View style={[styles.terminalHeaderDot, { backgroundColor: theme.colors.terminal.windowControlYellow }]} />
+                        <View style={[styles.terminalHeaderDot, styles.terminalHeaderDotLast, { backgroundColor: theme.colors.terminal.windowControlGreen }]} />
+                    </View>
+                </View>
+                <View style={styles.terminalContent}>
+                    <View style={styles.terminalLine}>
+                        <Text style={styles.terminalPrompt}>~</Text>
+                        <Text style={styles.terminalPromptArrow}>→</Text>
+                        <Text style={styles.terminalCommand}>npm i -g vibe-cli</Text>
+                    </View>
+                    <View style={styles.terminalLine}>
+                        <Text style={styles.terminalPrompt}>~</Text>
+                        <Text style={styles.terminalPromptArrow}>→</Text>
+                        <Text style={styles.terminalCommand}>vibe claude</Text>
+                    </View>
+                    <View style={styles.terminalLineLast}>
+                        <Text style={styles.terminalPrompt}>~</Text>
+                        <Text style={styles.terminalPromptArrow}>→</Text>
+                        <Text style={styles.terminalCommand}>vibe codex</Text>
+                    </View>
+                </View>
             </View>
 
 
@@ -151,7 +220,7 @@ export function EmptyMainScreen() {
                                         t('modals.authenticateTerminal'),
                                         t('modals.pasteUrlFromTerminal'),
                                         {
-                                            placeholder: 'happy://terminal?...',
+                                            placeholder: 'vibe://terminal?...',
                                             cancelText: t('common.cancel'),
                                             confirmText: t('common.authenticate')
                                         }

@@ -91,7 +91,7 @@ export const SessionView = React.memo((props: { id: string }) => {
                     left: 0,
                     right: 0,
                     height: safeArea.top,
-                    backgroundColor: theme.colors.surface,
+                    backgroundColor: theme.colors.groupped.background,
                     zIndex: 1000,
                     shadowColor: theme.colors.shadow.color,
                     shadowOffset: {
@@ -373,7 +373,7 @@ function SessionViewLoaded({ sessionId, session }: { sessionId: string, session:
             )}
 
             {/* Main content area - no padding since header is overlay */}
-            <View style={{ flexBasis: 0, flexGrow: 1, paddingBottom: safeArea.bottom + ((isRunningOnMac() || Platform.OS === 'web') ? 32 : 0) }}>
+            <View style={{ flexBasis: 0, flexGrow: 1, paddingBottom: safeArea.bottom }}>
                 <AgentContentView
                     content={content}
                     input={input}

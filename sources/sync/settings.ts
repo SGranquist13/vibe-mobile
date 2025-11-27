@@ -61,7 +61,7 @@ export const settingsDefaults: Settings = {
     experiments: false,
     alwaysShowContextSize: false,
     avatarStyle: 'brutalist',
-    showFlavorIcons: false,
+    showFlavorIcons: true,
     compactSessionView: false,
     hideInactiveSessions: false,
     reviewPromptAnswered: false,

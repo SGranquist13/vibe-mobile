@@ -57,3 +57,33 @@ export async function fetchFeed(
         };
     });
 }
+
+/**
+ * Delete a feed item
+ */
+export async function deleteFeedItem(
+    credentials: AuthCredentials,
+    itemId: string
+): Promise<void> {
+    const API_ENDPOINT = getServerUrl();
+    
+    return await backoff(async () => {
+        const url = `${API_ENDPOINT}/v1/feed/${itemId}`;
+        log.log(`🗑️ Deleting feed item: ${url}`);
+        
+        const response = await fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${credentials.token}`
+            }
+        });
+
+        if (!response.ok) {
+            if (response.status === 404) {
+                // Item already deleted, that's fine
+                return;
+            }
+            throw new Error(`Failed to delete feed item: ${response.status}`);
+        }
+    });
+}

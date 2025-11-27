@@ -5,13 +5,15 @@ import { Header } from './navigation/Header';
 import { SessionsList } from './SessionsList';
 import { EmptyMainScreen } from './EmptyMainScreen';
 import { useVisibleSessionListViewData } from '@/hooks/useVisibleSessionListViewData';
-import { useSocketStatus } from '@/sync/storage';
+import { useSocketStatus, storage } from '@/sync/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { StatusDot } from './StatusDot';
 import { Typography } from '@/constants/Typography';
 import { t } from '@/text';
+import { Modal } from '@/modal';
+import { sessionDelete } from '@/sync/ops';
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
@@ -181,19 +183,46 @@ function HeaderLeft() {
     );
 }
 
-function HeaderRight() {
+function HeaderRight({ 
+    onToggleSelectionMode, 
+    isSelectionMode 
+}: { 
+    onToggleSelectionMode: () => void;
+    isSelectionMode: boolean;
+}) {
     const router = useRouter();
     const styles = stylesheet;
     const { theme } = useUnistyles();
 
     return (
-        <Pressable
-            onPress={() => router.push('/new')}
-            hitSlop={15}
-            style={styles.headerButton}
-        >
-            <Ionicons name="add-outline" size={28} color={theme.colors.header.tint} />
-        </Pressable>
+        <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+            {isSelectionMode ? (
+                <Pressable
+                    onPress={onToggleSelectionMode}
+                    hitSlop={15}
+                    style={styles.headerButton}
+                >
+                    <Ionicons name="close-outline" size={28} color={theme.colors.header.tint} />
+                </Pressable>
+            ) : (
+                <>
+                    <Pressable
+                        onPress={onToggleSelectionMode}
+                        hitSlop={15}
+                        style={styles.headerButton}
+                    >
+                        <Ionicons name="remove-outline" size={28} color={theme.colors.header.tint} />
+                    </Pressable>
+                    <Pressable
+                        onPress={() => router.push('/new')}
+                        hitSlop={15}
+                        style={styles.headerButton}
+                    >
+                        <Ionicons name="add-outline" size={28} color={theme.colors.header.tint} />
+                    </Pressable>
+                </>
+            )}
+        </View>
     );
 }
 
@@ -201,13 +230,88 @@ export const SessionsListWrapper = React.memo(() => {
     const { theme } = useUnistyles();
     const sessionListViewData = useVisibleSessionListViewData();
     const styles = stylesheet;
+    const [isSelectionMode, setIsSelectionMode] = React.useState(false);
+    const [selectedSessionIds, setSelectedSessionIds] = React.useState<Set<string>>(new Set());
+
+    const handleToggleSelectionMode = React.useCallback(() => {
+        setIsSelectionMode(prev => !prev);
+        if (isSelectionMode) {
+            // Clear selection when exiting selection mode
+            setSelectedSessionIds(new Set());
+        }
+    }, [isSelectionMode]);
+
+    const handleToggleSessionSelection = React.useCallback((sessionId: string) => {
+        setSelectedSessionIds(prev => {
+            const next = new Set(prev);
+            if (next.has(sessionId)) {
+                next.delete(sessionId);
+            } else {
+                next.add(sessionId);
+            }
+            return next;
+        });
+    }, []);
+
+    const handleBulkDelete = React.useCallback(async () => {
+        if (selectedSessionIds.size === 0) return;
+
+        const confirmed = await Modal.confirm(
+            t('sessionInfo.deleteSession'),
+            selectedSessionIds.size === 1
+                ? t('sessionInfo.deleteSessionWarning')
+                : `Delete ${selectedSessionIds.size} sessions? This action cannot be undone.`,
+            {
+                confirmText: t('sessionInfo.deleteSession'),
+                cancelText: t('common.cancel'),
+                destructive: true,
+            }
+        );
+
+        if (!confirmed) return;
+
+        // Delete all selected sessions
+        const sessionIdsArray = Array.from(selectedSessionIds);
+        let successCount = 0;
+        let failCount = 0;
+
+        for (const sessionId of sessionIdsArray) {
+            try {
+                const result = await sessionDelete(sessionId);
+                if (result.success) {
+                    storage.getState().deleteSession(sessionId);
+                    successCount++;
+                } else {
+                    failCount++;
+                }
+            } catch (error) {
+                failCount++;
+            }
+        }
+
+        // Clear selection and exit selection mode
+        setSelectedSessionIds(new Set());
+        setIsSelectionMode(false);
+
+        if (failCount > 0) {
+            Modal.alert(
+                t('common.error'),
+                `Failed to delete ${failCount} session${failCount > 1 ? 's' : ''}.`
+            );
+        }
+    }, [selectedSessionIds]);
 
     return (
         <View style={styles.container}>
             <View style={{ backgroundColor: theme.colors.groupped.background }}>
                 <Header
                     title={<HeaderTitle />}
-                    headerRight={() => <HeaderRight />}
+                    headerRight={() => (
+                        <HeaderRight 
+                            onToggleSelectionMode={handleToggleSelectionMode}
+                            isSelectionMode={isSelectionMode}
+                        />
+                    )}
                     headerLeft={() => <HeaderLeft />}
                     headerShadowVisible={false}
                     headerTransparent={true}
@@ -227,7 +331,12 @@ export const SessionsListWrapper = React.memo(() => {
                     </View>
                 </View>
             ) : (
-                <SessionsList />
+                <SessionsList 
+                    isSelectionMode={isSelectionMode}
+                    selectedSessionIds={selectedSessionIds}
+                    onToggleSessionSelection={handleToggleSessionSelection}
+                    onBulkDelete={handleBulkDelete}
+                />
             )}
         </View>
     );

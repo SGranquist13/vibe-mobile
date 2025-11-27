@@ -66,6 +66,37 @@ const rawAgentContentSchema = z.discriminatedUnion('type', [
 ]);
 export type RawAgentContent = z.infer<typeof rawAgentContentSchema>;
 
+const geminiBaseSchema = z.object({
+    id: z.string().optional(),
+}).passthrough();
+
+const geminiTextSchema = geminiBaseSchema.extend({
+    type: z.enum(['message', 'thinking', 'system', 'error']),
+    message: z.string(),
+});
+
+const geminiToolCallSchema = geminiBaseSchema.extend({
+    type: z.literal('tool-call'),
+    name: z.string(),
+    callId: z.string(),
+    input: z.any(),
+});
+
+const geminiToolResultSchema = geminiBaseSchema.extend({
+    type: z.literal('tool-call-result'),
+    callId: z.string(),
+    output: z.any(),
+    is_error: z.boolean().optional(),
+});
+
+const geminiMessageSchema = z.discriminatedUnion('type', [
+    geminiTextSchema,
+    geminiToolCallSchema,
+    geminiToolResultSchema,
+]);
+
+export type GeminiMessage = z.infer<typeof geminiMessageSchema>;
+
 const rawAgentRecordSchema = z.discriminatedUnion('type', [z.object({
     type: z.literal('output'),
     data: z.intersection(z.discriminatedUnion('type', [
@@ -104,6 +135,9 @@ const rawAgentRecordSchema = z.discriminatedUnion('type', [z.object({
             id: z.string()
         })
     ])
+}), z.object({
+    type: z.literal('gemini'),
+    data: geminiMessageSchema
 })]);
 
 const rawRecordSchema = z.discriminatedUnion('role', [
@@ -418,6 +452,70 @@ export function normalizeRawMessage(id: string, localId: string | null, createdA
                     }],
                     meta: raw.meta
                 } satisfies NormalizedMessage;
+            }
+        }
+        if (raw.content.type === 'gemini') {
+            const gemini = raw.content.data;
+            const uuid = gemini.id ?? id;
+
+            if (gemini.type === 'tool-call') {
+                const description = typeof gemini.input === 'object' && gemini.input && 'description' in gemini.input && typeof gemini.input.description === 'string'
+                    ? gemini.input.description
+                    : null;
+
+                return {
+                    id,
+                    localId,
+                    createdAt,
+                    role: 'agent',
+                    isSidechain: false,
+                    content: [{
+                        type: 'tool-call',
+                        id: gemini.callId,
+                        name: gemini.name || 'tool',
+                        input: gemini.input,
+                        description,
+                        uuid,
+                        parentUUID: null
+                    }],
+                    meta: raw.meta
+                };
+            }
+
+            if (gemini.type === 'tool-call-result') {
+                return {
+                    id,
+                    localId,
+                    createdAt,
+                    role: 'agent',
+                    isSidechain: false,
+                    content: [{
+                        type: 'tool-result',
+                        tool_use_id: gemini.callId,
+                        content: gemini.output,
+                        is_error: Boolean(gemini.is_error),
+                        uuid,
+                        parentUUID: null
+                    }],
+                    meta: raw.meta
+                };
+            }
+
+            if (gemini.type === 'message' || gemini.type === 'thinking' || gemini.type === 'system' || gemini.type === 'error') {
+                return {
+                    id,
+                    localId,
+                    createdAt,
+                    role: 'agent',
+                    isSidechain: false,
+                    content: [{
+                        type: 'text',
+                        text: gemini.message,
+                        uuid,
+                        parentUUID: null
+                    }],
+                    meta: raw.meta
+                };
             }
         }
     }

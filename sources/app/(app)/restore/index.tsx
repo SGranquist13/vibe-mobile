@@ -54,11 +54,11 @@ const stylesheet = StyleSheet.create((theme) => ({
         padding: 16,
         borderRadius: 8,
         marginBottom: 24,
-        fontFamily: 'IBMPlexMono-Regular',
         fontSize: 14,
         minHeight: 120,
         textAlignVertical: 'top',
         color: theme.colors.input.text,
+        ...Typography.mono(),
     },
 }));
 
@@ -137,7 +137,7 @@ export default function Restore() {
 
                 <View style={{justifyContent: 'flex-end' }}>
                     <Text style={styles.secondInstructionText}>
-                        1. Open Happy on your mobile device{'\n'}
+                        1. Open Vibe-on-the-Go on your mobile device{'\n'}
                         2. Go to Settings → Account{'\n'}
                         3. Tap "Link New Device"{'\n'}
                         4. Scan this QR code
@@ -150,7 +150,7 @@ export default function Restore() {
                 )}
                 {authReady && (
                     <QRCode
-                        data={'happy:///account?' + encodeBase64(keypair.publicKey, 'base64url')}
+                        data={'vibe:///account?' + encodeBase64(keypair.publicKey, 'base64url')}
                         size={300}
                         foregroundColor={'black'}
                         backgroundColor={'white'}

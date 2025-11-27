@@ -64,7 +64,10 @@ export default function RootLayout() {
             <Stack.Screen
                 name="session/[id]"
                 options={{
-                    headerShown: false
+                    headerShown: false,
+                    contentStyle: {
+                        backgroundColor: theme.colors.groupped.background,
+                    },
                 }}
             />
             <Stack.Screen
@@ -115,6 +118,24 @@ export default function RootLayout() {
                 name="settings/features"
                 options={{
                     headerTitle: t('settings.features'),
+                }}
+            />
+            <Stack.Screen
+                name="settings/providers"
+                options={{
+                    headerTitle: t('providerSettings.title'),
+                }}
+            />
+            <Stack.Screen
+                name="settings/providers/[provider]"
+                options={{
+                    headerTitle: '',
+                }}
+            />
+            <Stack.Screen
+                name="settings/providers/import"
+                options={{
+                    headerTitle: t('providerSettings.importAgents'),
                 }}
             />
             <Stack.Screen

@@ -15,13 +15,13 @@ describe('applySuggestion', () => {
         });
         
         it('should replace : emoji at end of text', () => {
-            const content = 'I feel :hap';
+            const content = 'I feel :vib';
             const selection = { start: 11, end: 11 };
-            const result = applySuggestion(content, selection, ':happy:');
+            const result = applySuggestion(content, selection, ':vibe:');
             
             expect(result).toEqual({
-                text: 'I feel :happy: ',
-                cursorPosition: 15
+                text: 'I feel :vibe: ',
+                cursorPosition: 14
             });
         });
         

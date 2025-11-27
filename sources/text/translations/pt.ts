@@ -11,7 +11,7 @@ function plural({ count, singular, plural }: { count: number; singular: string; 
 }
 
 /**
- * Portuguese (Brazilian) translations for the Happy app
+ * Portuguese (Brazilian) translations for the Vibe on the Go app
  * Must match the exact structure of the English translations
  */
 export const pt: TranslationStructure = {
@@ -112,7 +112,7 @@ export const pt: TranslationStructure = {
         developer: 'Desenvolvedor',
         developerTools: 'Ferramentas de desenvolvedor',
         about: 'Sobre',
-        aboutFooter: 'Happy Coder é um cliente móvel para Codex e Claude Code. É totalmente criptografado ponta a ponta e sua conta é armazenada apenas no seu dispositivo. Não é afiliado à Anthropic.',
+        aboutFooter: 'Vibe on the Go é um cliente móvel para Codex e Claude Code. É totalmente criptografado ponta a ponta e sua conta é armazenada apenas no seu dispositivo. Não é afiliado à Anthropic.',
         whatsNew: 'Novidades',
         whatsNewSubtitle: 'Veja as atualizações e melhorias mais recentes',
         reportIssue: 'Relatar um problema',
@@ -246,7 +246,7 @@ export const pt: TranslationStructure = {
     newSession: {
         // Used by new-session screen and launch flows
         title: 'Iniciar nova sessão',
-        noMachinesFound: 'Nenhuma máquina encontrada. Inicie uma sessão Happy no seu computador primeiro.',
+        noMachinesFound: 'Nenhuma máquina encontrada. Inicie uma sessão Vibe no seu computador primeiro.',
         allMachinesOffline: 'Todas as máquinas estão offline',
         machineDetails: 'Ver detalhes da máquina →',
         directoryDoesNotExist: 'Diretório não encontrado',
@@ -297,7 +297,7 @@ export const pt: TranslationStructure = {
         // Used by Server Configuration screen (app/(app)/server.tsx)
         serverConfiguration: 'Configuração do servidor',
         enterServerUrl: 'Por favor, insira uma URL do servidor',
-        notValidHappyServer: 'Não é um servidor Happy válido',
+        notValidVibeServer: 'Não é um servidor vibe-on-the-go válido',
         changeServer: 'Alterar servidor',
         continueWithServer: 'Continuar com este servidor?',
         resetToDefault: 'Redefinir para padrão',
@@ -317,9 +317,9 @@ export const pt: TranslationStructure = {
         killSessionConfirm: 'Tem certeza de que deseja encerrar esta sessão?',
         archiveSession: 'Arquivar sessão',
         archiveSessionConfirm: 'Tem certeza de que deseja arquivar esta sessão?',
-        happySessionIdCopied: 'ID da sessão Happy copiado para a área de transferência',
-        failedToCopySessionId: 'Falha ao copiar ID da sessão Happy',
-        happySessionId: 'ID da sessão Happy',
+        vibeSessionIdCopied: 'ID da sessão vibe-on-the-go copiado para a área de transferência',
+        failedToCopySessionId: 'Falha ao copiar ID da sessão Vibe',
+        vibeSessionId: 'ID da sessão vibe-on-the-go',
         claudeCodeSessionId: 'ID da sessão Claude Code',
         claudeCodeSessionIdCopied: 'ID da sessão Claude Code copiado para a área de transferência',
         aiProvider: 'Provedor de IA',
@@ -342,7 +342,7 @@ export const pt: TranslationStructure = {
         path: 'Caminho',
         operatingSystem: 'Sistema operacional',
         processId: 'ID do processo',
-        happyHome: 'Diretório Happy',
+        vibeHome: 'Diretório vibe-on-the-go',
         copyMetadata: 'Copiar metadados',
         agentState: 'Estado do agente',
         controlledByUser: 'Controlado pelo usuário',
@@ -354,7 +354,7 @@ export const pt: TranslationStructure = {
         cliVersionOutdated: 'Atualização do CLI necessária',
         cliVersionOutdatedMessage: ({ currentVersion, requiredVersion }: { currentVersion: string; requiredVersion: string }) =>
             `Versão ${currentVersion} instalada. Atualize para ${requiredVersion} ou posterior`,
-        updateCliInstructions: 'Por favor execute npm install -g happy-coder@latest',
+        updateCliInstructions: 'Por favor execute npm install -g vibe-cli@latest',
         deleteSession: 'Excluir sessão',
         deleteSessionSubtitle: 'Remover permanentemente esta sessão',
         deleteSessionConfirm: 'Excluir sessão permanentemente?',
@@ -368,7 +368,7 @@ export const pt: TranslationStructure = {
         emptyMainScreen: {
             // Used by EmptyMainScreen component
             readyToCode: 'Pronto para programar?',
-            installCli: 'Instale o Happy CLI',
+            installCli: 'Instale o Vibe CLI',
             runIt: 'Execute',
             scanQrCode: 'Escaneie o código QR',
             openCamera: 'Abrir câmera',
@@ -389,6 +389,8 @@ export const pt: TranslationStructure = {
         agent: {
             claude: 'Claude',
             codex: 'Codex',
+            gemini: 'Gemini',
+            cursor: 'Cursor',
         },
         model: {
             title: 'MODELO',
@@ -396,6 +398,10 @@ export const pt: TranslationStructure = {
             adaptiveUsage: 'Opus até 50% de uso, depois Sonnet',
             sonnet: 'Sonnet',
             opus: 'Opus',
+            compactDefault: 'Padrão',
+            compactAdaptiveUsage: 'Adaptativo',
+            compactSonnet: 'Sonnet',
+            compactOpus: 'Opus',
         },
         codexPermissionMode: {
             title: 'MODO DE PERMISSÃO CODEX',
@@ -416,6 +422,32 @@ export const pt: TranslationStructure = {
             gpt5Low: 'GPT-5 Baixo',
             gpt5Medium: 'GPT-5 Médio',
             gpt5High: 'GPT-5 Alto',
+            compactGpt5CodexLow: 'Codex Baixo',
+            compactGpt5CodexMedium: 'Codex Méd',
+            compactGpt5CodexHigh: 'Codex Alto',
+            compactGpt5Minimal: '5 Mín',
+            compactGpt5Low: '5 Baixo',
+            compactGpt5Medium: '5 Méd',
+            compactGpt5High: '5 Alto',
+            compactDefault: 'Padrão',
+        },
+        geminiModel: {
+            title: 'MODELO GEMINI',
+            gemini20FlashExp: 'Gemini 2.0 Flash (Experimental)',
+            gemini20FlashThinkingExp: 'Gemini 2.0 Flash Thinking (Experimental)',
+            gemini15Pro: 'Gemini 1.5 Pro',
+            gemini15Flash: 'Gemini 1.5 Flash',
+            compactDefault: 'Padrão',
+            compactGemini20FlashExp: '2.0 Flash',
+            compactGemini20FlashThinkingExp: '2.0 Think',
+            compactGemini15Pro: '1.5 Pro',
+            compactGemini15Flash: '1.5 Flash',
+        },
+        cursorModel: {
+            title: 'MODELO CURSOR',
+            cursorDefault: 'Padrão',
+            compactDefault: 'Padrão',
+            compactCursorDefault: 'Cursor',
         },
         context: {
             remaining: ({ percent }: { percent: number }) => `${percent}% restante`,
@@ -435,7 +467,7 @@ export const pt: TranslationStructure = {
     },
 
     sidebar: {
-        sessionsTitle: 'Happy',
+        sessionsTitle: 'Vibe',
     },
 
     toolView: {
@@ -616,7 +648,7 @@ export const pt: TranslationStructure = {
         invalidConnectionLink: 'Link de conexão inválido',
         invalidConnectionLinkDescription: 'O link de conexão está ausente ou inválido. Verifique a URL e tente novamente.',
         connectTerminal: 'Conectar terminal',
-        terminalRequestDescription: 'Um terminal está solicitando conexão à sua conta Happy Coder. Isso permitirá que o terminal envie e receba mensagens com segurança.',
+        terminalRequestDescription: 'Um terminal está solicitando conexão à sua conta Vibe on the Go. Isso permitirá que o terminal envie e receba mensagens com segurança.',
         connectionDetails: 'Detalhes da conexão',
         publicKey: 'Chave pública',
         encryption: 'Criptografia',
@@ -688,7 +720,7 @@ export const pt: TranslationStructure = {
 
     machine: {
         offlineUnableToSpawn: 'Inicializador desativado enquanto a máquina está offline',
-        offlineHelp: '• Verifique se seu computador está online\n• Execute `happy daemon status` para diagnosticar\n• Você está usando a versão mais recente do CLI? Atualize com `npm install -g happy-coder@latest`',
+        offlineHelp: '• Verifique se seu computador está online\n• Execute `vibe daemon status` para diagnosticar\n• Você está usando a versão mais recente do CLI? Atualize com `npm install -g vibe-cli@latest`',
         launchNewSessionInDirectory: 'Iniciar nova sessão no diretório',
         daemon: 'Daemon',
         status: 'Status',

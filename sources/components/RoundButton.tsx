@@ -11,7 +11,7 @@ const sizes: { [key in RoundButtonSize]: { height: number, fontSize: number, hit
     small: { height: 24, fontSize: 14, hitSlop: 12, pad: Platform.OS == 'ios' ? -1 : -1 }
 }
 
-export type RoundButtonDisplay = 'default' | 'inverted';
+export type RoundButtonDisplay = 'default' | 'inverted' | 'secondary' | 'tertiary';
 
 const stylesheet = StyleSheet.create((theme) => ({
     loadingContainer: {
@@ -34,6 +34,10 @@ const stylesheet = StyleSheet.create((theme) => ({
         ...Typography.default('semiBold'),
         fontWeight: '600',
         includeFontPadding: false,
+    },
+    // Elevation for primary buttons
+    elevated: {
+        ...theme.colors.elevation.level1,
     },
 }));
 
@@ -62,16 +66,28 @@ export const RoundButton = React.memo((props: { size?: RoundButtonSize, display?
         textColor: string,
         backgroundColor: string,
         borderColor: string,
+        elevated?: boolean,
     } } = {
         default: {
             backgroundColor: theme.colors.button.primary.background,
             borderColor: 'transparent',
-            textColor: theme.colors.button.primary.tint
+            textColor: theme.colors.button.primary.tint,
+            elevated: true,
         },
         inverted: {
             backgroundColor: 'transparent',
             borderColor: 'transparent',
             textColor: theme.colors.text,
+        },
+        secondary: {
+            backgroundColor: theme.colors.button.secondary.background,
+            borderColor: theme.colors.button.secondary.border,
+            textColor: theme.colors.button.secondary.tint,
+        },
+        tertiary: {
+            backgroundColor: theme.colors.button.tertiary.background,
+            borderColor: 'transparent',
+            textColor: theme.colors.button.tertiary.tint,
         }
     }
 
@@ -91,8 +107,10 @@ export const RoundButton = React.memo((props: { size?: RoundButtonSize, display?
                     opacity: props.disabled ? 0.5 : 1,
                     overflow: 'hidden',
                 },
+                display.elevated && styles.elevated,
                 {
-                    opacity: p.pressed ? 0.9 : 1
+                    opacity: p.pressed ? 0.85 : 1,
+                    transform: [{ scale: p.pressed ? 0.98 : 1 }],
                 },
                 props.style])}
             onPress={doAction}

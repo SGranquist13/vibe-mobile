@@ -138,7 +138,7 @@ export interface SpawnSessionOptions {
     directory: string;
     approvedNewDirectoryCreation?: boolean;
     token?: string;
-    agent?: 'codex' | 'claude';
+    agent?: 'codex' | 'claude' | 'gemini' | 'cursor';
 }
 
 // Exported session operation functions
@@ -156,10 +156,10 @@ export async function machineSpawnNewSession(options: SpawnSessionOptions): Prom
             directory: string
             approvedNewDirectoryCreation?: boolean,
             token?: string,
-            agent?: 'codex' | 'claude'
+            agent?: 'codex' | 'claude' | 'gemini' | 'cursor'
         }>(
             machineId,
-            'spawn-happy-session',
+            'spawn-vibe-session',
             { type: 'spawn-in-directory', directory, approvedNewDirectoryCreation, token, agent }
         );
         return result;

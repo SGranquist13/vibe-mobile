@@ -134,7 +134,12 @@ export const ApiNewFeedPostSchema = z.object({
     body: FeedBodySchema,
     cursor: z.string(),
     createdAt: z.number(),
-    repeatKey: z.string().nullable()
+    repeatKey: z.string().nullable().optional()
+});
+
+export const ApiDeleteFeedPostSchema = z.object({
+    t: z.literal('delete-feed-post'),
+    id: z.string()
 });
 
 // KV batch update schema for real-time KV updates
@@ -148,6 +153,7 @@ export const ApiKvBatchUpdateSchema = z.object({
 });
 
 export const ApiUpdateSchema = z.discriminatedUnion('t', [
+    ApiDeleteFeedPostSchema,
     ApiUpdateNewMessageSchema,
     ApiUpdateNewSessionSchema,
     ApiDeleteSessionSchema,

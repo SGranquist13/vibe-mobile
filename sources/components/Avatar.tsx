@@ -16,6 +16,8 @@ interface AvatarProps {
     flavor?: string | null;
     imageUrl?: string | null;
     thumbhash?: string | null;
+    /** Status ring color - 'active' (teal), 'success' (green), 'warning' (orange), 'error' (red), or 'none' */
+    status?: 'active' | 'success' | 'warning' | 'error' | 'none';
 }
 
 const flavorIcons = {
@@ -41,13 +43,43 @@ const styles = StyleSheet.create((theme) => ({
         shadowRadius: 2,
         elevation: 3,
     },
+    statusRing: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        borderRadius: 9999,
+        borderWidth: 3,
+    },
+    statusActive: {
+        borderColor: theme.colors.brand.primary,
+    },
+    statusSuccess: {
+        borderColor: theme.colors.success,
+    },
+    statusWarning: {
+        borderColor: theme.colors.warning,
+    },
+    statusError: {
+        borderColor: theme.colors.warningCritical,
+    },
 }));
 
 export const Avatar = React.memo((props: AvatarProps) => {
-    const { flavor, size = 48, imageUrl, thumbhash, ...avatarProps } = props;
+    const { flavor, size = 48, imageUrl, thumbhash, status, ...avatarProps } = props;
     const avatarStyle = useSetting('avatarStyle');
     const showFlavorIcons = useSetting('showFlavorIcons');
     const { theme } = useUnistyles();
+
+    // Status ring styling
+    const statusRingStyle = status && status !== 'none' ? [
+        styles.statusRing,
+        status === 'active' && styles.statusActive,
+        status === 'success' && styles.statusSuccess,
+        status === 'warning' && styles.statusWarning,
+        status === 'error' && styles.statusError,
+    ] : null;
 
     // Render custom image if provided
     if (imageUrl) {
@@ -78,6 +110,7 @@ export const Avatar = React.memo((props: AvatarProps) => {
             return (
                 <View style={[styles.container, { width: size, height: size }]}>
                     {imageElement}
+                    {statusRingStyle && <View style={statusRingStyle} />}
                     <View style={[styles.flavorIcon, {
                         width: circleSize,
                         height: circleSize,
@@ -91,6 +124,15 @@ export const Avatar = React.memo((props: AvatarProps) => {
                             tintColor={effectiveFlavor === 'codex' ? theme.colors.text : undefined}
                         />
                     </View>
+                </View>
+            );
+        }
+
+        if (statusRingStyle) {
+            return (
+                <View style={[styles.container, { width: size, height: size }]}>
+                    {imageElement}
+                    <View style={statusRingStyle} />
                 </View>
             );
         }
@@ -121,28 +163,31 @@ export const Avatar = React.memo((props: AvatarProps) => {
             ? Math.round(size * 0.28)
             : Math.round(size * 0.35);
 
-    // Only wrap in container if showing flavor icons
-    if (showFlavorIcons) {
+    // Only wrap in container if showing flavor icons or status ring
+    if (showFlavorIcons || statusRingStyle) {
         return (
             <View style={[styles.container, { width: size, height: size }]}>
                 <AvatarComponent {...avatarProps} size={size} />
-                <View style={[styles.flavorIcon, {
-                    width: circleSize,
-                    height: circleSize,
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }]}>
-                    <Image
-                        source={flavorIcon}
-                        style={{ width: iconSize, height: iconSize }}
-                        contentFit="contain"
-                        tintColor={effectiveFlavor === 'codex' ? theme.colors.text : undefined}
-                    />
-                </View>
+                {statusRingStyle && <View style={statusRingStyle} />}
+                {showFlavorIcons && (
+                    <View style={[styles.flavorIcon, {
+                        width: circleSize,
+                        height: circleSize,
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }]}>
+                        <Image
+                            source={flavorIcon}
+                            style={{ width: iconSize, height: iconSize }}
+                            contentFit="contain"
+                            tintColor={effectiveFlavor === 'codex' ? theme.colors.text : undefined}
+                        />
+                    </View>
+                )}
             </View>
         );
     }
 
-    // Return avatar without wrapper when not showing flavor icons
+    // Return avatar without wrapper when not showing flavor icons or status
     return <AvatarComponent {...avatarProps} size={size} />;
 });
