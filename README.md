@@ -10,10 +10,7 @@
   </p>
 
   <p>
-    <a href="https://apps.apple.com/us/app/vibe-on-the-go/id6748571505">📱 iOS App</a> •
-    <a href="https://play.google.com/store/apps/details?id=com.vibeonthego">🤖 Android App</a> •
-    <a href="https://app.vibeonthego.com">🌐 Web App</a> •
-    <a href="https://youtu.be/GCS0OG9QMSE">🎥 Demo</a>
+    React Native app for <strong>iOS</strong>, <strong>Android</strong>, and <strong>Web</strong>
   </p>
 </div>
 
@@ -21,23 +18,9 @@
 
 ## 🚀 Getting Started
 
-### Download the App
-
-<div align="center">
-  <a href="https://apps.apple.com/us/app/vibe-on-the-go/id6748571505">
-    <img width="135" alt="Download on App Store" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg"/>
-  </a>
-  &nbsp;&nbsp;&nbsp;
-  <a href="https://play.google.com/store/apps/details?id=com.vibeonthego">
-    <img width="155" alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"/>
-  </a>
-</div>
-
-Or visit [app.vibeonthego.com](https://app.vibeonthego.com) for the web version.
-
 ### Connect Your Terminal
 
-1. Install the CLI: `npm install -g vibe-cli`
+1. Build and install the CLI from source (see [Development](#-development) section below)
 2. Run `vibe claude` (or `vibe codex`, `vibe gemini`, `vibe cursor`)
 3. Scan the QR code with the app to link devices
 
@@ -60,45 +43,59 @@ Or visit [app.vibeonthego.com](https://app.vibeonthego.com) for the web version.
 
 ### Prerequisites
 
-- Node.js 20+
-- Yarn
-- Expo CLI
-- Server running locally (see [main README](../README.md))
+- **Node.js 20+** and npm/yarn
+- **Expo CLI** (install with `npm install -g expo-cli` or use `npx expo`)
+- **Server running locally** (see [main README](../README.md) or [server README](../server/README.md))
+- **CLI built and linked** (see [CLI README](../cli/README.md))
 
-### Setup
+### Initial Setup
 
-```bash
-# Install dependencies
-yarn install
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/SGranquist13/vibe-mobile.git
+   cd vibe-mobile
+   ```
 
-# Start with local server
-yarn start:local-server
+2. **Install dependencies:**
+   ```bash
+   yarn install
+   ```
 
-# Or standard start (uses production server)
-yarn start
-```
+3. **Start the local server** (in a separate terminal):
+   ```bash
+   cd ../server
+   yarn dev
+   ```
+
+4. **Start the mobile app with local server:**
+   ```bash
+   cd ../mobile
+   yarn start:local-server
+   ```
 
 ### Running on Devices
 
+After starting the dev server, you can run on:
+
+- **Web browser**: Press `w` in the terminal
+- **iOS Simulator** (macOS only): Press `i` in the terminal
+- **Android Emulator**: Press `a` in the terminal
+- **Physical device**: Scan the QR code with the Expo Go app
+
+### Environment Configuration
+
+For local development, the app will automatically use `http://localhost:3005` when using `yarn start:local-server`.
+
+To use a different server URL, set the environment variable:
 ```bash
-# Web browser
-# Press 'w' after starting
-
-# iOS Simulator (macOS only)
-# Press 'i' after starting
-
-# Android Emulator
-# Press 'a' after starting
-
-# Physical device
-# Scan QR code with Expo Go app
+EXPO_PUBLIC_VIBE_SERVER_URL=http://YOUR_IP:3005 yarn start:local-server
 ```
 
 ### Available Scripts
 
 ```bash
-yarn start              # Start Expo dev server
-yarn start:local-server # Start with local server URL
+yarn start              # Start Expo dev server (uses production server)
+yarn start:local-server # Start with local server URL (http://localhost:3005)
 yarn typecheck          # Run TypeScript checks
 yarn lint               # Run ESLint
 ```
@@ -148,5 +145,10 @@ MIT License — See [LICENSE](LICENSE) for details.
 ---
 
 <div align="center">
-  <p>Part of the <a href="https://github.com/ex3ndr/vibe-on-the-go">Vibe on the Go</a> project.</p>
+  <p>Part of the <a href="https://github.com/SGranquist13/votg">Vibe on the Go</a> project.</p>
+  <p>
+    <a href="https://github.com/SGranquist13/vibe-mobile">📱 Mobile</a> •
+    <a href="https://github.com/SGranquist13/vibe-cli">💻 CLI</a> •
+    <a href="https://github.com/SGranquist13/vibe-server">🖥️ Server</a>
+  </p>
 </div>
