@@ -1,11 +1,9 @@
 import * as React from 'react';
-import { TodoView } from "@/-zen/components/TodoView";
 import { Button, ScrollView, TextInput, View } from "react-native";
 import { randomUUID } from 'expo-crypto';
 import { ItemList } from '@/components/ItemList';
 import { ItemGroup } from '@/components/ItemGroup';
 import { layout } from '@/components/layout';
-import { TodoList } from '@/-zen/components/TodoList';
 
 export default function TodoDemoScreen() {
 
@@ -31,7 +29,7 @@ export default function TodoDemoScreen() {
             <ScrollView style={{ flex: 1 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                     <View style={{ maxWidth: layout.maxWidth, flex: 1 }}>
-                        <TodoList todos={model.map(m => ({ id: m.id, title: m.value, done: m.done }))} />
+                        {/* TodoList component removed - zen feature removed */}
                     </View>
                 </View>
             </ScrollView>

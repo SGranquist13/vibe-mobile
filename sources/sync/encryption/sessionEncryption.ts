@@ -143,6 +143,7 @@ export class SessionEncryption {
 
     /**
      * Decrypt metadata using session-specific encryption
+     * For cloud sessions, metadata may be stored as plain JSON (not encrypted)
      */
     async decryptMetadata(version: number, encrypted: string): Promise<Metadata | null> {
         // Check cache first
@@ -151,20 +152,50 @@ export class SessionEncryption {
             return cached;
         }
 
-        // Decrypt if not cached
-        const encryptedData = decodeBase64(encrypted, 'base64');
-        const decrypted = await this.encryptor.decrypt([encryptedData]);
-        if (!decrypted[0]) {
-            return null;
-        }
-        const parsed = MetadataSchema.safeParse(decrypted[0]);
-        if (!parsed.success) {
-            return null;
+        // Check if metadata is already plain JSON (for cloud sessions without encryption)
+        // Cloud sessions store metadata as plain JSON string when dataEncryptionKey is null
+        if (encrypted.trim().startsWith('{')) {
+            try {
+                const parsed = MetadataSchema.safeParse(JSON.parse(encrypted));
+                if (parsed.success) {
+                    // Cache the result
+                    this.cache.setCachedMetadata(this.sessionId, version, parsed.data);
+                    return parsed.data;
+                }
+            } catch {
+                // Not valid JSON, fall through to decryption
+            }
         }
 
-        // Cache the result
-        this.cache.setCachedMetadata(this.sessionId, version, parsed.data);
-        return parsed.data;
+        // Decrypt if not cached and not plain JSON
+        try {
+            const encryptedData = decodeBase64(encrypted, 'base64');
+            const decrypted = await this.encryptor.decrypt([encryptedData]);
+            if (!decrypted[0]) {
+                return null;
+            }
+            const parsed = MetadataSchema.safeParse(decrypted[0]);
+            if (!parsed.success) {
+                return null;
+            }
+
+            // Cache the result
+            this.cache.setCachedMetadata(this.sessionId, version, parsed.data);
+            return parsed.data;
+        } catch (error) {
+            // If decryption fails, try parsing as plain JSON as fallback
+            try {
+                const parsed = MetadataSchema.safeParse(JSON.parse(encrypted));
+                if (parsed.success) {
+                    this.cache.setCachedMetadata(this.sessionId, version, parsed.data);
+                    return parsed.data;
+                }
+            } catch {
+                // Both decryption and JSON parsing failed
+                return null;
+            }
+            return null;
+        }
     }
 
     /**
@@ -177,6 +208,7 @@ export class SessionEncryption {
 
     /**
      * Decrypt agent state using session-specific encryption
+     * For cloud sessions, agent state may be stored as plain JSON (not encrypted)
      */
     async decryptAgentState(version: number, encrypted: string | null | undefined): Promise<AgentState> {
         if (!encrypted) {
@@ -189,19 +221,48 @@ export class SessionEncryption {
             return cached;
         }
 
-        // Decrypt if not cached
-        const encryptedData = decodeBase64(encrypted, 'base64');
-        const decrypted = await this.encryptor.decrypt([encryptedData]);
-        if (!decrypted[0]) {
-            return {};
-        }
-        const parsed = AgentStateSchema.safeParse(decrypted[0]);
-        if (!parsed.success) {
-            return {};
+        // Check if agent state is already plain JSON (for cloud sessions without encryption)
+        if (encrypted.trim().startsWith('{')) {
+            try {
+                const parsed = AgentStateSchema.safeParse(JSON.parse(encrypted));
+                if (parsed.success) {
+                    // Cache the result
+                    this.cache.setCachedAgentState(this.sessionId, version, parsed.data);
+                    return parsed.data;
+                }
+            } catch {
+                // Not valid JSON, fall through to decryption
+            }
         }
 
-        // Cache the result
-        this.cache.setCachedAgentState(this.sessionId, version, parsed.data);
-        return parsed.data;
+        // Decrypt if not cached and not plain JSON
+        try {
+            const encryptedData = decodeBase64(encrypted, 'base64');
+            const decrypted = await this.encryptor.decrypt([encryptedData]);
+            if (!decrypted[0]) {
+                return {};
+            }
+            const parsed = AgentStateSchema.safeParse(decrypted[0]);
+            if (!parsed.success) {
+                return {};
+            }
+
+            // Cache the result
+            this.cache.setCachedAgentState(this.sessionId, version, parsed.data);
+            return parsed.data;
+        } catch (error) {
+            // If decryption fails, try parsing as plain JSON as fallback
+            try {
+                const parsed = AgentStateSchema.safeParse(JSON.parse(encrypted));
+                if (parsed.success) {
+                    this.cache.setCachedAgentState(this.sessionId, version, parsed.data);
+                    return parsed.data;
+                }
+            } catch {
+                // Both decryption and JSON parsing failed
+                return {};
+            }
+            return {};
+        }
     }
 }

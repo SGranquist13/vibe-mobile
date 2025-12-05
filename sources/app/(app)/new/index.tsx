@@ -13,13 +13,12 @@ import { MultiTextInputHandle } from '@/components/MultiTextInput';
 import { useHeaderHeight } from '@/utils/responsive';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
-import { machineSpawnNewSession } from '@/sync/ops';
+import { machineSpawnNewSession, createCloudSession } from '@/sync/ops';
 import { Modal } from '@/modal';
 import { sync } from '@/sync/sync';
 import { SessionTypeSelector } from '@/components/SessionTypeSelector';
 import { createWorktree } from '@/utils/createWorktree';
 import { getTempData, type NewSessionData } from '@/utils/tempDataStore';
-import { linkTaskToSession } from '@/-zen/model/taskSessionLink';
 import { PermissionMode, ModelMode } from '@/components/PermissionModeSelector';
 
 // Simple temporary state for passing selections back from picker screens
@@ -373,6 +372,50 @@ function NewSessionScreen() {
         }
     }, []);
 
+    // Create Cloud Session
+    const doCreateCloudSession = React.useCallback(async () => {
+        if (isSending) return;
+        setIsSending(true);
+
+        try {
+            const result = await createCloudSession({
+                initialMessage: input,
+                agentType: agentType === 'codex' ? 'codex' : 'claude',
+            });
+
+            if (result.success && result.sessionId) {
+                // Refresh sessions to get the new cloud session
+                await sync.refreshSessions();
+
+                // Set permission and model modes on the session
+                storage.getState().updateSessionPermissionMode(result.sessionId, permissionMode);
+                storage.getState().updateSessionModelMode(result.sessionId, modelMode);
+
+                // Send initial message if provided
+                if (input.trim()) {
+                    await sync.sendMessage(result.sessionId, input);
+                }
+
+                // Navigate to session
+                router.replace(`/session/${result.sessionId}`, {
+                    dangerouslySingular() {
+                        return 'session'
+                    },
+                });
+            } else {
+                throw new Error(result.error || 'Failed to create cloud session');
+            }
+        } catch (error) {
+            console.error('Failed to create cloud session', error);
+            Modal.alert(
+                t('common.error'),
+                error instanceof Error ? error.message : 'Failed to create cloud session. Make sure E2B_API_KEY is configured on the server.'
+            );
+        } finally {
+            setIsSending(false);
+        }
+    }, [input, agentType, permissionMode, modelMode]);
+
     // Create
     const doCreate = React.useCallback(async () => {
         if (!selectedMachineId) {
@@ -431,18 +474,6 @@ function NewSessionScreen() {
                     // The metadata will be stored by the session itself once created
                 }
 
-                // Link task to session if task ID is provided
-                if (tempSessionData?.taskId && tempSessionData?.taskTitle) {
-                    const promptDisplayTitle = tempSessionData.prompt?.startsWith('Work on this task:')
-                        ? `Work on: ${tempSessionData.taskTitle}`
-                        : `Clarify: ${tempSessionData.taskTitle}`;
-                    await linkTaskToSession(
-                        tempSessionData.taskId,
-                        result.sessionId,
-                        tempSessionData.taskTitle,
-                        promptDisplayTitle
-                    );
-                }
 
                 // Load sessions
                 await sync.refreshSessions();
@@ -524,6 +555,8 @@ function NewSessionScreen() {
                     onAgentClick={handleAgentClick}
                     machineName={selectedMachine?.metadata?.displayName || selectedMachine?.metadata?.host || null}
                     onMachineClick={handleMachineClick}
+                    onCloudSessionClick={doCreateCloudSession}
+                    isCreatingCloudSession={isSending}
                     permissionMode={permissionMode}
                     onPermissionModeChange={handlePermissionModeChange}
                     modelMode={modelMode}

@@ -6,6 +6,7 @@
 import { apiSocket } from './apiSocket';
 import { sync } from './sync';
 import type { MachineMetadata } from './storageTypes';
+import { getServerUrl } from './serverConfig';
 
 // Strict type definitions for all operations
 
@@ -504,6 +505,104 @@ export async function sessionDelete(sessionId: string): Promise<{ success: boole
         return {
             success: false,
             message: error instanceof Error ? error.message : 'Unknown error'
+        };
+    }
+}
+
+/**
+ * Permanently delete a machine from the server
+ * This will remove the machine and all its associated data
+ */
+export async function machineDelete(machineId: string): Promise<{ success: boolean; message?: string }> {
+    try {
+        const response = await apiSocket.request(`/v1/machines/${machineId}`, {
+            method: 'DELETE'
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            return { success: true };
+        } else {
+            const error = await response.text();
+            return {
+                success: false,
+                message: error || 'Failed to delete machine'
+            };
+        }
+    } catch (error) {
+        return {
+            success: false,
+            message: error instanceof Error ? error.message : 'Unknown error'
+        };
+    }
+}
+
+/**
+ * Create a cloud session (E2B-based)
+ */
+export interface CreateCloudSessionOptions {
+    initialMessage?: string;
+    agentType?: 'claude' | 'codex';
+    workingDirectory?: string;
+}
+
+export interface CreateCloudSessionResult {
+    success: boolean;
+    sessionId?: string;
+    error?: string;
+}
+
+export async function createCloudSession(options: CreateCloudSessionOptions): Promise<CreateCloudSessionResult> {
+    try {
+        const credentials = sync.getCredentials();
+        if (!credentials) {
+            return {
+                success: false,
+                error: 'Not authenticated'
+            };
+        }
+
+        const API_ENDPOINT = getServerUrl();
+        const response = await fetch(`${API_ENDPOINT}/v1/cloud-session`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${credentials.token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                initialMessage: options.initialMessage,
+                agentType: options.agentType || 'claude',
+                workingDirectory: options.workingDirectory
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+            return {
+                success: false,
+                error: errorData.error || `HTTP ${response.status}`
+            };
+        }
+
+        const data = await response.json();
+        if (data.success && data.session?.sessionId) {
+            // Refresh sessions to get the new cloud session
+            await sync.refreshSessions();
+            
+            return {
+                success: true,
+                sessionId: data.session.sessionId
+            };
+        } else {
+            return {
+                success: false,
+                error: data.error || 'Failed to create cloud session'
+            };
+        }
+    } catch (error) {
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error'
         };
     }
 }
