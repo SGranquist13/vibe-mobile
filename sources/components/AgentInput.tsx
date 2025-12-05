@@ -61,6 +61,8 @@ interface AgentInputProps {
     onAgentClick?: () => void;
     machineName?: string | null;
     onMachineClick?: () => void;
+    onCloudSessionClick?: () => void;
+    isCreatingCloudSession?: boolean;
     currentPath?: string | null;
     onPathClick?: () => void;
     isSendDisabled?: boolean;
@@ -225,15 +227,18 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
     // Button styles
     actionButtonsContainer: {
         flexDirection: 'row',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'space-between',
         paddingHorizontal: 0,
+        flexWrap: 'wrap',
+        gap: 8,
     },
     actionButtonsLeft: {
         flexDirection: 'row',
         gap: 8,
         flex: 1,
-        overflow: 'hidden',
+        flexWrap: 'wrap',
+        minWidth: 0,
     },
     actionButton: {
         flexDirection: 'row',
@@ -258,6 +263,10 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         alignItems: 'center',
         flexShrink: 0,
         marginLeft: 8,
+    },
+    sendButtonMobile: {
+        marginLeft: 0,
+        marginTop: 6,
     },
     sendButtonActive: {
         backgroundColor: theme.colors.button.primary.background,
@@ -942,7 +951,10 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
 
                     {/* Action buttons below input */}
                     <View style={styles.actionButtonsContainer}>
-                        <View style={styles.actionButtonsLeft}>
+                        <View style={[
+                            styles.actionButtonsLeft,
+                            screenWidth <= 700 && { flexWrap: 'wrap', rowGap: 6 }
+                        ]}>
 
                             {/* Model selector - replaces settings wheel */}
                             {props.onModelModeChange && (
@@ -1088,6 +1100,42 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                 </Pressable>
                             )}
 
+                            {/* Cloud session button - next to machine selector */}
+                            {props.onCloudSessionClick && (
+                                <Pressable
+                                    onPress={() => {
+                                        hapticsLight();
+                                        props.onCloudSessionClick?.();
+                                    }}
+                                    hitSlop={{ top: 5, bottom: 10, left: 0, right: 0 }}
+                                    disabled={props.isCreatingCloudSession}
+                                    style={(p) => ({
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        borderRadius: Platform.select({ default: 16, android: 20 }),
+                                        paddingHorizontal: 10,
+                                        paddingVertical: 6,
+                                        justifyContent: 'center',
+                                        height: 32,
+                                        opacity: (p.pressed || props.isCreatingCloudSession) ? 0.7 : 1,
+                                        gap: 6,
+                                    })}
+                                >
+                                    <Ionicons
+                                        name="cloud-outline"
+                                        size={14}
+                                        color={theme.colors.button.secondary.tint}
+                                    />
+                                    {props.isCreatingCloudSession && (
+                                        <ActivityIndicator
+                                            size="small"
+                                            color={theme.colors.button.secondary.tint}
+                                            style={{ marginLeft: -2 }}
+                                        />
+                                    )}
+                                </Pressable>
+                            )}
+
                             {/* Path selector button */}
                             {props.currentPath && props.onPathClick && (
                                 <Pressable
@@ -1169,7 +1217,8 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                 styles.sendButton,
                                 (hasText || props.isSending || (props.onMicPress && !props.isMicActive))
                                     ? styles.sendButtonActive
-                                    : styles.sendButtonInactive
+                                    : styles.sendButtonInactive,
+                                screenWidth <= 700 && styles.sendButtonMobile
                             ]}
                         >
                             <Pressable

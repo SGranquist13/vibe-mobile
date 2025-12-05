@@ -11,9 +11,9 @@ interface SessionTypeSelectorProps {
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        backgroundColor: theme.colors.surface,
-        borderRadius: Platform.select({ default: 12, android: 16 }),
-        marginBottom: 12,
+        backgroundColor: theme.colors.input.background,
+        borderRadius: Platform.select({ default: 16, android: 20 }),
+        marginBottom: 8,
         overflow: 'hidden',
     },
     title: {
@@ -27,8 +27,8 @@ const stylesheet = StyleSheet.create((theme) => ({
     optionContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
+        paddingHorizontal: 12,
+        paddingVertical: 10,
         minHeight: 44,
     },
     optionPressed: {
@@ -62,14 +62,15 @@ const stylesheet = StyleSheet.create((theme) => ({
         justifyContent: 'space-between',
     },
     optionLabel: {
-        fontSize: 16,
-        ...Typography.default('regular'),
+        fontSize: 13,
+        fontWeight: '600',
+        ...Typography.default('semiBold'),
     },
     optionLabelActive: {
-        color: theme.colors.text,
+        color: theme.colors.button.secondary.tint,
     },
     optionLabelInactive: {
-        color: theme.colors.text,
+        color: theme.colors.button.secondary.tint,
     },
     divider: {
         height: Platform.select({ ios: 0.33, default: 0.5 }),

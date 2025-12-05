@@ -157,7 +157,7 @@ export function EmptyMainScreen() {
                     <View style={styles.terminalLine}>
                         <Text style={styles.terminalPrompt}>~</Text>
                         <Text style={styles.terminalPromptArrow}>→</Text>
-                        <Text style={styles.terminalCommand}>npm i -g vibe-cli</Text>
+                        <Text style={styles.terminalCommand}>vibe auth login</Text>
                     </View>
                     <View style={styles.terminalLine}>
                         <Text style={styles.terminalPrompt}>~</Text>

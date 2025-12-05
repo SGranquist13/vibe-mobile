@@ -71,6 +71,8 @@ export const en = {
         fileViewer: 'File Viewer',
         loading: 'Loading...',
         retry: 'Retry',
+        delete: 'Delete',
+        deleting: 'Deleting...',
     },
 
     profile: {
@@ -762,6 +764,9 @@ export const en = {
         metadataVersion: 'Metadata Version',
         untitledSession: 'Untitled Session',
         back: 'Back',
+        deleteMachineConfirm: 'Are you sure you want to delete this machine? This action cannot be undone.',
+        deleteMachinesConfirm: ({ count }: { count: number }) => `Are you sure you want to delete ${count} machine${count === 1 ? '' : 's'}? This action cannot be undone.`,
+        deleteMachinesFailed: ({ count }: { count: number }) => `Failed to delete ${count} machine${count === 1 ? '' : 's'}.`,
     },
 
     message: {
