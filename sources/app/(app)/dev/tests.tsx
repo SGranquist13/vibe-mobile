@@ -6,6 +6,7 @@ import { ItemList } from '@/components/ItemList';
 import { testRunner, TestSuite, TestResult } from '@/dev/testRunner';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/constants/Typography';
+import { useUnistyles } from 'react-native-unistyles';
 
 // Import all test files here
 import '@/encryption/hmac_sha512.appspec';
@@ -20,6 +21,7 @@ interface TestRunState {
 }
 
 export default function TestsScreen() {
+    const { theme } = useUnistyles();
     const [state, setState] = React.useState<TestRunState>({
         running: false,
         results: []
@@ -128,10 +130,10 @@ export default function TestsScreen() {
                                     <Ionicons 
                                         name={passed ? "checkmark-circle" : "close-circle"} 
                                         size={28} 
-                                        color={passed ? "#34C759" : "#FF3B30"} 
+                                        color={theme.colors.text} 
                                     />
                                 ) : (
-                                    <Ionicons name="ellipse-outline" size={28} color="#8E8E93" />
+                                    <Ionicons name="ellipse-outline" size={28} color={theme.colors.textSecondary} />
                                 )
                             }
                             onPress={() => runSuite(suiteName)}
@@ -192,7 +194,7 @@ export default function TestsScreen() {
 
             {state.running && (
                 <View style={{ padding: 32, alignItems: 'center' }}>
-                    <ActivityIndicator size="large" color="#007AFF" />
+                    <ActivityIndicator size="large" color={theme.colors.text} />
                     <Text style={{ ...Typography.default(), fontSize: 16, color: '#8E8E93', marginTop: 16 }}>
                         Running tests...
                     </Text>

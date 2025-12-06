@@ -104,7 +104,7 @@ export const SettingsView = React.memo(function SettingsView() {
     const { connectTerminal, connectWithUrl, isLoading } = useConnectTerminal();
 
     const handleGitHub = async () => {
-        const url = 'https://github.com/your-username/vibe-on-the-go';
+        const url = 'https://github.com/SGranquist13/vibe-mobile';
         const supported = await Linking.canOpenURL(url);
         if (supported) {
             await Linking.openURL(url);
@@ -112,7 +112,7 @@ export const SettingsView = React.memo(function SettingsView() {
     };
 
     const handleReportIssue = async () => {
-        const url = 'https://github.com/your-username/vibe-on-the-go/issues';
+        const url = 'https://github.com/SGranquist13/vibe-mobile/issues';
         const supported = await Linking.canOpenURL(url);
         if (supported) {
             await Linking.openURL(url);
@@ -213,11 +213,15 @@ export const SettingsView = React.memo(function SettingsView() {
                     ) : (
                         // Logo view: Original logo + version
                         <>
-                            <Image
-                                source={theme.dark ? require('@/assets/images/logotype-light.png') : require('@/assets/images/logotype-dark.png')}
-                                contentFit="contain"
-                                style={{ width: 300, height: 90, marginBottom: 12 }}
-                            />
+                            <Text style={{ 
+                                fontSize: 64, 
+                                ...Typography.logo(), 
+                                color: theme.colors.text,
+                                textAlign: 'center',
+                                marginBottom: 12
+                            }}>
+                                VOTG
+                            </Text>
                         </>
                     )}
                 </View>
@@ -225,17 +229,17 @@ export const SettingsView = React.memo(function SettingsView() {
 
             {/* Connect Terminal - Only show on native platforms */}
             {Platform.OS !== 'web' && (
-                <ItemGroup accent="none">
+                <ItemGroup accent="none" elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                     <Item
                         title={t('settings.scanQrCodeToAuthenticate')}
-                        icon={<Ionicons name="qr-code-outline" size={29} color="#007AFF" />}
+                        icon={<Ionicons name="qr-code-outline" size={29} color={theme.colors.text} />}
                         onPress={connectTerminal}
                         loading={isLoading}
                         showChevron={false}
                     />
                     <Item
                         title={t('connect.enterUrlManually')}
-                        icon={<Ionicons name="link-outline" size={29} color="#007AFF" />}
+                        icon={<Ionicons name="link-outline" size={29} color={theme.colors.text} />}
                         onPress={() => {
                             if (Platform.OS === 'ios') {
                                 Alert.prompt(
@@ -274,17 +278,17 @@ export const SettingsView = React.memo(function SettingsView() {
             )}
 
             {/* Support Us */}
-            <ItemGroup accent="none">
+            <ItemGroup accent="none" elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                 <Item
                     title={t('settings.supportUs')}
                     subtitle={isPro ? t('settings.supportUsSubtitlePro') : t('settings.supportUsSubtitle')}
-                    icon={<Ionicons name="heart" size={29} color="#FF3B30" />}
+                    icon={<Ionicons name="heart" size={29} color={theme.colors.text} />}
                     showChevron={false}
                     onPress={isPro ? undefined : handleSubscribe}
                 />
             </ItemGroup>
 
-            <ItemGroup title={t('settings.connectedAccounts')} accent="none">
+            <ItemGroup title={t('settings.connectedAccounts')} accent="none" elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                 <Item
                     title="Claude Code"
                     subtitle={isAnthropicConnected
@@ -296,6 +300,7 @@ export const SettingsView = React.memo(function SettingsView() {
                             source={require('@/assets/images/icon-claude.png')}
                             style={{ width: 29, height: 29 }}
                             contentFit="contain"
+                            tintColor={theme.colors.text}
                         />
                     }
                     onPress={isAnthropicConnected ? handleDisconnectAnthropic : connectAnthropic}
@@ -312,7 +317,7 @@ export const SettingsView = React.memo(function SettingsView() {
                         <Ionicons
                             name="logo-github"
                             size={29}
-                            color={isGitHubConnected ? theme.colors.status.connected : theme.colors.textSecondary}
+                            color={theme.colors.text}
                         />
                     }
                     onPress={isGitHubConnected ? handleDisconnectGitHub : connectGitHub}
@@ -326,14 +331,14 @@ export const SettingsView = React.memo(function SettingsView() {
                 <Item
                     title={t('navigation.friends')}
                     subtitle={t('friends.manageFriends')}
-                    icon={<Ionicons name="people-outline" size={29} color="#007AFF" />}
+                    icon={<Ionicons name="people-outline" size={29} color={theme.colors.text} />}
                     onPress={() => router.push('/friends')}
                 />
             </ItemGroup> */}
 
             {/* Machines (sorted: online first, then last seen desc) */}
             {allMachines.length > 0 && (
-                <ItemGroup title={t('settings.machines')} accent="none">
+                <ItemGroup title={t('settings.machines')} accent="none" elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                     {[...allMachines].map((machine) => {
                         const isOnline = isMachineOnline(machine);
                         const host = machine.metadata?.host || 'Unknown';
@@ -373,42 +378,42 @@ export const SettingsView = React.memo(function SettingsView() {
             )}
 
             {/* Features */}
-            <ItemGroup title={t('settings.features')} accent="none">
+            <ItemGroup title={t('settings.features')} accent="none" elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                 <Item
                     title={t('settings.account')}
                     subtitle={t('settings.accountSubtitle')}
-                    icon={<Ionicons name="person-circle-outline" size={29} color="#007AFF" />}
+                    icon={<Ionicons name="person-circle-outline" size={29} color={theme.colors.text} />}
                     onPress={() => router.push('/settings/account')}
                 />
                 <Item
                     title={t('settings.appearance')}
                     subtitle={t('settings.appearanceSubtitle')}
-                    icon={<Ionicons name="color-palette-outline" size={29} color="#5856D6" />}
+                    icon={<Ionicons name="color-palette-outline" size={29} color={theme.colors.text} />}
                     onPress={() => router.push('/settings/appearance')}
                 />
                 <Item
                     title={t('settings.voiceAssistant')}
                     subtitle={t('settings.voiceAssistantSubtitle')}
-                    icon={<Ionicons name="mic-outline" size={29} color="#34C759" />}
+                    icon={<Ionicons name="mic-outline" size={29} color={theme.colors.text} />}
                     onPress={() => router.push('/settings/voice')}
                 />
                 <Item
                     title={t('settings.featuresTitle')}
                     subtitle={t('settings.featuresSubtitle')}
-                    icon={<Ionicons name="flask-outline" size={29} color="#FF9500" />}
+                    icon={<Ionicons name="flask-outline" size={29} color={theme.colors.text} />}
                     onPress={() => router.push('/settings/features')}
                 />
                 <Item
                     title={t('providerSettings.title')}
                     subtitle={t('providerSettings.subtitle')}
-                    icon={<Ionicons name="settings-outline" size={29} color="#5856D6" />}
+                    icon={<Ionicons name="settings-outline" size={29} color={theme.colors.text} />}
                     onPress={() => router.push('/settings/providers')}
                 />
                 {experiments && (
                     <Item
                         title={t('settings.usage')}
                         subtitle={t('settings.usageSubtitle')}
-                        icon={<Ionicons name="analytics-outline" size={29} color="#007AFF" />}
+                        icon={<Ionicons name="analytics-outline" size={29} color={theme.colors.text} />}
                         onPress={() => router.push('/settings/usage')}
                     />
                 )}
@@ -416,39 +421,45 @@ export const SettingsView = React.memo(function SettingsView() {
 
             {/* Developer */}
             {(__DEV__ || devModeEnabled) && (
-                <ItemGroup title={t('settings.developer')} accent="none">
+                <ItemGroup title={t('settings.developer')} accent="none" elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                     <Item
                         title={t('settings.developerTools')}
-                        icon={<Ionicons name="construct-outline" size={29} color="#5856D6" />}
+                        icon={<Ionicons name="construct-outline" size={29} color={theme.colors.text} />}
                         onPress={() => router.push('/dev')}
                     />
                 </ItemGroup>
             )}
 
             {/* About */}
-            <ItemGroup title={t('settings.about')} footer={t('settings.aboutFooter')} accent="none">
+            <ItemGroup title={t('settings.about')} footer={t('settings.aboutFooter')} accent="none" elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                 <Item
                     title={t('settings.whatsNew')}
                     subtitle={t('settings.whatsNewSubtitle')}
-                    icon={<Ionicons name="sparkles-outline" size={29} color="#FF9500" />}
-                    onPress={() => router.push('/changelog')}
+                    icon={<Ionicons name="sparkles-outline" size={29} color={theme.colors.text} />}
+                    onPress={async () => {
+                        const url = 'https://github.com/SGranquist13/vibe-mobile/releases';
+                        const supported = await Linking.canOpenURL(url);
+                        if (supported) {
+                            await Linking.openURL(url);
+                        }
+                    }}
                 />
                 <Item
                     title={t('settings.github')}
                     icon={<Ionicons name="logo-github" size={29} color={theme.colors.text} />}
-                    detail="your-username/vibe-on-the-go"
+                    detail="SGranquist13/vibe-mobile"
                     onPress={handleGitHub}
                 />
                 <Item
                     title={t('settings.reportIssue')}
-                    icon={<Ionicons name="bug-outline" size={29} color="#FF3B30" />}
+                    icon={<Ionicons name="bug-outline" size={29} color={theme.colors.text} />}
                     onPress={handleReportIssue}
                 />
                 <Item
                     title={t('settings.privacyPolicy')}
-                    icon={<Ionicons name="shield-checkmark-outline" size={29} color="#007AFF" />}
+                    icon={<Ionicons name="shield-checkmark-outline" size={29} color={theme.colors.text} />}
                     onPress={async () => {
-                        const url = 'https://github.com/your-username/vibe-on-the-go/blob/main/PRIVACY.md';
+                        const url = 'https://github.com/SGranquist13/vibe-mobile/blob/main/PRIVACY.md';
                         const supported = await Linking.canOpenURL(url);
                         if (supported) {
                             await Linking.openURL(url);
@@ -457,9 +468,9 @@ export const SettingsView = React.memo(function SettingsView() {
                 />
                 <Item
                     title={t('settings.termsOfService')}
-                    icon={<Ionicons name="document-text-outline" size={29} color="#007AFF" />}
+                    icon={<Ionicons name="document-text-outline" size={29} color={theme.colors.text} />}
                     onPress={async () => {
-                        const url = 'https://github.com/your-username/vibe-on-the-go/blob/main/TERMS.md';
+                        const url = 'https://github.com/SGranquist13/vibe-mobile/blob/main/TERMS.md';
                         const supported = await Linking.canOpenURL(url);
                         if (supported) {
                             await Linking.openURL(url);
@@ -469,7 +480,7 @@ export const SettingsView = React.memo(function SettingsView() {
                 {Platform.OS === 'ios' && (
                     <Item
                         title={t('settings.eula')}
-                        icon={<Ionicons name="document-text-outline" size={29} color="#007AFF" />}
+                        icon={<Ionicons name="document-text-outline" size={29} color={theme.colors.text} />}
                         onPress={async () => {
                             const url = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
                             const supported = await Linking.canOpenURL(url);

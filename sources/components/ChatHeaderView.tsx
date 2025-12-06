@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, Platform, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Avatar } from '@/components/Avatar';
 import { Typography } from '@/constants/Typography';
 import { useHeaderHeight } from '@/utils/responsive';
@@ -44,7 +46,35 @@ export const ChatHeaderView: React.FC<ChatHeaderViewProps> = ({
     };
 
     return (
-        <View style={[styles.container, { paddingTop: insets.top, backgroundColor: theme.colors.header.background }]}>
+        <View style={[styles.container, { paddingTop: insets.top }]}>
+            {/* Premium background with blur and gradient */}
+            {Platform.OS === 'ios' ? (
+                <BlurView
+                    intensity={theme.dark ? 40 : 90}
+                    tint={theme.dark ? 'dark' : 'light'}
+                    style={styles.blurBackground}
+                >
+                    <LinearGradient
+                        colors={theme.dark
+                            ? ['rgba(18, 18, 20, 0.95)', 'rgba(28, 28, 30, 0.98)']
+                            : ['rgba(255, 255, 255, 0.95)', 'rgba(250, 250, 252, 0.98)']
+                        }
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 0, y: 1 }}
+                        style={styles.gradientBackground}
+                    />
+                </BlurView>
+            ) : (
+                <LinearGradient
+                    colors={theme.dark
+                        ? ['rgba(18, 18, 20, 0.98)', 'rgba(28, 28, 30, 0.98)']
+                        : ['rgba(255, 255, 255, 0.98)', 'rgba(250, 250, 252, 0.98)']
+                    }
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0, y: 1 }}
+                    style={styles.gradientBackground}
+                />
+            )}
             <View style={styles.contentWrapper}>
                 <View style={[styles.content, { height: headerHeight }]}>
                 <Pressable onPress={handleBackPress} style={styles.backButton} hitSlop={15}>
@@ -77,7 +107,7 @@ export const ChatHeaderView: React.FC<ChatHeaderViewProps> = ({
                                 styles.subtitle,
                                 {
                                     color: theme.colors.header.tint,
-                                    opacity: 0.7,
+                                    opacity: 0.75,
                                     ...Typography.default()
                                 }
                             ]}
@@ -111,10 +141,43 @@ const styles = StyleSheet.create({
     container: {
         position: 'relative',
         zIndex: 100,
+        ...Platform.select({
+            ios: {
+                shadowColor: '#000000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 8,
+            },
+            android: {
+                elevation: 4,
+            },
+            default: {
+                shadowColor: '#000000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 8,
+            },
+        }),
+    },
+    blurBackground: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+    },
+    gradientBackground: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
     },
     contentWrapper: {
         width: '100%',
         alignItems: 'center',
+        position: 'relative',
+        zIndex: 1,
     },
     content: {
         flexDirection: 'row',
@@ -133,18 +196,20 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: Platform.select({
-            ios: 15,
-            android: 15,
-            default: 16
+            ios: 16,
+            android: 16,
+            default: 17
         }),
         fontWeight: '600',
-        marginBottom: 1,
+        marginBottom: 2,
         width: '100%',
+        letterSpacing: 0.1,
     },
     subtitle: {
-        fontSize: 12,
+        fontSize: 13,
         fontWeight: '400',
-        lineHeight: 14,
+        lineHeight: 16,
+        letterSpacing: 0.2,
     },
     avatarButton: {
         width: 44,

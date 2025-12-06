@@ -50,7 +50,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         justifyContent: 'center',
     },
     logoContainer: {
-        width: 32,
+        width: 40,
         height: 32,
         alignItems: 'center',
         justifyContent: 'center',
@@ -173,12 +173,13 @@ function HeaderLeft() {
     const { theme } = useUnistyles();
     return (
         <View style={styles.logoContainer}>
-            <Image
-                source={require('@/assets/images/logo-black.png')}
-                contentFit="contain"
-                style={[{ width: 24, height: 24 }]}
-                tintColor={theme.colors.header.tint}
-            />
+            <Text style={{ 
+                fontSize: 12, 
+                ...Typography.logo(), 
+                color: theme.colors.header.tint 
+            }}>
+                VOTG
+            </Text>
         </View>
     );
 }

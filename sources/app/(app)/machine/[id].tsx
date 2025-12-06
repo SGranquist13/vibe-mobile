@@ -341,7 +341,7 @@ export default function MachineDetailScreen() {
                 {machine && (
                     <>
                         {!isMachineOnline(machine) && (
-                            <ItemGroup>
+                            <ItemGroup elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                                 <Item
                                     title={t('machine.offlineUnableToSpawn')}
                                     subtitle={t('machine.offlineHelp')}
@@ -350,7 +350,7 @@ export default function MachineDetailScreen() {
                                 />
                             </ItemGroup>
                         )}
-                        <ItemGroup title={t('machine.launchNewSessionInDirectory')}>
+                        <ItemGroup title={t('machine.launchNewSessionInDirectory')} elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                         <View style={{ opacity: isMachineOnline(machine) ? 1 : 0.5 }}>
                             <View style={styles.pathInputContainer}>
                                 <View style={[styles.pathInput, { paddingVertical: 8 }]}>
@@ -422,7 +422,7 @@ export default function MachineDetailScreen() {
                 )}
 
                 {/* Daemon */}
-                <ItemGroup title={t('machine.daemon')}>
+                <ItemGroup title={t('machine.daemon')} elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                         <Item
                             title={t('machine.status')}
                             detail={daemonStatus}
@@ -489,7 +489,7 @@ export default function MachineDetailScreen() {
 
                 {/* Previous Sessions (debug view) */}
                 {previousSessions.length > 0 && (
-                    <ItemGroup title={'Previous Sessions (up to 5 most recent)'}>
+                    <ItemGroup title={'Previous Sessions (up to 5 most recent)'} elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                         {previousSessions.map(session => (
                             <Item
                                 key={session.id}
@@ -503,7 +503,7 @@ export default function MachineDetailScreen() {
                 )}
 
                 {/* Machine */}
-                <ItemGroup title={t('machine.machineGroup')}>
+                <ItemGroup title={t('machine.machineGroup')} elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                         <Item
                             title={t('machine.host')}
                             subtitle={metadata?.host || machineId}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ActivityIndicator, ScrollView, Pressable } from 'react-native';
+import { View, ActivityIndicator, ScrollView, Pressable, Platform } from 'react-native';
 import { Text } from '@/components/StyledText';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useAuth } from '@/auth/AuthContext';
@@ -264,7 +264,7 @@ export const UsagePanel: React.FC<{ sessionId?: string }> = ({ sessionId }) => {
             
             {/* Usage by Model */}
             {topModels.length > 0 && (
-                <ItemGroup title={t('usage.byModel')}>
+                <ItemGroup title={t('usage.byModel')} elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                     <View style={{ padding: 16 }}>
                         {topModels.map(([model, tokens]) => (
                             <UsageBar

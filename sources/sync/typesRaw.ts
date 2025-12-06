@@ -148,10 +148,14 @@ const rawRecordSchema = z.discriminatedUnion('role', [
     }),
     z.object({
         role: z.literal('user'),
-        content: z.object({
-            type: z.literal('text'),
-            text: z.string()
-        }),
+        // Accept both string and object formats for content
+        content: z.union([
+            z.string(), // Handle string format: "content": "text here"
+            z.object({
+                type: z.literal('text'),
+                text: z.string()
+            })
+        ]),
         meta: MessageMetaSchema.optional()
     })
 ]);
@@ -234,12 +238,25 @@ export function normalizeRawMessage(id: string, localId: string | null, createdA
     }
     raw = parsed.data;
     if (raw.role === 'user') {
+        // Normalize content to always be {type: 'text', text: '...'} format
+        let normalizedContent: { type: 'text'; text: string };
+        if (typeof raw.content === 'string') {
+            // Handle string format: convert to object format
+            normalizedContent = {
+                type: 'text',
+                text: raw.content
+            };
+        } else {
+            // Already in object format
+            normalizedContent = raw.content;
+        }
+        
         return {
             id,
             localId,
             createdAt,
             role: 'user',
-            content: raw.content,
+            content: normalizedContent,
             isSidechain: false,
             meta: raw.meta,
         };

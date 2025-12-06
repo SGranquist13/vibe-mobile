@@ -4,6 +4,12 @@ import * as React from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Fonts from 'expo-font';
 import { FontAwesome } from '@expo/vector-icons';
+import {
+    Raleway_400Regular,
+    Raleway_400Regular_Italic,
+    Raleway_600SemiBold,
+    Raleway_700Bold,
+} from '@expo-google-fonts/raleway';
 import { AuthCredentials, TokenStorage } from '@/auth/tokenStorage';
 import { AuthProvider } from '@/auth/AuthContext';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
@@ -79,6 +85,11 @@ async function loadFonts() {
         if (!isTauri) {
             // Normal font loading for non-Tauri environments (native and regular web)
             await Fonts.loadAsync({
+                // Raleway font family
+                Raleway_400Regular,
+                Raleway_400Regular_Italic,
+                Raleway_600SemiBold,
+                Raleway_700Bold,
                 // Legacy font (kept for backward compatibility)
                 SpaceMono: require('@/assets/fonts/SpaceMono-Regular.ttf'),
 
@@ -90,6 +101,11 @@ async function loadFonts() {
             (async () => {
                 try {
                     await Fonts.loadAsync({
+                        // Raleway font family
+                        Raleway_400Regular,
+                        Raleway_400Regular_Italic,
+                        Raleway_600SemiBold,
+                        Raleway_700Bold,
                         // Legacy font (kept for backward compatibility)
                         SpaceMono: require('@/assets/fonts/SpaceMono-Regular.ttf'),
 

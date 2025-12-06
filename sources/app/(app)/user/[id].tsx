@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, ActivityIndicator, Linking } from 'react-native';
+import { View, ActivityIndicator, Linking, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Text } from '@/components/StyledText';
 import { useAuth } from '@/auth/AuthContext';
@@ -192,7 +192,7 @@ export default function UserProfileScreen() {
             </View>
 
             {/* Actions */}
-            <ItemGroup>
+            <ItemGroup elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                 {friendActions.map((action, index) => (
                     <Item
                         key={index}
@@ -207,7 +207,7 @@ export default function UserProfileScreen() {
 
             {/* GitHub Link */}
 
-            <ItemGroup>
+            <ItemGroup elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                 <Item
                     title={t('settings.github')}
                     detail={`@${userProfile.username}`} 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, TextInput, ActivityIndicator } from 'react-native';
+import { View, TextInput, ActivityIndicator, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Item } from '@/components/Item';
 import { ItemGroup } from '@/components/ItemGroup';
@@ -155,7 +155,7 @@ export default function ImportAgentsScreen() {
     if (loading) {
         return (
             <ItemList>
-                <ItemGroup>
+                <ItemGroup elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                     <View style={styles.loadingContainer}>
                         <ActivityIndicator size="large" color={theme.colors.primary} />
                         <Text style={{ marginTop: 16, color: theme.colors.typographySecondary }}>
@@ -170,7 +170,7 @@ export default function ImportAgentsScreen() {
     if (error) {
         return (
             <ItemList>
-                <ItemGroup>
+                <ItemGroup elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                     <View style={styles.errorContainer}>
                         <Ionicons
                             name="alert-circle-outline"
@@ -182,7 +182,7 @@ export default function ImportAgentsScreen() {
                         <Item
                             title={t('common.retry')}
                             onPress={loadAgents}
-                            icon={<Ionicons name="refresh-outline" size={29} color={theme.colors.primary} />}
+                            icon={<Ionicons name="refresh-outline" size={29} color={theme.colors.text} />}
                             showChevron={false}
                         />
                     </View>
@@ -208,7 +208,7 @@ export default function ImportAgentsScreen() {
 
             {/* Agents by Category */}
             {Object.keys(groupedAgents).length === 0 ? (
-                <ItemGroup>
+                <ItemGroup elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                     <View style={styles.emptyContainer}>
                         <Ionicons
                             name="search-outline"
@@ -223,18 +223,18 @@ export default function ImportAgentsScreen() {
                 </ItemGroup>
             ) : (
                 Object.entries(groupedAgents).map(([category, categoryAgents]) => (
-                    <ItemGroup key={category} title={category}>
+                    <ItemGroup key={category} title={category} elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                         {categoryAgents.map(agent => (
                             <Item
                                 key={agent.name}
                                 title={agent.name}
                                 subtitle={agent.path}
-                                icon={<Ionicons name="cube-outline" size={29} color="#007AFF" />}
+                                icon={<Ionicons name="cube-outline" size={29} color={theme.colors.text} />}
                                 rightElement={
                                     importing === agent.name ? (
                                         <ActivityIndicator size="small" color={theme.colors.primary} />
                                     ) : (
-                                        <Ionicons name="download-outline" size={20} color={theme.colors.primary} />
+                                        <Ionicons name="download-outline" size={20} color={theme.colors.text} />
                                     )
                                 }
                                 onPress={() => handleImport(agent)}

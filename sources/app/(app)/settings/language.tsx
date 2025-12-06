@@ -1,4 +1,5 @@
 import React from 'react';
+import { Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Item } from '@/components/Item';
 import { ItemGroup } from '@/components/ItemGroup';
@@ -76,6 +77,9 @@ export default function LanguageSettingsScreen() {
             <ItemGroup 
                 title={t('settingsLanguage.currentLanguage')} 
                 footer={t('settingsLanguage.description')}
+                elevated={false}
+                headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }}
+                containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}
             >
                 {languageOptions.map((option) => (
                     <Item
@@ -85,14 +89,14 @@ export default function LanguageSettingsScreen() {
                         icon={<Ionicons 
                             name="language-outline" 
                             size={29} 
-                            color="#007AFF" 
+                            color={theme.colors.text} 
                         />}
                         rightElement={
                             currentSelection === option.key ? (
                                 <Ionicons 
                                     name="checkmark" 
                                     size={20} 
-                                    color="#007AFF" 
+                                    color={theme.colors.text} 
                                 />
                             ) : null
                         }

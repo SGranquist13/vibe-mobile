@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Item } from '@/components/Item';
@@ -22,11 +23,14 @@ export default function VoiceSettingsScreen() {
             <ItemGroup 
                 title={t('settingsVoice.languageTitle')}
                 footer={t('settingsVoice.languageDescription')}
+                elevated={false}
+                headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }}
+                containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}
             >
                 <Item
                     title={t('settingsVoice.preferredLanguage')}
                     subtitle={t('settingsVoice.preferredLanguageSubtitle')}
-                    icon={<Ionicons name="language-outline" size={29} color="#007AFF" />}
+                    icon={<Ionicons name="language-outline" size={29} color={theme.colors.text} />}
                     detail={getLanguageDisplayName(currentLanguage)}
                     onPress={() => router.push('/settings/voice/language')}
                 />

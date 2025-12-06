@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { ScrollView, View, Text } from 'react-native';
+import { ScrollView, View, Text, Platform } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MarkdownView } from '@/components/markdown/MarkdownView';
@@ -11,47 +11,44 @@ import { t } from '@/text';
 const styles = StyleSheet.create((theme, runtime) => ({
     container: {
         flex: 1,
-        backgroundColor: theme.colors.surface,
+        backgroundColor: theme.colors.groupped.background,
     },
     content: {
         paddingHorizontal: 16,
-        paddingTop: 16,
+        paddingTop: 12,
     },
     entryContainer: {
-        marginBottom: 32,
+        marginBottom: 24,
     },
     versionHeader: {
         ...Typography.default('semiBold'),
         fontSize: 20,
         lineHeight: 28,
         color: theme.colors.text,
-        marginBottom: 8,
+        marginBottom: 6,
     },
     dateText: {
         ...Typography.default('regular'),
         fontSize: 14,
         lineHeight: 20,
         color: theme.colors.textSecondary,
-        marginBottom: 12,
+        marginBottom: 8,
     },
     summaryText: {
         ...Typography.default('regular'),
         fontSize: 15,
         lineHeight: 22,
         color: theme.colors.textSecondary,
-        marginBottom: 16,
+        marginBottom: 12,
     },
     changesContainer: {
-        backgroundColor: theme.colors.surfaceHigh,
-        borderRadius: 12,
-        padding: 16,
+        // No background, padding, or styling - completely flat
     },
     changeItem: {
         ...Typography.default('regular'),
         fontSize: 16,
         lineHeight: 24,
         color: theme.colors.text,
-        marginBottom: 12,
     },
     bulletPoint: {
         ...Typography.default('semiBold'),
@@ -131,7 +128,7 @@ export default function ChangelogScreen() {
                         )}
                         <View style={styles.changesContainer}>
                             {entry.changes.map((change, index) => (
-                                <View key={index} style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+                                <View key={index} style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12 }}>
                                     <Text style={styles.bulletPoint}>•</Text>
                                     <Text style={[styles.changeItem, { flex: 1 }]}>
                                         {change}

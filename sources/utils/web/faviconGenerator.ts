@@ -2,8 +2,8 @@
  * Simple utility for switching between normal and active favicons
  */
 
-const FAVICON_NORMAL = '/favicon.ico';
-const FAVICON_ACTIVE = '/favicon-active.ico';
+const FAVICON_NORMAL = '/favicon.svg';
+const FAVICON_ACTIVE = '/favicon-active.svg';
 
 /**
  * Updates the favicon in the document
@@ -16,7 +16,7 @@ function setFavicon(url: string) {
     if (!link) {
         link = document.createElement('link');
         link.rel = 'icon';
-        link.type = 'image/x-icon';
+        link.type = 'image/svg+xml';
         document.head.appendChild(link);
     }
     

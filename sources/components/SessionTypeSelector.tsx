@@ -11,10 +11,8 @@ interface SessionTypeSelectorProps {
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        backgroundColor: theme.colors.input.background,
-        borderRadius: Platform.select({ default: 16, android: 20 }),
-        marginBottom: 8,
-        overflow: 'hidden',
+        flexDirection: 'row',
+        gap: 8,
     },
     title: {
         fontSize: 13,
@@ -27,21 +25,24 @@ const stylesheet = StyleSheet.create((theme) => ({
     optionContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 12,
-        paddingVertical: 10,
-        minHeight: 44,
+        backgroundColor: theme.colors.input.background,
+        borderRadius: Platform.select({ default: 16, android: 20 }),
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        height: 32,
+        flex: 1,
     },
     optionPressed: {
         backgroundColor: theme.colors.surfacePressed,
     },
     radioButton: {
-        width: 20,
-        height: 20,
-        borderRadius: 10,
+        width: 16,
+        height: 16,
+        borderRadius: 8,
         borderWidth: 2,
         alignItems: 'center',
         justifyContent: 'center',
-        marginRight: 12,
+        marginRight: 8,
     },
     radioButtonActive: {
         borderColor: theme.colors.radio.active,
@@ -50,16 +51,10 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderColor: theme.colors.radio.inactive,
     },
     radioButtonDot: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
+        width: 6,
+        height: 6,
+        borderRadius: 3,
         backgroundColor: theme.colors.radio.dot,
-    },
-    optionContent: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
     },
     optionLabel: {
         fontSize: 13,
@@ -71,11 +66,6 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     optionLabelInactive: {
         color: theme.colors.button.secondary.tint,
-    },
-    divider: {
-        height: Platform.select({ ios: 0.33, default: 0.5 }),
-        backgroundColor: theme.colors.divider,
-        marginLeft: 48,
     },
 }));
 
@@ -89,8 +79,6 @@ export const SessionTypeSelector: React.FC<SessionTypeSelectorProps> = ({ value,
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>{t('newSession.sessionType.title')}</Text>
-            
             <Pressable
                 onPress={() => handlePress('simple')}
                 style={({ pressed }) => [
@@ -104,17 +92,13 @@ export const SessionTypeSelector: React.FC<SessionTypeSelectorProps> = ({ value,
                 ]}>
                     {value === 'simple' && <View style={styles.radioButtonDot} />}
                 </View>
-                <View style={styles.optionContent}>
-                    <Text style={[
-                        styles.optionLabel,
-                        value === 'simple' ? styles.optionLabelActive : styles.optionLabelInactive,
-                    ]}>
-                        {t('newSession.sessionType.simple')}
-                    </Text>
-                </View>
+                <Text style={[
+                    styles.optionLabel,
+                    value === 'simple' ? styles.optionLabelActive : styles.optionLabelInactive,
+                ]}>
+                    {t('newSession.sessionType.simple')}
+                </Text>
             </Pressable>
-
-            <View style={styles.divider} />
 
             <Pressable
                 onPress={() => handlePress('worktree')}
@@ -129,14 +113,12 @@ export const SessionTypeSelector: React.FC<SessionTypeSelectorProps> = ({ value,
                 ]}>
                     {value === 'worktree' && <View style={styles.radioButtonDot} />}
                 </View>
-                <View style={styles.optionContent}>
-                    <Text style={[
-                        styles.optionLabel,
-                        value === 'worktree' ? styles.optionLabelActive : styles.optionLabelInactive,
-                    ]}>
-                        {t('newSession.sessionType.worktree')}
-                    </Text>
-                </View>
+                <Text style={[
+                    styles.optionLabel,
+                    value === 'worktree' ? styles.optionLabelActive : styles.optionLabelInactive,
+                ]}>
+                    {t('newSession.sessionType.worktree')}
+                </Text>
             </Pressable>
         </View>
     );

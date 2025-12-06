@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Item } from '@/components/Item';
 import { ItemGroup } from '@/components/ItemGroup';
@@ -8,15 +9,17 @@ import { loadProviderSettings, saveProviderSettings } from '@/sync/persistence';
 import { getProviderConfig, getAgentsForProvider, getAllAgents } from '@/sync/providerSettings';
 import { t } from '@/text';
 import type { ProviderType } from '@/types/providerSettings';
+import { useUnistyles } from 'react-native-unistyles';
 
-const PROVIDERS: Array<{ type: ProviderType; name: string; icon: string; color: string }> = [
-    { type: 'claude', name: 'Claude', icon: 'sparkles-outline', color: '#007AFF' },
-    { type: 'codex', name: 'Codex', icon: 'code-outline', color: '#5856D6' },
-    { type: 'gemini', name: 'Gemini', icon: 'diamond-outline', color: '#34C759' },
-    { type: 'cursor', name: 'Cursor', icon: 'code-working-outline', color: '#FF9500' },
+const PROVIDERS: Array<{ type: ProviderType; name: string; icon: string }> = [
+    { type: 'claude', name: 'Claude', icon: 'sparkles-outline' },
+    { type: 'codex', name: 'Codex', icon: 'code-outline' },
+    { type: 'gemini', name: 'Gemini', icon: 'diamond-outline' },
+    { type: 'cursor', name: 'Cursor', icon: 'code-working-outline' },
 ];
 
 export default function ProvidersScreen() {
+    const { theme } = useUnistyles();
     const router = useRouter();
     const [settings, setSettings] = React.useState(() => loadProviderSettings());
 
@@ -36,7 +39,7 @@ export default function ProvidersScreen() {
 
     return (
         <ItemList>
-            <ItemGroup title={t('providerSettings.title')}>
+            <ItemGroup title={t('providerSettings.title')} elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                 {PROVIDERS.map(provider => {
                     try {
                         const config = getProviderConfig(settings, provider.type);
@@ -53,7 +56,7 @@ export default function ProvidersScreen() {
                                         ? t('providerSettings.providerWithSystemPrompt', { count: agentCount })
                                         : t('providerSettings.providerWithoutSystemPrompt', { count: agentCount })
                                 }
-                                icon={<Ionicons name={provider.icon as any} size={29} color={provider.color} />}
+                                icon={<Ionicons name={provider.icon as any} size={29} color={theme.colors.text} />}
                                 detail={agentCount > 0 ? `${agentCount} ${t('providerSettings.agents')}` : undefined}
                                 onPress={() => {
                                     console.log('Provider pressed:', provider.type);
@@ -69,7 +72,7 @@ export default function ProvidersScreen() {
                                 key={provider.type}
                                 title={provider.name}
                                 subtitle={t('providerSettings.notConfigured')}
-                                icon={<Ionicons name={provider.icon as any} size={29} color={provider.color} />}
+                                icon={<Ionicons name={provider.icon as any} size={29} color={theme.colors.text} />}
                                 onPress={() => {
                                     console.log('Provider pressed:', provider.type);
                                     handleProviderPress(provider.type);
@@ -81,11 +84,11 @@ export default function ProvidersScreen() {
                 })}
             </ItemGroup>
 
-            <ItemGroup title={t('providerSettings.actions')}>
+            <ItemGroup title={t('providerSettings.actions')} elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                 <Item
                     title={t('providerSettings.importAgents')}
                     subtitle={t('providerSettings.importAgentsSubtitle')}
-                    icon={<Ionicons name="download-outline" size={29} color="#007AFF" />}
+                    icon={<Ionicons name="download-outline" size={29} color={theme.colors.text} />}
                     onPress={() => {
                         console.log('Import agents pressed');
                         router.push('/settings/providers/import');

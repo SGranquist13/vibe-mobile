@@ -4,8 +4,10 @@ import { Item } from '@/components/Item';
 import { ItemGroup } from '@/components/ItemGroup';
 import { ItemList } from '@/components/ItemList';
 import { Switch } from '@/components/Switch';
+import { useUnistyles } from 'react-native-unistyles';
 
 export default function ListDemoScreen() {
+    const { theme } = useUnistyles();
     const [isEnabled, setIsEnabled] = React.useState(false);
     const [selectedItem, setSelectedItem] = React.useState<string | null>(null);
 
@@ -32,7 +34,7 @@ export default function ListDemoScreen() {
             <ItemGroup title="With Icons">
                 <Item 
                     title="Settings"
-                    icon={<Ionicons name="settings-outline" size={28} color="#007AFF" />}
+                    icon={<Ionicons name="settings-outline" size={28} color={theme.colors.text} />}
                     onPress={() => {}}
                 />
                 <Item 
@@ -43,7 +45,7 @@ export default function ListDemoScreen() {
                 />
                 <Item 
                     title="Privacy"
-                    icon={<Ionicons name="lock-closed-outline" size={28} color="#34C759" />}
+                    icon={<Ionicons name="lock-closed-outline" size={28} color={theme.colors.text} />}
                     subtitle="Control your privacy settings"
                     onPress={() => {}}
                 />

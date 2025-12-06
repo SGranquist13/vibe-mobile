@@ -17,7 +17,7 @@ function plural({ count, singular, plural }: { count: number; singular: string; 
 export const en = {
     tabs: {
         // Tab navigation labels
-        inbox: 'Inbox',
+        inbox: "What's New",
         sessions: 'Terminals',
         settings: 'Settings',
     },
@@ -292,6 +292,23 @@ export const en = {
         }
     },
 
+    pathPicker: {
+        browse: 'Browse',
+        manual: 'Manual',
+        enterPath: 'Enter Path',
+        pathPlaceholder: 'Enter path (e.g. /home/user/projects)',
+        recentPaths: 'Recent Paths',
+        suggestedPaths: 'Suggested Paths',
+        directories: 'Directories',
+        selectThisFolder: 'Select This Folder',
+        goToHome: 'Go to Home',
+        loading: 'Loading...',
+        emptyDirectory: 'This directory is empty',
+        directoryListingFailed: 'Failed to list directory',
+        browseRestrictedDirectory: 'Browse Restricted Directory',
+        browseRestrictedDirectoryMessage: ({ path }: { path: string }) => `You are about to browse a directory that hasn't been used with Vibe before: ${path}\n\nFor privacy and security, we only allow browsing directories you've previously used or your home directory. Would you like to allow browsing this directory?`,
+    },
+
     sessionHistory: {
         // Used by session history screen
         title: 'Session History',
@@ -395,7 +412,7 @@ export const en = {
     agentInput: {
         permissionMode: {
             title: 'PERMISSION MODE',
-            default: 'Default',
+            default: 'Standard Mode',
             acceptEdits: 'Accept Edits',
             plan: 'Plan Mode',
             bypassPermissions: 'Yolo Mode',
@@ -411,10 +428,10 @@ export const en = {
         },
         model: {
             title: 'MODEL',
-            default: 'Use CLI settings',
-            adaptiveUsage: 'Opus up to 50% usage, then Sonnet',
-            sonnet: 'Sonnet',
-            opus: 'Opus',
+            default: 'Claude (Default)',
+            adaptiveUsage: 'Claude Adaptive',
+            sonnet: 'Claude Sonnet',
+            opus: 'Claude Opus',
             // Compact labels for dropdown
             compactDefault: 'Default',
             compactAdaptiveUsage: 'Adaptive',
@@ -423,7 +440,7 @@ export const en = {
         },
         codexPermissionMode: {
             title: 'CODEX PERMISSION MODE',
-            default: 'CLI Settings',
+            default: 'Standard Mode',
             readOnly: 'Read Only Mode',
             safeYolo: 'Safe YOLO',
             yolo: 'YOLO',
@@ -433,9 +450,10 @@ export const en = {
         },
         codexModel: {
             title: 'CODEX MODEL',
-            gpt5CodexLow: 'gpt-5-codex low',
-            gpt5CodexMedium: 'gpt-5-codex medium',
-            gpt5CodexHigh: 'gpt-5-codex high',
+            default: 'Codex (Default)',
+            gpt5CodexLow: 'Codex Low',
+            gpt5CodexMedium: 'Codex Medium',
+            gpt5CodexHigh: 'Codex High',
             gpt5Minimal: 'GPT-5 Minimal',
             gpt5Low: 'GPT-5 Low',
             gpt5Medium: 'GPT-5 Medium',
@@ -452,6 +470,7 @@ export const en = {
         },
         geminiModel: {
             title: 'GEMINI MODEL',
+            default: 'Gemini (Default)',
             gemini20FlashExp: 'Gemini 2.0 Flash (Experimental)',
             gemini20FlashThinkingExp: 'Gemini 2.0 Flash Thinking (Experimental)',
             gemini15Pro: 'Gemini 1.5 Pro',
@@ -465,7 +484,8 @@ export const en = {
         },
         cursorModel: {
             title: 'CURSOR MODEL',
-            cursorDefault: 'Default',
+            default: 'Cursor (Default)',
+            cursorDefault: 'Cursor Default',
             // Compact labels for dropdown
             compactDefault: 'Default',
             compactCursorDefault: 'Cursor',
@@ -478,6 +498,7 @@ export const en = {
             folderLabel: 'FOLDER',
         },
         noMachinesAvailable: 'No machines',
+        cloudSession: 'Cloud',
     },
 
     machineLauncher: {
@@ -719,8 +740,8 @@ export const en = {
 
     welcome: {
         // Main welcome screen for unauthenticated users
-        title: 'Codex and Claude Code mobile client',
-        subtitle: 'End-to-end encrypted and your account is stored only on your device.',
+        title: 'Your AI Coding Agent, On The Go.',
+        subtitle: 'Monitor and control Claude Code & Codex from your mobile device. End-to-end encrypted, self-hosted, and open source.',
         createAccount: 'Create account',
         linkOrRestoreAccount: 'Link or restore account',
         loginWithMobileApp: 'Login with mobile app',

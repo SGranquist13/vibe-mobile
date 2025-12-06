@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, Pressable, ActivityIndicator, Platform } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useAcceptedFriends, useFriendRequests, useRequestedFriends, useSocketStatus, useFeedItems, useFeedLoaded, useFriendsLoaded } from '@/sync/storage';
 import { StatusDot } from './StatusDot';
@@ -147,17 +147,18 @@ function HeaderLeft() {
     const { theme } = useUnistyles();
     return (
         <View style={{
-            width: 32,
+            width: 40,
             height: 32,
             alignItems: 'center',
             justifyContent: 'center',
         }}>
-            <Image
-                source={require('@/assets/images/logo-black.png')}
-                contentFit="contain"
-                style={[{ width: 24, height: 24 }]}
-                tintColor={theme.colors.header.tint}
-            />
+            <Text style={{ 
+                fontSize: 12, 
+                ...Typography.logo(), 
+                color: theme.colors.header.tint 
+            }}>
+                VOTG
+            </Text>
         </View>
     );
 }
@@ -309,7 +310,12 @@ export const InboxView = React.memo(({}: InboxViewProps) => {
                 
                 {/* System Notifications - Highest Priority */}
                 {systemNotifications.length > 0 && (
-                    <ItemGroup title={t('inbox.systemNotifications')}>
+                    <ItemGroup 
+                        title={t('inbox.systemNotifications')} 
+                        elevated={false}
+                        headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }}
+                        containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}
+                    >
                         {systemNotifications.map((item) => (
                             <FeedItemCard
                                 key={item.id}
@@ -321,7 +327,13 @@ export const InboxView = React.memo(({}: InboxViewProps) => {
                 
                 {/* Integration Updates - Grouped by integration */}
                 {Object.entries(integrationGroups).map(([integrationName, items]) => (
-                    <ItemGroup key={integrationName} title={integrationName}>
+                    <ItemGroup 
+                        key={integrationName} 
+                        title={integrationName}
+                        elevated={false}
+                        headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }}
+                        containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}
+                    >
                         {items.map((item) => (
                             <FeedItemCard
                                 key={item.id}
@@ -333,7 +345,12 @@ export const InboxView = React.memo(({}: InboxViewProps) => {
                 
                 {/* Social Feed Items */}
                 {socialFeedItems.length > 0 && (
-                    <ItemGroup title={t('inbox.updates')}>
+                    <ItemGroup 
+                        title={t('inbox.updates')} 
+                        elevated={false}
+                        headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }}
+                        containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}
+                    >
                         {socialFeedItems.map((item) => (
                             <FeedItemCard
                                 key={item.id}
@@ -345,7 +362,12 @@ export const InboxView = React.memo(({}: InboxViewProps) => {
                 
                 {/* Friend Requests */}
                 {friendRequests.length > 0 && (
-                    <ItemGroup title={t('friends.pendingRequests')}>
+                    <ItemGroup 
+                        title={t('friends.pendingRequests')} 
+                        elevated={false}
+                        headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }}
+                        containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}
+                    >
                         {friendRequests.map((friend) => (
                             <UserCard
                                 key={friend.id}
@@ -358,7 +380,12 @@ export const InboxView = React.memo(({}: InboxViewProps) => {
 
                 {/* Requested Friends */}
                 {requestedFriends.length > 0 && (
-                    <ItemGroup title={t('friends.requestPending')}>
+                    <ItemGroup 
+                        title={t('friends.requestPending')} 
+                        elevated={false}
+                        headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }}
+                        containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}
+                    >
                         {requestedFriends.map((friend) => (
                             <UserCard
                                 key={friend.id}
@@ -371,7 +398,12 @@ export const InboxView = React.memo(({}: InboxViewProps) => {
 
                 {/* Friends List */}
                 {friends.length > 0 && (
-                    <ItemGroup title={t('friends.myFriends')}>
+                    <ItemGroup 
+                        title={t('friends.myFriends')} 
+                        elevated={false}
+                        headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }}
+                        containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}
+                    >
                         {friends.map((friend) => (
                             <UserCard
                                 key={friend.id}

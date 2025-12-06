@@ -73,7 +73,7 @@ export default {
         web: {
             bundler: "metro",
             output: "single",
-            favicon: "./sources/assets/images/favicon.png"
+            favicon: "./public/favicon.svg"
         },
         plugins: [
             require("./plugins/withEinkCompatibility.js"),

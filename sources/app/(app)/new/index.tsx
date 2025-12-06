@@ -13,7 +13,7 @@ import { MultiTextInputHandle } from '@/components/MultiTextInput';
 import { useHeaderHeight } from '@/utils/responsive';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
-import { machineSpawnNewSession, createCloudSession } from '@/sync/ops';
+import { machineSpawnNewSession, createCloudSession, improvePrompt } from '@/sync/ops';
 import { Modal } from '@/modal';
 import { sync } from '@/sync/sync';
 import { SessionTypeSelector } from '@/components/SessionTypeSelector';
@@ -104,6 +104,7 @@ function NewSessionScreen() {
         return prompt || '';
     });
     const [isSending, setIsSending] = React.useState(false);
+    const [isImprovingPrompt, setIsImprovingPrompt] = React.useState(false);
     const [sessionType, setSessionType] = React.useState<'simple' | 'worktree'>('simple');
     const ref = React.useRef<MultiTextInputHandle>(null);
     const headerHeight = useHeaderHeight();
@@ -203,10 +204,6 @@ function NewSessionScreen() {
         };
     }, []);
 
-    const handleMachineClick = React.useCallback(() => {
-        router.push('/new/pick/machine');
-    }, []);
-
     //
     // Agent selection
     //
@@ -247,6 +244,10 @@ function NewSessionScreen() {
             return newAgent;
         });
     }, [experimentsEnabled]);
+
+    const handleMachineClick = React.useCallback(() => {
+        router.push(`/new/pick/machine?agentType=${agentType}`);
+    }, [agentType, router]);
 
     //
     // Permission and Model Mode selection
@@ -511,26 +512,62 @@ function NewSessionScreen() {
         }
     }, [agentType, selectedMachineId, selectedPath, input, recentMachinePaths, sessionType, experimentsEnabled, permissionMode, modelMode]);
 
+    // Improve prompt handler
+    const handleImprovePrompt = React.useCallback(async () => {
+        if (!input.trim() || isImprovingPrompt) return;
+        
+        setIsImprovingPrompt(true);
+        try {
+            const result = await improvePrompt({
+                prompt: input,
+                agentType: agentType === 'codex' ? 'codex' : 
+                          agentType === 'gemini' ? 'gemini' :
+                          agentType === 'cursor' ? 'cursor' : 'claude'
+            });
+            
+            if (result.success && result.improvedPrompt) {
+                setInput(result.improvedPrompt);
+                // Focus the input and move cursor to end
+                ref.current?.focus();
+            } else {
+                Modal.alert(
+                    t('common.error'),
+                    result.error || 'Failed to improve prompt'
+                );
+            }
+        } catch (error) {
+            Modal.alert(
+                t('common.error'),
+                error instanceof Error ? error.message : 'Failed to improve prompt'
+            );
+        } finally {
+            setIsImprovingPrompt(false);
+        }
+    }, [input, agentType]);
+
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             keyboardVerticalOffset={Platform.OS === 'ios' ? Constants.statusBarHeight + headerHeight : 0}
             style={{
                 flex: 1,
-                justifyContent: Platform.OS === 'web' ? 'center' : 'flex-end',
-                paddingTop: Platform.OS === 'web' ? 0 : 40,
+                justifyContent: Platform.OS === 'web' ? 'center' : 'flex-start',
+                paddingTop: Platform.OS === 'web' ? 0 : 16,
                 marginBottom: safeArea.bottom,
             }}
         >
             <View style={{
                 width: '100%',
                 alignSelf: 'center',
-                paddingTop: safeArea.top,
+                flex: 1,
+                paddingTop: Platform.OS === 'web' ? safeArea.top : Math.max(safeArea.top, 16),
+                paddingHorizontal: Platform.OS === 'web' ? 0 : 8,
+                justifyContent: 'flex-end',
             }}>
                 {/* Session type selector - only show when experiments are enabled */}
                 {experimentsEnabled && (
                     <View style={[
-                        { paddingHorizontal: screenWidth > 700 ? 16 : 8, flexDirection: 'row', justifyContent: 'center' }
+                        { paddingHorizontal: screenWidth > 700 ? 16 : 8, flexDirection: 'row', justifyContent: 'center', marginBottom: 8 }
                     ]}>
                         <View style={[
                             { maxWidth: layout.maxWidth, flex: 1 }
@@ -555,52 +592,19 @@ function NewSessionScreen() {
                     onAgentClick={handleAgentClick}
                     machineName={selectedMachine?.metadata?.displayName || selectedMachine?.metadata?.host || null}
                     onMachineClick={handleMachineClick}
-                    onCloudSessionClick={doCreateCloudSession}
-                    isCreatingCloudSession={isSending}
+                    onCloudSessionClick={experimentsEnabled ? doCreateCloudSession : undefined}
+                    isCreatingCloudSession={experimentsEnabled && isSending}
                     permissionMode={permissionMode}
                     onPermissionModeChange={handlePermissionModeChange}
                     modelMode={modelMode}
                     onModelModeChange={handleModelModeChange}
+                    currentPath={selectedPath}
+                    onPathClick={handlePathClick}
+                    onImprovePrompt={handleImprovePrompt}
+                    isImprovingPrompt={isImprovingPrompt}
                     autocompletePrefixes={[]}
                     autocompleteSuggestions={async () => []}
                 />
-
-                <View style={[
-                    { paddingHorizontal: screenWidth > 700 ? 16 : 8, flexDirection: 'row', justifyContent: 'center' }
-                ]}>
-                    <View style={[
-                        { maxWidth: layout.maxWidth, flex: 1 }
-                    ]}>
-                        <Pressable
-                            onPress={handlePathClick}
-                            style={(p) => ({
-                                backgroundColor: theme.colors.input.background,
-                                borderRadius: Platform.select({ default: 16, android: 20 }),
-                                paddingHorizontal: 12,
-                                paddingVertical: 10,
-                                marginBottom: 8,
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                opacity: p.pressed ? 0.7 : 1,
-                            })}
-                        >
-                            <Ionicons
-                                name="folder-outline"
-                                size={14}
-                                color={theme.colors.button.secondary.tint}
-                            />
-                            <Text style={{
-                                fontSize: 13,
-                                color: theme.colors.button.secondary.tint,
-                                fontWeight: '600',
-                                marginLeft: 6,
-                                ...Typography.default('semiBold'),
-                            }}>
-                                {selectedPath}
-                            </Text>
-                        </Pressable>
-                    </View>
-                </View>
             </View>
         </KeyboardAvoidingView>
     )

@@ -67,13 +67,21 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
     contentContainerElevated: {
         ...theme.colors.elevation.level2,
     },
-    // Base shadow variant (subtle)
+    // Base shadow variant (subtle) - DEPRECATED, use contentContainerFlat instead
     contentContainerBase: {
         shadowColor: theme.colors.shadow.color,
         shadowOffset: { width: 0, height: 0.33 },
         shadowOpacity: theme.colors.shadow.opacity,
         shadowRadius: 0,
         elevation: 1,
+    },
+    // Completely flat variant (no shadows, no elevation)
+    contentContainerFlat: {
+        shadowColor: 'transparent',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0,
+        shadowRadius: 0,
+        elevation: 0,
     },
     // Accent border variants
     accentBorder: {
@@ -119,19 +127,21 @@ export const ItemGroup = React.memo<ItemGroupProps>((props) => {
         titleStyle,
         footerTextStyle,
         containerStyle,
-        accent = 'primary',
-        elevated = true
+        accent = 'none',
+        elevated = false
     } = props;
 
     // Build container styles with accent and elevation
+    // When elevated={false}, use completely flat styling (no shadows, no borders)
     const containerStyles = [
         styles.contentContainer,
-        elevated ? styles.contentContainerElevated : styles.contentContainerBase,
-        accent !== 'none' && styles.accentBorder,
-        accent === 'primary' && styles.accentPrimary,
-        accent === 'success' && styles.accentSuccess,
-        accent === 'warning' && styles.accentWarning,
-        accent === 'error' && styles.accentError,
+        elevated ? styles.contentContainerElevated : styles.contentContainerFlat,
+        // Only apply accent borders when elevated (for flat UI, no borders)
+        elevated && accent !== 'none' && styles.accentBorder,
+        elevated && accent === 'primary' && styles.accentPrimary,
+        elevated && accent === 'success' && styles.accentSuccess,
+        elevated && accent === 'warning' && styles.accentWarning,
+        elevated && accent === 'error' && styles.accentError,
         containerStyle
     ];
 
