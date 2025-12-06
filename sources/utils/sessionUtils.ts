@@ -73,16 +73,34 @@ export function useSessionStatus(session: Session): SessionStatus {
 }
 
 /**
+ * Extracts the folder name (last segment) from a path.
+ * Handles both Unix (/) and Windows (\) path separators.
+ * @param path - The path to extract the folder name from
+ * @returns The last segment of the path, or empty string if path is invalid
+ */
+export function getFolderName(path: string): string {
+    if (!path) return '';
+    // Normalize path separators (convert Windows backslashes to forward slashes)
+    const normalized = path.replace(/\\/g, '/');
+    // Remove trailing slashes
+    const trimmed = normalized.replace(/\/+$/, '');
+    // Get last segment
+    const segments = trimmed.split('/').filter(Boolean);
+    return segments[segments.length - 1] || '';
+}
+
+/**
  * Extracts a display name from a session's metadata path.
- * Returns the last segment of the path, or 'unknown' if no path is available.
+ * Always returns just the folder name (last path segment), regardless of summary availability.
+ * @param session - The session to get the name for
+ * @returns The folder name, or 'unknown' if no path is available
  */
 export function getSessionName(session: Session): string {
-    if (session.metadata?.summary) {
-        return session.metadata.summary.text;
-    } else if (session.metadata) {
-        const segments = session.metadata.path.split('/').filter(Boolean);
-        const lastSegment = segments.pop()!;
-        return lastSegment;
+    if (session.metadata?.path) {
+        const folderName = getFolderName(session.metadata.path);
+        if (folderName) {
+            return folderName;
+        }
     }
     return t('status.unknown');
 }
@@ -130,9 +148,15 @@ export function formatPathRelativeToHome(path: string, homeDir?: string): string
 }
 
 /**
- * Returns the session path for the subtitle.
+ * Returns the session subtitle.
+ * Shows summary text if available, otherwise shows the relative path.
+ * @param session - The session to get the subtitle for
+ * @returns Summary text if available, otherwise the formatted relative path
  */
 export function getSessionSubtitle(session: Session): string {
+    if (session.metadata?.summary?.text) {
+        return session.metadata.summary.text;
+    }
     if (session.metadata) {
         return formatPathRelativeToHome(session.metadata.path, session.metadata.homeDir);
     }

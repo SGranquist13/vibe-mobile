@@ -238,6 +238,19 @@ function SessionViewLoaded({ sessionId, session }: { sessionId: string, session:
         isMicActive: realtimeStatus === 'connected' || realtimeStatus === 'connecting'
     }), [handleMicrophonePress, realtimeStatus]);
 
+    // Create PR handler - sends PR creation prompt to existing session
+    const handleCreatePR = React.useCallback(() => {
+        const prPrompt = `Create a pull request with the current changes. Please:
+1. Check the current git status to see what files have been modified
+2. Create a new branch with a descriptive name if we're not already on a feature branch
+3. Stage and commit the changes with a clear commit message
+4. Push the branch to the remote repository
+5. Create a pull request with a descriptive title and body explaining the changes`;
+        
+        sync.sendMessage(sessionId, prPrompt);
+        trackMessageSent();
+    }, [sessionId]);
+
     // Trigger session visibility and initialize git status sync
     React.useLayoutEffect(() => {
 
@@ -302,6 +315,7 @@ function SessionViewLoaded({ sessionId, session }: { sessionId: string, session:
             onAbort={() => sessionAbort(sessionId)}
             showAbortButton={sessionStatus.state === 'thinking' || sessionStatus.state === 'waiting'}
             onFileViewerPress={experiments ? () => router.push(`/session/${sessionId}/files`) : undefined}
+            onCreatePRClick={handleCreatePR}
             // Autocomplete configuration
             autocompletePrefixes={['@', '/']}
             autocompleteSuggestions={(query) => getSuggestions(sessionId, query)}

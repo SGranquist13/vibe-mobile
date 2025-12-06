@@ -499,6 +499,7 @@ export const en = {
         },
         noMachinesAvailable: 'No machines',
         cloudSession: 'Cloud',
+        createPR: 'Create PR',
     },
 
     machineLauncher: {

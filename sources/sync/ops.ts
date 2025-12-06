@@ -665,10 +665,17 @@ export async function improvePrompt(options: ImprovePromptOptions): Promise<Impr
         });
 
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+            let errorMessage = `HTTP ${response.status}`;
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.error || errorData.message || errorMessage;
+            } catch {
+                // If JSON parsing fails, use status text or status code
+                errorMessage = response.statusText || `HTTP ${response.status}`;
+            }
             return {
                 success: false,
-                error: errorData.error || `HTTP ${response.status}`
+                error: errorMessage
             };
         }
 
