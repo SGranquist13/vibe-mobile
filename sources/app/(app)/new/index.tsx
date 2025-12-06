@@ -545,6 +545,7 @@ function NewSessionScreen() {
         }
     }, [input, agentType]);
 
+
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

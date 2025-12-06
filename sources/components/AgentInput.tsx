@@ -72,6 +72,7 @@ interface AgentInputProps {
     minHeight?: number;
     onImprovePrompt?: () => void;
     isImprovingPrompt?: boolean;
+    onCreatePRClick?: () => void;
 }
 
 const MAX_CONTEXT_SIZE = 190000;
@@ -1343,6 +1344,33 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                         )}
                                     </Pressable>
                                 </Shaker>
+                            )}
+
+                            {/* Create PR button - only for session view */}
+                            {props.onCreatePRClick && (
+                                <Pressable
+                                    style={(p) => ({
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        borderRadius: Platform.select({ default: 18, android: 22 }),
+                                        paddingHorizontal: 12,
+                                        paddingVertical: 10,
+                                        justifyContent: 'center',
+                                        minHeight: 44,
+                                        opacity: p.pressed ? 0.7 : 1,
+                                    })}
+                                    hitSlop={{ top: 5, bottom: 10, left: 0, right: 0 }}
+                                    onPress={() => {
+                                        hapticsLight();
+                                        props.onCreatePRClick?.();
+                                    }}
+                                >
+                                    <Octicons
+                                        name="git-pull-request"
+                                        size={18}
+                                        color={theme.colors.button.secondary.tint}
+                                    />
+                                </Pressable>
                             )}
 
                             {/* Git Status Badge - only for session view */}
