@@ -77,6 +77,9 @@ export default function SearchFriendsScreen() {
                 <ItemGroup
                     title={t('friends.searchInstructions')}
                     style={styles.searchSection}
+                    elevated={false}
+                    headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }}
+                    containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}
                 >
                     <View style={styles.searchContainer}>
                         <TextInput
@@ -101,6 +104,9 @@ export default function SearchFriendsScreen() {
 
                 <ItemGroup
                     style={styles.resultsGroup}
+                    elevated={false}
+                    headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }}
+                    containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}
                 >
                     <View style={styles.resultsSection}>
                         {isSearching && searchResults.length === 0 ? (

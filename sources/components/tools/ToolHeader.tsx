@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { ToolCall } from '@/sync/typesMessage';
 import { knownTools } from '@/components/tools/knownTools';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { Typography } from '@/constants/Typography';
 
 interface ToolHeaderProps {
     tool: ToolCall;
@@ -83,11 +84,13 @@ const styles = StyleSheet.create((theme) => ({
         fontWeight: '500',
         color: theme.colors.text,
         textAlign: 'center',
+        ...Typography.default(), // Ensure consistent font with messages
     },
     subtitle: {
         fontSize: 11,
         color: theme.colors.textSecondary,
         textAlign: 'center',
         marginTop: 2,
+        ...Typography.default(), // Ensure consistent font with messages
     },
 }));

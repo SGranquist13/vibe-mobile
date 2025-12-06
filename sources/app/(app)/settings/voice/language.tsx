@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, TextInput, FlatList } from 'react-native';
+import { View, TextInput, FlatList, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Item } from '@/components/Item';
@@ -88,6 +88,9 @@ export default function LanguageSelectionScreen() {
             <ItemGroup 
                 title={t('settingsVoice.language.title')} 
                 footer={t('settingsVoice.language.footer', { count: filteredLanguages.length })}
+                elevated={false}
+                headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }}
+                containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}
             >
                 <FlatList
                     data={filteredLanguages}
@@ -96,10 +99,10 @@ export default function LanguageSelectionScreen() {
                         <Item
                             title={getLanguageDisplayName(item)}
                             subtitle={item.code || t('settingsVoice.language.autoDetect')}
-                            icon={<Ionicons name="language-outline" size={29} color="#007AFF" />}
+                            icon={<Ionicons name="language-outline" size={29} color={theme.colors.text} />}
                             rightElement={
                                 voiceAssistantLanguage === item.code ? (
-                                    <Ionicons name="checkmark-circle" size={24} color="#007AFF" />
+                                    <Ionicons name="checkmark-circle" size={24} color={theme.colors.text} />
                                 ) : null
                             }
                             onPress={() => handleLanguageSelect(item.code)}

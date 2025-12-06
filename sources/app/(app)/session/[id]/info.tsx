@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { View, Text, Animated } from 'react-native';
+import { View, Text, Animated, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/constants/Typography';
@@ -187,7 +187,7 @@ function SessionInfoContent({ session }: { session: Session }) {
 
                 {/* CLI Version Warning */}
                 {isCliOutdated && (
-                    <ItemGroup>
+                    <ItemGroup elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                         <Item
                             title={t('sessionInfo.cliVersionOutdated')}
                             subtitle={t('sessionInfo.updateCliInstructions')}
@@ -199,7 +199,7 @@ function SessionInfoContent({ session }: { session: Session }) {
                 )}
 
                 {/* Session Details */}
-                <ItemGroup>
+                <ItemGroup elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                     <Item
                         title={t('sessionInfo.vibeSessionId')}
                         subtitle={`${session.id.substring(0, 8)}...${session.id.substring(session.id.length - 8)}`}
@@ -248,7 +248,7 @@ function SessionInfoContent({ session }: { session: Session }) {
                 </ItemGroup>
 
                 {/* Quick Actions */}
-                <ItemGroup title={t('sessionInfo.quickActions')}>
+                <ItemGroup title={t('sessionInfo.quickActions')} elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                     {session.metadata?.machineId && (
                         <Item
                             title={t('sessionInfo.viewMachine')}
@@ -277,7 +277,7 @@ function SessionInfoContent({ session }: { session: Session }) {
 
                 {/* Metadata */}
                 {session.metadata && (
-                    <ItemGroup title={t('sessionInfo.metadata')}>
+                    <ItemGroup title={t('sessionInfo.metadata')} elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                         <Item
                             title={t('sessionInfo.host')}
                             subtitle={session.metadata.host}
@@ -345,7 +345,7 @@ function SessionInfoContent({ session }: { session: Session }) {
 
                 {/* Agent State */}
                 {session.agentState && (
-                    <ItemGroup title={t('sessionInfo.agentState')}>
+                    <ItemGroup title={t('sessionInfo.agentState')} elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                         <Item
                             title={t('sessionInfo.controlledByUser')}
                             detail={session.agentState.controlledByUser ? t('common.yes') : t('common.no')}
@@ -364,7 +364,7 @@ function SessionInfoContent({ session }: { session: Session }) {
                 )}
 
                 {/* Activity */}
-                <ItemGroup title={t('sessionInfo.activity')}>
+                <ItemGroup title={t('sessionInfo.activity')} elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                     <Item
                         title={t('sessionInfo.thinking')}
                         detail={session.thinking ? t('common.yes') : t('common.no')}
@@ -383,7 +383,7 @@ function SessionInfoContent({ session }: { session: Session }) {
 
                 {/* Raw JSON (Dev Mode Only) */}
                 {devModeEnabled && (
-                    <ItemGroup title="Raw JSON (Dev Mode)">
+                    <ItemGroup title="Raw JSON (Dev Mode)" elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                         {session.agentState && (
                             <>
                                 <Item

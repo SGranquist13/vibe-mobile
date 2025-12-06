@@ -2,7 +2,6 @@ import * as React from 'react';
 import { View, Pressable, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { Image } from 'expo-image';
 import { t } from '@/text';
 import { Typography } from '@/constants/Typography';
 import { layout } from '@/components/layout';
@@ -93,6 +92,10 @@ const styles = StyleSheet.create((theme) => ({
         borderRadius: 3,
         backgroundColor: theme.colors.brand.primary,
     },
+    iconSymbol: {
+        fontSize: 24,
+        lineHeight: 24,
+    },
 }));
 
 export const TabBar = React.memo(({ activeTab, onTabPress, inboxBadgeCount = 0 }: TabBarProps) => {
@@ -101,11 +104,11 @@ export const TabBar = React.memo(({ activeTab, onTabPress, inboxBadgeCount = 0 }
     const inboxHasContent = useInboxHasContent();
     const settings = useSettings();
 
-    const tabs: { key: TabType; icon: any; label: string }[] = React.useMemo(() => {
+    const tabs: { key: TabType; symbol: string; label: string }[] = React.useMemo(() => {
         return [
-            { key: 'inbox', icon: require('@/assets/images/brutalist/Brutalism 27.png'), label: t('tabs.inbox') },
-            { key: 'sessions', icon: require('@/assets/images/brutalist/Brutalism 15.png'), label: t('tabs.sessions') },
-            { key: 'settings', icon: require('@/assets/images/brutalist/Brutalism 9.png'), label: t('tabs.settings') },
+            { key: 'inbox', symbol: '✉', label: t('tabs.inbox') },
+            { key: 'sessions', symbol: '◉', label: t('tabs.sessions') },
+            { key: 'settings', symbol: '⚙', label: t('tabs.settings') },
         ];
     }, []);
 
@@ -126,12 +129,12 @@ export const TabBar = React.memo(({ activeTab, onTabPress, inboxBadgeCount = 0 }
                             {isActive && <View style={styles.activeIndicator} />}
 
                             <View style={styles.tabContent}>
-                                <Image
-                                    source={tab.icon}
-                                    contentFit="contain"
-                                    style={[{ width: 24, height: 24 }]}
-                                    tintColor={isActive ? theme.colors.brand.primary : theme.colors.textSecondary}
-                                />
+                                <Text style={[
+                                    styles.iconSymbol,
+                                    { color: isActive ? theme.colors.text : theme.colors.textSecondary }
+                                ]}>
+                                    {tab.symbol}
+                                </Text>
                                 {tab.key === 'inbox' && inboxBadgeCount > 0 && (
                                     <View style={styles.badge}>
                                         <Text style={styles.badgeText}>

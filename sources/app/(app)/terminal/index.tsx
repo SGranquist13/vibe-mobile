@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, Platform } from 'react-native';
 import { Text } from '@/components/StyledText';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Typography } from '@/constants/Typography';
@@ -51,7 +51,7 @@ export default function TerminalScreen() {
         return (
             <>
                 <ItemList>
-                    <ItemGroup>
+                    <ItemGroup elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                         <View style={{
                             alignItems: 'center',
                             paddingVertical: 32,
@@ -93,7 +93,7 @@ export default function TerminalScreen() {
         <>
             <ItemList>
                 {/* Connection Request Header */}
-                <ItemGroup>
+                <ItemGroup elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                     <View style={{
                         alignItems: 'center',
                         paddingVertical: 24,
@@ -127,7 +127,7 @@ export default function TerminalScreen() {
                 </ItemGroup>
 
                 {/* Connection Details */}
-                <ItemGroup title={t('terminal.connectionDetails')}>
+                <ItemGroup title={t('terminal.connectionDetails')} elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                     <Item
                         title={t('terminal.publicKey')}
                         detail={`${publicKey.substring(0, 12)}...`}
@@ -143,7 +143,7 @@ export default function TerminalScreen() {
                 </ItemGroup>
 
                 {/* Action Buttons */}
-                <ItemGroup>
+                <ItemGroup elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                     <View style={{
                         paddingHorizontal: 16,
                         paddingVertical: 16,
@@ -170,6 +170,9 @@ export default function TerminalScreen() {
                 <ItemGroup
                     title={t('terminal.security')}
                     footer={t('terminal.securityFooterDevice')}
+                    elevated={false}
+                    headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }}
+                    containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}
                 >
                     <Item
                         title={t('terminal.clientSideProcessing')}

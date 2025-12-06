@@ -224,6 +224,29 @@ export async function machineBash(
 }
 
 /**
+ * List directory contents on a specific machine
+ */
+export async function machineListDirectory(
+    machineId: string,
+    path: string
+): Promise<SessionListDirectoryResponse> {
+    try {
+        const request: SessionListDirectoryRequest = { path };
+        const response = await apiSocket.machineRPC<SessionListDirectoryResponse, SessionListDirectoryRequest>(
+            machineId,
+            'listDirectory',
+            request
+        );
+        return response;
+    } catch (error) {
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error'
+        };
+    }
+}
+
+/**
  * Update machine metadata with optimistic concurrency control and automatic retry
  */
 export async function machineUpdateMetadata(
@@ -597,6 +620,68 @@ export async function createCloudSession(options: CreateCloudSessionOptions): Pr
             return {
                 success: false,
                 error: data.error || 'Failed to create cloud session'
+            };
+        }
+    } catch (error) {
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error'
+        };
+    }
+}
+
+export interface ImprovePromptOptions {
+    prompt: string;
+    agentType: 'claude' | 'codex' | 'gemini' | 'cursor';
+}
+
+export interface ImprovePromptResult {
+    success: boolean;
+    improvedPrompt?: string;
+    error?: string;
+}
+
+export async function improvePrompt(options: ImprovePromptOptions): Promise<ImprovePromptResult> {
+    try {
+        const credentials = sync.getCredentials();
+        if (!credentials) {
+            return {
+                success: false,
+                error: 'Not authenticated'
+            };
+        }
+
+        const API_ENDPOINT = getServerUrl();
+        const response = await fetch(`${API_ENDPOINT}/v1/improve-prompt`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${credentials.token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                prompt: options.prompt,
+                agentType: options.agentType
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+            return {
+                success: false,
+                error: errorData.error || `HTTP ${response.status}`
+            };
+        }
+
+        const data = await response.json();
+        if (data.success && data.improvedPrompt) {
+            return {
+                success: true,
+                improvedPrompt: data.improvedPrompt
+            };
+        } else {
+            return {
+                success: false,
+                error: data.error || 'Failed to improve prompt'
             };
         }
     } catch (error) {

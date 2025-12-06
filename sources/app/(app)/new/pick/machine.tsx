@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, ActivityIndicator, Pressable } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, Pressable, Image, Platform } from 'react-native';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ItemGroup } from '@/components/ItemGroup';
@@ -16,6 +16,13 @@ import { ItemList } from '@/components/ItemList';
 import { Modal } from '@/modal';
 import { machineDelete } from '@/sync/ops';
 import { sync } from '@/sync/sync';
+
+const flavorIcons = {
+    claude: require('@/assets/images/icon-claude.png'),
+    codex: require('@/assets/images/icon-gpt.png'),
+    gemini: require('@/assets/images/icon-gemini.png'),
+    cursor: require('@/assets/images/icon-gpt.png'), // Use GPT icon for cursor as placeholder
+};
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
@@ -91,12 +98,16 @@ export default function MachinePickerScreen() {
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const router = useRouter();
-    const params = useLocalSearchParams<{ selectedId?: string }>();
+    const params = useLocalSearchParams<{ selectedId?: string; agentType?: string }>();
     const machines = useAllMachines();
     const safeArea = useSafeAreaInsets();
     const [isSelectionMode, setIsSelectionMode] = React.useState(false);
     const [selectedMachineIds, setSelectedMachineIds] = React.useState<Set<string>>(new Set());
     const [isDeleting, setIsDeleting] = React.useState(false);
+    
+    // Get agent type from params, default to 'claude'
+    const agentType = (params.agentType as 'claude' | 'codex' | 'gemini' | 'cursor') || 'claude';
+    const providerIcon = flavorIcons[agentType] || flavorIcons.claude;
 
     const handleSelectMachine = (machineId: string) => {
         if (isSelectionMode) {
@@ -298,7 +309,7 @@ export default function MachinePickerScreen() {
                     </View>
                 )}
 
-                <ItemGroup>
+                <ItemGroup elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                     {machines.map((machine) => {
                         const displayName = machine.metadata?.displayName || machine.metadata?.host || machine.id;
                         const hostName = machine.metadata?.host || machine.id;
@@ -326,11 +337,22 @@ export default function MachinePickerScreen() {
                                             )}
                                         </View>
                                     ) : (
-                                        <Ionicons
-                                            name="desktop-outline"
-                                            size={24}
-                                            color={offline ? theme.colors.textSecondary : theme.colors.text}
-                                        />
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                            <Ionicons
+                                                name="desktop-outline"
+                                                size={24}
+                                                color={offline ? theme.colors.textSecondary : theme.colors.text}
+                                            />
+                                            <Image
+                                                source={providerIcon}
+                                                style={{
+                                                    width: 20,
+                                                    height: 20,
+                                                    opacity: offline ? 0.5 : 1,
+                                                }}
+                                                tintColor={agentType === 'codex' ? theme.colors.text : undefined}
+                                            />
+                                        </View>
                                     )
                                 }
                                 detail={!isSelectionMode && (offline ? 'offline' : 'online')}

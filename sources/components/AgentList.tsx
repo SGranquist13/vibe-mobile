@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Pressable } from 'react-native';
+import { View, Pressable, Platform } from 'react-native';
 import { Item } from '@/components/Item';
 import { ItemGroup } from '@/components/ItemGroup';
 import { ItemList } from '@/components/ItemList';
@@ -111,7 +111,7 @@ export const AgentList = React.memo(function AgentList({
     if (agents.length === 0) {
         return (
             <ItemList>
-                <ItemGroup>
+                <ItemGroup elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                     <View style={styles.emptyContainer}>
                         <Ionicons
                             name="cube-outline"
@@ -130,7 +130,7 @@ export const AgentList = React.memo(function AgentList({
 
     return (
         <ItemList>
-            <ItemGroup title={t('providerSettings.agents')}>
+            <ItemGroup title={t('providerSettings.agents')} elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                 {agents.map((agent) => {
                     const providerColor = getProviderColor(agent.provider);
                     const providerIcon = getProviderIcon(agent.provider);

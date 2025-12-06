@@ -6,8 +6,10 @@ import { ItemList } from '@/components/ItemList';
 import { useSettingMutable, useLocalSettingMutable } from '@/sync/storage';
 import { Switch } from '@/components/Switch';
 import { t } from '@/text';
+import { useUnistyles } from 'react-native-unistyles';
 
 export default function FeaturesSettingsScreen() {
+    const { theme } = useUnistyles();
     const [experiments, setExperiments] = useSettingMutable('experiments');
     const [commandPaletteEnabled, setCommandPaletteEnabled] = useLocalSettingMutable('commandPaletteEnabled');
     const [markdownCopyV2, setMarkdownCopyV2] = useLocalSettingMutable('markdownCopyV2');
@@ -19,11 +21,14 @@ export default function FeaturesSettingsScreen() {
             <ItemGroup 
                 title={t('settingsFeatures.experiments')}
                 footer={t('settingsFeatures.experimentsDescription')}
+                elevated={false}
+                headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }}
+                containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}
             >
                 <Item
                     title={t('settingsFeatures.experimentalFeatures')}
                     subtitle={experiments ? t('settingsFeatures.experimentalFeaturesEnabled') : t('settingsFeatures.experimentalFeaturesDisabled')}
-                    icon={<Ionicons name="flask-outline" size={29} color="#5856D6" />}
+                    icon={<Ionicons name="flask-outline" size={29} color={theme.colors.text} />}
                     rightElement={
                         <Switch
                             value={experiments}
@@ -35,7 +40,7 @@ export default function FeaturesSettingsScreen() {
                 <Item
                     title={t('settingsFeatures.markdownCopyV2')}
                     subtitle={t('settingsFeatures.markdownCopyV2Subtitle')}
-                    icon={<Ionicons name="text-outline" size={29} color="#34C759" />}
+                    icon={<Ionicons name="text-outline" size={29} color={theme.colors.text} />}
                     rightElement={
                         <Switch
                             value={markdownCopyV2}
@@ -47,7 +52,7 @@ export default function FeaturesSettingsScreen() {
                 <Item
                     title={t('settingsFeatures.hideInactiveSessions')}
                     subtitle={t('settingsFeatures.hideInactiveSessionsSubtitle')}
-                    icon={<Ionicons name="eye-off-outline" size={29} color="#FF9500" />}
+                    icon={<Ionicons name="eye-off-outline" size={29} color={theme.colors.text} />}
                     rightElement={
                         <Switch
                             value={hideInactiveSessions}
@@ -63,11 +68,14 @@ export default function FeaturesSettingsScreen() {
                 <ItemGroup 
                     title={t('settingsFeatures.webFeatures')}
                     footer={t('settingsFeatures.webFeaturesDescription')}
+                    elevated={false}
+                    headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }}
+                    containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}
                 >
                     <Item
                         title={t('settingsFeatures.commandPalette')}
                         subtitle={commandPaletteEnabled ? t('settingsFeatures.commandPaletteEnabled') : t('settingsFeatures.commandPaletteDisabled')}
-                        icon={<Ionicons name="keypad-outline" size={29} color="#007AFF" />}
+                        icon={<Ionicons name="keypad-outline" size={29} color={theme.colors.text} />}
                         rightElement={
                             <Switch
                                 value={commandPaletteEnabled}

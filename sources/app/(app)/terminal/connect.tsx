@@ -54,7 +54,7 @@ export default function TerminalConnectScreen() {
     if (Platform.OS !== 'web') {
         return (
             <ItemList>
-                <ItemGroup>
+                <ItemGroup elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                     <View style={{ 
                         alignItems: 'center',
                         paddingVertical: 32,
@@ -93,7 +93,7 @@ export default function TerminalConnectScreen() {
     if (!hashProcessed) {
         return (
             <ItemList>
-                <ItemGroup>
+                <ItemGroup elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                     <View style={{ 
                         alignItems: 'center',
                         paddingVertical: 32,
@@ -112,7 +112,7 @@ export default function TerminalConnectScreen() {
     if (!publicKey) {
         return (
             <ItemList>
-                <ItemGroup>
+                <ItemGroup elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                     <View style={{ 
                         alignItems: 'center',
                         paddingVertical: 32,
@@ -152,7 +152,7 @@ export default function TerminalConnectScreen() {
     return (
         <ItemList>
             {/* Connection Request Header */}
-            <ItemGroup>
+            <ItemGroup elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                 <View style={{ 
                     alignItems: 'center',
                     paddingVertical: 24,
@@ -185,7 +185,7 @@ export default function TerminalConnectScreen() {
             </ItemGroup>
 
             {/* Connection Details */}
-            <ItemGroup title={t('terminal.connectionDetails')}>
+            <ItemGroup title={t('terminal.connectionDetails')} elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                 <Item
                     title={t('terminal.publicKey')}
                     detail={`${publicKey.substring(0, 12)}...`}
@@ -201,7 +201,7 @@ export default function TerminalConnectScreen() {
             </ItemGroup>
 
             {/* Action Buttons */}
-            <ItemGroup>
+            <ItemGroup elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                 <View style={{ 
                     paddingHorizontal: 16,
                     paddingVertical: 16,
@@ -228,6 +228,9 @@ export default function TerminalConnectScreen() {
             <ItemGroup 
                 title={t('terminal.security')}
                 footer={t('terminal.securityFooter')}
+                elevated={false}
+                headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }}
+                containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}
             >
                 <Item
                     title={t('terminal.clientSideProcessing')}

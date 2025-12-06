@@ -108,6 +108,9 @@ export const SystemPromptEditor = React.memo(function SystemPromptEditor({
                     ? t('providerSettings.systemPromptAppendDescription')
                     : t('providerSettings.systemPromptReplaceDescription')
                 }
+                elevated={false}
+                headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }}
+                containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}
             >
                 <Item
                     title={t('providerSettings.enableSystemPrompt')}

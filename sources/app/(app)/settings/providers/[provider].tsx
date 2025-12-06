@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { View, ScrollView } from 'react-native';
 import { Item } from '@/components/Item';
@@ -22,15 +23,17 @@ import {
 import { Modal } from '@/modal';
 import { t } from '@/text';
 import type { ProviderType, SystemPromptMode, AgentDefinition } from '@/types/providerSettings';
+import { useUnistyles } from 'react-native-unistyles';
 
-const PROVIDER_INFO: Record<ProviderType, { name: string; icon: string; color: string }> = {
-    claude: { name: 'Claude', icon: 'sparkles-outline', color: '#007AFF' },
-    codex: { name: 'Codex', icon: 'code-outline', color: '#5856D6' },
-    gemini: { name: 'Gemini', icon: 'diamond-outline', color: '#34C759' },
-    cursor: { name: 'Cursor', icon: 'code-working-outline', color: '#FF9500' },
+const PROVIDER_INFO: Record<ProviderType, { name: string; icon: string }> = {
+    claude: { name: 'Claude', icon: 'sparkles-outline' },
+    codex: { name: 'Codex', icon: 'code-outline' },
+    gemini: { name: 'Gemini', icon: 'diamond-outline' },
+    cursor: { name: 'Cursor', icon: 'code-working-outline' },
 };
 
 export default function ProviderDetailScreen() {
+    const { theme } = useUnistyles();
     const router = useRouter();
     const { provider: providerParam } = useLocalSearchParams<{ provider: string }>();
     const provider = (providerParam as ProviderType) || 'claude';
@@ -161,18 +164,18 @@ export default function ProviderDetailScreen() {
                 }}
             />
 
-            <ItemGroup title={t('providerSettings.agents')}>
+            <ItemGroup title={t('providerSettings.agents')} elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                 <Item
                     title={t('providerSettings.createAgent')}
                     subtitle={t('providerSettings.createAgentSubtitle')}
-                    icon={<Ionicons name="add-circle-outline" size={29} color="#34C759" />}
+                    icon={<Ionicons name="add-circle-outline" size={29} color={theme.colors.text} />}
                     onPress={handleCreateAgent}
                     showChevron
                 />
                 <Item
                     title={t('providerSettings.importAgent')}
                     subtitle={t('providerSettings.importAgentSubtitle')}
-                    icon={<Ionicons name="download-outline" size={29} color="#007AFF" />}
+                    icon={<Ionicons name="download-outline" size={29} color={theme.colors.text} />}
                     onPress={handleImportAgent}
                     showChevron
                 />

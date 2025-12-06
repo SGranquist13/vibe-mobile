@@ -3,13 +3,13 @@ import { Platform } from 'react-native';
 /**
  * Typography system for vibe app
  * 
- * Default typography: System fonts (SF Pro on iOS, Roboto on Android, system-ui on Web)
+ * Default typography: Raleway (Google Fonts) - works on all platforms
  * Monospace typography: System monospace fonts (SF Mono on iOS, monospace on Android/Web)
- * Logo typography: System bold (uses system font with bold weight)
+ * Logo typography: Raleway Bold (uses Raleway with bold weight)
  * 
  * Usage Examples:
  * 
- * // Default typography (System fonts)
+ * // Default typography (Raleway)
  * <Text style={{ fontSize: 16, ...Typography.default() }}>Regular text</Text>
  * <Text style={{ fontSize: 16, ...Typography.default('italic') }}>Italic text</Text>
  * <Text style={{ fontSize: 16, ...Typography.default('semiBold') }}>Semi-bold text</Text>
@@ -19,7 +19,7 @@ import { Platform } from 'react-native';
  * <Text style={{ fontSize: 14, ...Typography.mono('italic') }}>Italic code</Text>
  * <Text style={{ fontSize: 14, ...Typography.mono('semiBold') }}>Bold code</Text>
  * 
- * // Logo typography (System bold)
+ * // Logo typography (Raleway Bold)
  * <Text style={{ fontSize: 28, ...Typography.logo() }}>Logo Text</Text>
  * 
  * // Alternative direct usage
@@ -28,28 +28,14 @@ import { Platform } from 'react-native';
  * <Text style={{ fontSize: 28, fontFamily: getLogoFont() }}>Direct logo usage</Text>
  */
 
-// System font family constants
-// On iOS, undefined defaults to SF Pro (system font)
-// On Android, we explicitly use Roboto
-// On Web, we use system-ui which maps to the platform's default UI font
+// Font family constants
+// Default typography uses Raleway (Google Fonts) - works consistently across all platforms
 export const FontFamilies = {
-  // System fonts (default typography)
+  // Raleway font family (default typography)
   default: {
-    regular: Platform.select({ 
-      ios: undefined, // iOS defaults to SF Pro when undefined
-      android: 'Roboto',
-      default: 'system-ui' 
-    }),
-    italic: Platform.select({ 
-      ios: undefined, // iOS defaults to SF Pro when undefined
-      android: 'Roboto',
-      default: 'system-ui' 
-    }), 
-    semiBold: Platform.select({ 
-      ios: undefined, // iOS defaults to SF Pro when undefined
-      android: 'Roboto',
-      default: 'system-ui' 
-    }),
+    regular: 'Raleway_400Regular',
+    italic: 'Raleway_400Regular_Italic',
+    semiBold: 'Raleway_600SemiBold',
   },
   
   // System monospace fonts
@@ -71,13 +57,9 @@ export const FontFamilies = {
     }),
   },
   
-  // System bold (for logo/special use)
+  // Raleway Bold (for logo/special use)
   logo: {
-    bold: Platform.select({ 
-      ios: undefined, // iOS defaults to SF Pro when undefined
-      android: 'Roboto',
-      default: 'system-ui' 
-    }),
+    bold: 'Raleway_700Bold',
   },
   
   // Legacy fonts (keep for backward compatibility)
@@ -109,7 +91,7 @@ export const FontWeights = {
 
 // Style utilities for easy inline usage
 export const Typography = {
-  // Default font styles (System fonts)
+  // Default font styles (Raleway)
   default: (weight: 'regular' | 'italic' | 'semiBold' = 'regular') => {
     const fontFamily = getDefaultFont(weight);
     const style: { fontFamily?: string; fontStyle?: 'italic'; fontWeight?: '400' | '600' } = {};
@@ -145,7 +127,7 @@ export const Typography = {
     return style;
   },
   
-  // Logo font style (System bold)
+  // Logo font style (Raleway Bold)
   logo: () => {
     const fontFamily = getLogoFont();
     const style: { fontFamily?: string; fontWeight?: '700' } = {};

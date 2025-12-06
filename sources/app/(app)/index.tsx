@@ -1,6 +1,6 @@
 import { RoundButton } from "@/components/RoundButton";
 import { useAuth } from "@/auth/AuthContext";
-import { Text, View, Image, Platform } from "react-native";
+import { Text, View, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as React from 'react';
 import { encodeBase64 } from "@/encryption/base64";
@@ -51,11 +51,7 @@ function NotAuthenticated() {
 
     const portraitLayout = (
         <View style={styles.portraitContainer}>
-            <Image
-                source={theme.dark ? require('@/assets/images/logotype-light.png') : require('@/assets/images/logotype-dark.png')}
-                resizeMode="contain"
-                style={styles.logo}
-            />
+            <Text style={styles.logoText}>VOTG</Text>
             <Text style={styles.title}>
                 {t('welcome.title')}
             </Text>
@@ -110,11 +106,7 @@ function NotAuthenticated() {
         <View style={[styles.landscapeContainer, { paddingBottom: insets.bottom + 24 }]}>
             <View style={styles.landscapeInner}>
                 <View style={styles.landscapeLogoSection}>
-                    <Image
-                        source={theme.dark ? require('@/assets/images/logotype-light.png') : require('@/assets/images/logotype-dark.png')}
-                        resizeMode="contain"
-                        style={styles.logo}
-                    />
+                    <Text style={styles.logoText}>VOTG</Text>
                 </View>
                 <View style={styles.landscapeContentSection}>
                     <Text style={styles.landscapeTitle}>
@@ -182,26 +174,33 @@ const styles = StyleSheet.create((theme) => ({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
+        backgroundColor: theme.colors.groupped.background,
     },
-    logo: {
-        width: 300,
-        height: 90,
+    logoText: {
+        fontSize: 96,
+        ...Typography.logo(),
+        color: theme.colors.text,
+        textAlign: 'center',
+        marginBottom: 24,
     },
     title: {
-        marginTop: 16,
+        marginTop: 0,
         textAlign: 'center',
-        fontSize: 24,
+        fontSize: 32,
         ...Typography.default('semiBold'),
         color: theme.colors.text,
+        marginBottom: 16,
+        paddingHorizontal: 16,
     },
     subtitle: {
         ...Typography.default(),
         fontSize: 18,
         color: theme.colors.textSecondary,
-        marginTop: 16,
+        marginTop: 0,
         textAlign: 'center',
         marginHorizontal: 24,
-        marginBottom: 64,
+        marginBottom: 48,
+        lineHeight: 24,
     },
     buttonContainer: {
         maxWidth: 280,
@@ -218,6 +217,7 @@ const styles = StyleSheet.create((theme) => ({
         alignItems: 'center',
         justifyContent: 'center',
         paddingHorizontal: 48,
+        backgroundColor: theme.colors.groupped.background,
     },
     landscapeInner: {
         flexGrow: 1,
@@ -241,18 +241,20 @@ const styles = StyleSheet.create((theme) => ({
     },
     landscapeTitle: {
         textAlign: 'center',
-        fontSize: 24,
+        fontSize: 32,
         ...Typography.default('semiBold'),
         color: theme.colors.text,
+        marginBottom: 16,
     },
     landscapeSubtitle: {
         ...Typography.default(),
         fontSize: 18,
         color: theme.colors.textSecondary,
-        marginTop: 16,
+        marginTop: 0,
         textAlign: 'center',
         marginBottom: 32,
         paddingHorizontal: 16,
+        lineHeight: 24,
     },
     landscapeButtonContainer: {
         width: 280,

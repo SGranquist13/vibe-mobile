@@ -109,7 +109,7 @@ export default React.memo(() => {
         <>
             <ItemList>
                 {/* Account Info */}
-                <ItemGroup title={t('settingsAccount.accountInformation')}>
+                <ItemGroup title={t('settingsAccount.accountInformation')} elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                     <Item
                         title={t('settingsAccount.status')}
                         detail={auth.isAuthenticated ? t('settingsAccount.statusActive') : t('settingsAccount.statusNotAuthenticated')}
@@ -131,7 +131,7 @@ export default React.memo(() => {
                         <Item
                             title={t('settingsAccount.linkNewDevice')}
                             subtitle={isConnecting ? t('common.scanning') : t('settingsAccount.linkNewDeviceSubtitle')}
-                            icon={<Ionicons name="qr-code-outline" size={29} color="#007AFF" />}
+                            icon={<Ionicons name="qr-code-outline" size={29} color={theme.colors.text} />}
                             onPress={connectAccount}
                             disabled={isConnecting}
                             showChevron={false}
@@ -141,7 +141,7 @@ export default React.memo(() => {
 
                 {/* Profile Section */}
                 {(displayName || githubUsername || profile.avatar) && (
-                    <ItemGroup title={t('settingsAccount.profile')}>
+                    <ItemGroup title={t('settingsAccount.profile')} elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                         {displayName && (
                             <Item
                                 title={t('settingsAccount.name')}
@@ -191,7 +191,7 @@ export default React.memo(() => {
                     if (displayServices.length === 0) return null;
                     
                     return (
-                        <ItemGroup title={t('settings.connectedAccounts')}>
+                        <ItemGroup title={t('settings.connectedAccounts')} elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                             {displayServices.map(service => {
                                 const serviceInfo = knownServices[service as keyof typeof knownServices];
                                 const isDisconnecting = disconnectingService === service;
@@ -222,7 +222,7 @@ export default React.memo(() => {
 
                 {/* Server Info */}
                 {serverInfo.isCustom && (
-                    <ItemGroup title={t('settingsAccount.server')}>
+                    <ItemGroup title={t('settingsAccount.server')} elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                         <Item
                             title={t('settingsAccount.server')}
                             detail={serverInfo.hostname + (serverInfo.port ? `:${serverInfo.port}` : '')}
@@ -235,11 +235,14 @@ export default React.memo(() => {
                 <ItemGroup
                     title={t('settingsAccount.backup')}
                     footer={t('settingsAccount.backupDescription')}
+                    elevated={false}
+                    headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }}
+                    containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}
                 >
                     <Item
                         title={t('settingsAccount.secretKey')}
                         subtitle={showSecret ? t('settingsAccount.tapToHide') : t('settingsAccount.tapToReveal')}
-                        icon={<Ionicons name={showSecret ? "eye-off-outline" : "eye-outline"} size={29} color="#FF9500" />}
+                        icon={<Ionicons name={showSecret ? "eye-off-outline" : "eye-outline"} size={29} color={theme.colors.text} />}
                         onPress={handleShowSecret}
                         showChevron={false}
                     />
@@ -247,7 +250,7 @@ export default React.memo(() => {
 
                 {/* Secret Key Display */}
                 {showSecret && (
-                    <ItemGroup>
+                    <ItemGroup elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                         <Pressable onPress={handleCopySecret}>
                             <View style={{
                                 backgroundColor: theme.colors.surface,
@@ -270,7 +273,7 @@ export default React.memo(() => {
                                     <Ionicons
                                         name={copiedRecently ? "checkmark-circle" : "copy-outline"}
                                         size={18}
-                                        color={copiedRecently ? "#34C759" : theme.colors.textSecondary}
+                                        color={theme.colors.textSecondary}
                                     />
                                 </View>
                                 <Text style={{
@@ -291,6 +294,9 @@ export default React.memo(() => {
                 <ItemGroup
                     title={t('settingsAccount.privacy')}
                     footer={t('settingsAccount.privacyDescription')}
+                    elevated={false}
+                    headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }}
+                    containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}
                 >
                     <Item
                         title={t('settingsAccount.analytics')}
@@ -311,11 +317,11 @@ export default React.memo(() => {
                 </ItemGroup>
 
                 {/* Danger Zone */}
-                <ItemGroup title={t('settingsAccount.dangerZone')}>
+                <ItemGroup title={t('settingsAccount.dangerZone')} elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
                     <Item
                         title={t('settingsAccount.logout')}
                         subtitle={t('settingsAccount.logoutSubtitle')}
-                        icon={<Ionicons name="log-out-outline" size={29} color="#FF3B30" />}
+                        icon={<Ionicons name="log-out-outline" size={29} color={theme.colors.text} />}
                         destructive
                         onPress={handleLogout}
                     />

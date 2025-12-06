@@ -8,8 +8,10 @@ import { Item } from '@/components/Item';
 import * as Clipboard from 'expo-clipboard';
 import { Modal } from '@/modal';
 import { Typography } from '@/constants/Typography';
+import { useUnistyles } from 'react-native-unistyles';
 
 export default function LogsScreen() {
+    const { theme } = useUnistyles();
     const [logs, setLogs] = React.useState<string[]>([]);
     const flatListRef = React.useRef<FlatList>(null);
 
@@ -95,18 +97,18 @@ export default function LogsScreen() {
                     <Item 
                         title="Add Test Log"
                         subtitle="Add a test log entry with timestamp"
-                        icon={<Ionicons name="add-circle-outline" size={24} color="#34C759" />}
+                        icon={<Ionicons name="add-circle-outline" size={24} color={theme.colors.text} />}
                         onPress={handleAddTestLog}
                     />
                     <Item 
                         title="Copy All Logs"
-                        icon={<Ionicons name="copy-outline" size={24} color="#007AFF" />}
+                        icon={<Ionicons name="copy-outline" size={24} color={theme.colors.text} />}
                         onPress={handleCopyAll}
                         disabled={logs.length === 0}
                     />
                     <Item 
                         title="Clear All Logs"
-                        icon={<Ionicons name="trash-outline" size={24} color="#FF3B30" />}
+                        icon={<Ionicons name="trash-outline" size={24} color={theme.colors.text} />}
                         onPress={handleClear}
                         disabled={logs.length === 0}
                         destructive={true}

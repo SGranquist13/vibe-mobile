@@ -24,9 +24,9 @@ export default function TypographyScreen() {
     return (
         <ScrollView style={styles.container}>
             <View style={styles.content}>
-                {/* IBM Plex Sans (Default) */}
+                {/* Raleway (Default) */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>IBM Plex Sans (Default)</Text>
+                    <Text style={styles.sectionTitle}>Raleway (Default)</Text>
                     
                     <TextSample 
                         title="Regular (400)" 
@@ -64,9 +64,9 @@ export default function TypographyScreen() {
                     />
                 </View>
 
-                {/* Bricolage Grotesque (Logo) */}
+                {/* Raleway (Logo) */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Bricolage Grotesque (Logo)</Text>
+                    <Text style={styles.sectionTitle}>Raleway (Logo)</Text>
                     
                     <TextSample 
                         title="Bold (700) - Logo Only" 
@@ -120,14 +120,14 @@ export default function TypographyScreen() {
                     
                     <View style={styles.codeBlock}>
                         <Text style={{ ...Typography.mono(), fontSize: 12 }}>
-{`// Default typography (IBM Plex Sans)
+{`// Default typography (Raleway)
 <Text style={{ fontSize: 16, ...Typography.default() }}>Regular</Text>
 <Text style={{ fontSize: 16, ...Typography.default('semiBold') }}>Bold</Text>
 
-// Monospace typography (IBM Plex Mono)
+// Monospace typography (System monospace)
 <Text style={{ fontSize: 14, ...Typography.mono() }}>Code</Text>
 
-// Logo typography (Bricolage Grotesque)
+// Logo typography (Raleway)
 <Text style={{ fontSize: 28, ...Typography.logo() }}>Logo</Text>`}
                         </Text>
                     </View>

@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router';
 import * as Localization from 'expo-localization';
 import { useUnistyles, UnistylesRuntime } from 'react-native-unistyles';
 import { Switch } from '@/components/Switch';
-import { Appearance } from 'react-native';
+import { Appearance, Platform } from 'react-native';
 import * as SystemUI from 'expo-system-ui';
 import { darkTheme, lightTheme } from '@/theme';
 import { t, getLanguageNativeName, SUPPORTED_LANGUAGES } from '@/text';
@@ -55,11 +55,17 @@ export default function AppearanceSettingsScreen() {
         <ItemList style={{ paddingTop: 0 }}>
 
             {/* Theme Settings */}
-            <ItemGroup title={t('settingsAppearance.theme')} footer={t('settingsAppearance.themeDescription')}>
+            <ItemGroup 
+                title={t('settingsAppearance.theme')} 
+                footer={t('settingsAppearance.themeDescription')}
+                elevated={false}
+                headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }}
+                containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}
+            >
                 <Item
                     title={t('settings.appearance')}
                     subtitle={themePreference === 'adaptive' ? t('settingsAppearance.themeDescriptions.adaptive') : themePreference === 'light' ? t('settingsAppearance.themeDescriptions.light') : t('settingsAppearance.themeDescriptions.dark')}
-                    icon={<Ionicons name="contrast-outline" size={29} color={theme.colors.status.connecting} />}
+                    icon={<Ionicons name="contrast-outline" size={29} color={theme.colors.text} />}
                     detail={themePreference === 'adaptive' ? t('settingsAppearance.themeOptions.adaptive') : themePreference === 'light' ? t('settingsAppearance.themeOptions.light') : t('settingsAppearance.themeOptions.dark')}
                     onPress={() => {
                         const currentIndex = themePreference === 'adaptive' ? 0 : themePreference === 'light' ? 1 : 2;
@@ -90,10 +96,16 @@ export default function AppearanceSettingsScreen() {
             </ItemGroup>
 
             {/* Language Settings */}
-            <ItemGroup title={t('settingsLanguage.title')} footer={t('settingsLanguage.description')}>
+            <ItemGroup 
+                title={t('settingsLanguage.title')} 
+                footer={t('settingsLanguage.description')}
+                elevated={false}
+                headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }}
+                containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}
+            >
                 <Item
                     title={t('settingsLanguage.currentLanguage')}
-                    icon={<Ionicons name="language-outline" size={29} color="#007AFF" />}
+                    icon={<Ionicons name="language-outline" size={29} color={theme.colors.text} />}
                     detail={getLanguageDisplayText()}
                     onPress={() => router.push('/settings/language')}
                 />
@@ -104,7 +116,7 @@ export default function AppearanceSettingsScreen() {
                 <Item
                     title="Text Size"
                     subtitle="Make text larger or smaller"
-                    icon={<Ionicons name="text-outline" size={29} color="#FF9500" />}
+                    icon={<Ionicons name="text-outline" size={29} color={theme.colors.text} />}
                     detail="Default"
                     onPress={() => { }}
                     disabled
@@ -112,7 +124,7 @@ export default function AppearanceSettingsScreen() {
                 <Item
                     title="Font"
                     subtitle="Choose your preferred font"
-                    icon={<Ionicons name="text-outline" size={29} color="#FF9500" />}
+                    icon={<Ionicons name="text-outline" size={29} color={theme.colors.text} />}
                     detail="System"
                     onPress={() => { }}
                     disabled
@@ -120,11 +132,17 @@ export default function AppearanceSettingsScreen() {
             </ItemGroup> */}
 
             {/* Display Settings */}
-            <ItemGroup title={t('settingsAppearance.display')} footer={t('settingsAppearance.displayDescription')}>
+            <ItemGroup 
+                title={t('settingsAppearance.display')} 
+                footer={t('settingsAppearance.displayDescription')}
+                elevated={false}
+                headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }}
+                containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}
+            >
                 <Item
                     title={t('settingsAppearance.compactSessionView')}
                     subtitle={t('settingsAppearance.compactSessionViewDescription')}
-                    icon={<Ionicons name="albums-outline" size={29} color="#5856D6" />}
+                    icon={<Ionicons name="albums-outline" size={29} color={theme.colors.text} />}
                     rightElement={
                         <Switch
                             value={compactSessionView}
@@ -135,7 +153,7 @@ export default function AppearanceSettingsScreen() {
                 <Item
                     title={t('settingsAppearance.inlineToolCalls')}
                     subtitle={t('settingsAppearance.inlineToolCallsDescription')}
-                    icon={<Ionicons name="code-slash-outline" size={29} color="#5856D6" />}
+                    icon={<Ionicons name="code-slash-outline" size={29} color={theme.colors.text} />}
                     rightElement={
                         <Switch
                             value={viewInline}
@@ -146,7 +164,7 @@ export default function AppearanceSettingsScreen() {
                 <Item
                     title={t('settingsAppearance.expandTodoLists')}
                     subtitle={t('settingsAppearance.expandTodoListsDescription')}
-                    icon={<Ionicons name="checkmark-done-outline" size={29} color="#5856D6" />}
+                    icon={<Ionicons name="checkmark-done-outline" size={29} color={theme.colors.text} />}
                     rightElement={
                         <Switch
                             value={expandTodos}
@@ -157,7 +175,7 @@ export default function AppearanceSettingsScreen() {
                 <Item
                     title={t('settingsAppearance.showLineNumbersInDiffs')}
                     subtitle={t('settingsAppearance.showLineNumbersInDiffsDescription')}
-                    icon={<Ionicons name="list-outline" size={29} color="#5856D6" />}
+                    icon={<Ionicons name="list-outline" size={29} color={theme.colors.text} />}
                     rightElement={
                         <Switch
                             value={showLineNumbers}
@@ -168,7 +186,7 @@ export default function AppearanceSettingsScreen() {
                 <Item
                     title={t('settingsAppearance.showLineNumbersInToolViews')}
                     subtitle={t('settingsAppearance.showLineNumbersInToolViewsDescription')}
-                    icon={<Ionicons name="code-working-outline" size={29} color="#5856D6" />}
+                    icon={<Ionicons name="code-working-outline" size={29} color={theme.colors.text} />}
                     rightElement={
                         <Switch
                             value={showLineNumbersInToolViews}
@@ -179,7 +197,7 @@ export default function AppearanceSettingsScreen() {
                 <Item
                     title={t('settingsAppearance.wrapLinesInDiffs')}
                     subtitle={t('settingsAppearance.wrapLinesInDiffsDescription')}
-                    icon={<Ionicons name="return-down-forward-outline" size={29} color="#5856D6" />}
+                    icon={<Ionicons name="return-down-forward-outline" size={29} color={theme.colors.text} />}
                     rightElement={
                         <Switch
                             value={wrapLinesInDiffs}
@@ -190,7 +208,7 @@ export default function AppearanceSettingsScreen() {
                 <Item
                     title={t('settingsAppearance.alwaysShowContextSize')}
                     subtitle={t('settingsAppearance.alwaysShowContextSizeDescription')}
-                    icon={<Ionicons name="analytics-outline" size={29} color="#5856D6" />}
+                    icon={<Ionicons name="analytics-outline" size={29} color={theme.colors.text} />}
                     rightElement={
                         <Switch
                             value={alwaysShowContextSize}
@@ -201,7 +219,7 @@ export default function AppearanceSettingsScreen() {
                 <Item
                     title={t('settingsAppearance.avatarStyle')}
                     subtitle={t('settingsAppearance.avatarStyleDescription')}
-                    icon={<Ionicons name="person-circle-outline" size={29} color="#5856D6" />}
+                    icon={<Ionicons name="person-circle-outline" size={29} color={theme.colors.text} />}
                     detail={displayStyle === 'pixelated' ? t('settingsAppearance.avatarOptions.pixelated') : displayStyle === 'brutalist' ? t('settingsAppearance.avatarOptions.brutalist') : t('settingsAppearance.avatarOptions.gradient')}
                     onPress={() => {
                         const currentIndex = displayStyle === 'pixelated' ? 0 : displayStyle === 'gradient' ? 1 : 2;
@@ -213,7 +231,7 @@ export default function AppearanceSettingsScreen() {
                 <Item
                     title={t('settingsAppearance.showFlavorIcons')}
                     subtitle={t('settingsAppearance.showFlavorIconsDescription')}
-                    icon={<Ionicons name="apps-outline" size={29} color="#5856D6" />}
+                    icon={<Ionicons name="apps-outline" size={29} color={theme.colors.text} />}
                     rightElement={
                         <Switch
                             value={showFlavorIcons}
@@ -236,7 +254,7 @@ export default function AppearanceSettingsScreen() {
                 <Item
                     title="Show Avatars"
                     subtitle="Display user and assistant avatars"
-                    icon={<Ionicons name="person-circle-outline" size={29} color="#5856D6" />}
+                    icon={<Ionicons name="person-circle-outline" size={29} color={theme.colors.text} />}
                     disabled
                     rightElement={
                         <Switch

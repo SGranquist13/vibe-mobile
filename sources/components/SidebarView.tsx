@@ -31,7 +31,9 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         position: 'relative',
     },
     logoContainer: {
-        width: 32,
+        width: 40,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     logo: {
         height: 24,
@@ -184,11 +186,13 @@ export const SidebarView = React.memo(() => {
             <View style={[styles.container, { paddingTop: safeArea.top }]}>
                 <View style={[styles.header, { height: headerHeight }]}>
                     <View style={styles.logoContainer}>
-                        <Image
-                            source={theme.dark ? require('@/assets/images/logo-white.png') : require('@/assets/images/logo-black.png')}
-                            contentFit="contain"
-                            style={[styles.logo, { height: 24, width: 24 }]}
-                        />
+                        <Text style={{ 
+                            fontSize: 12, 
+                            ...Typography.logo(), 
+                            color: theme.colors.header.tint 
+                        }}>
+                            VOTG
+                        </Text>
                     </View>
                     <View style={styles.rightContainer}>
                         <Pressable

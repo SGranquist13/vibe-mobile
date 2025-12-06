@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Platform } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 import { useAcceptedFriends, useFriendRequests, useRequestedFriends } from '@/sync/storage';
 import { UserCard } from '@/components/UserCard';
@@ -99,6 +99,9 @@ export default function FriendsScreen() {
                 <ItemGroup
                     title={t('friends.pendingRequests')}
                     style={styles.groupStyle}
+                    elevated={false}
+                    headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }}
+                    containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}
                 >
                     {friendRequests.map((friend) => (
                         <UserCard
@@ -115,6 +118,9 @@ export default function FriendsScreen() {
                 <ItemGroup
                     title={t('friends.requestPending')}
                     style={styles.groupStyle}
+                    elevated={false}
+                    headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }}
+                    containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}
                 >
                     {requestedFriends.map((friend) => (
                         <UserCard
@@ -130,6 +136,9 @@ export default function FriendsScreen() {
             <ItemGroup
                 title={t('friends.myFriends')}
                 style={styles.groupStyle}
+                elevated={false}
+                headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }}
+                containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}
             >
                 {friends.length === 0 ? (
                     <View style={styles.emptyState}>
