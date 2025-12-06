@@ -1,4 +1,4 @@
-import { View, ScrollView, Pressable, Platform, Linking, TextInput, Alert } from 'react-native';
+import { View, Pressable, Platform, Linking, TextInput } from 'react-native';
 import { Image } from 'expo-image';
 import * as React from 'react';
 import { Text } from '@/components/StyledText';
@@ -6,80 +6,216 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import { useAuth } from '@/auth/AuthContext';
-import { Typography } from "@/constants/Typography";
+import { Typography } from '@/constants/Typography';
 import { Item } from '@/components/Item';
 import { ItemGroup } from '@/components/ItemGroup';
 import { ItemList } from '@/components/ItemList';
 import { useConnectTerminal } from '@/hooks/useConnectTerminal';
-import { useEntitlement, useLocalSettingMutable, useSetting } from '@/sync/storage';
+import { useEntitlement, useLocalSettingMutable, useSetting, useAllMachines, useProfile } from '@/sync/storage';
 import { sync } from '@/sync/sync';
-import { isUsingCustomServer } from '@/sync/serverConfig';
 import { trackPaywallButtonClicked } from '@/track';
 import { Modal } from '@/modal';
 import { useMultiClick } from '@/hooks/useMultiClick';
-import { useAllMachines } from '@/sync/storage';
 import { isMachineOnline } from '@/utils/machineUtils';
-import { useUnistyles } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { layout } from '@/components/layout';
 import { useVibeAction } from '@/hooks/useVibeAction';
 import { getGitHubOAuthParams, disconnectGitHub } from '@/sync/apiGithub';
 import { disconnectService } from '@/sync/apiServices';
-import { useProfile } from '@/sync/storage';
 import { getDisplayName, getAvatarUrl, getBio } from '@/sync/profile';
 import { Avatar } from '@/components/Avatar';
 import { t } from '@/text';
 
-// Manual Auth Modal Component for Android
+type IoniconName = keyof typeof Ionicons.glyphMap;
+
+const stylesheet = StyleSheet.create((theme) => ({
+    list: {
+        paddingTop: 0,
+    },
+    listContent: {
+        paddingBottom: Platform.select({ ios: 48, default: 32 }),
+    },
+    heroWrapper: {
+        maxWidth: layout.maxWidth,
+        width: '100%',
+        alignSelf: 'center',
+    },
+    heroCard: {
+        marginHorizontal: 16,
+        marginTop: 16,
+        marginBottom: 8,
+        backgroundColor: theme.colors.surface,
+        borderRadius: 28,
+        paddingVertical: 24,
+        paddingHorizontal: 20,
+        alignItems: 'center',
+    },
+    heroAvatar: {
+        marginBottom: 12,
+    },
+    heroName: {
+        fontSize: 20,
+        fontWeight: '600',
+        color: theme.colors.text,
+    },
+    heroBio: {
+        fontSize: 14,
+        lineHeight: 20,
+        color: theme.colors.textSecondary,
+        textAlign: 'center',
+        marginTop: 4,
+    },
+    heroLogo: {
+        fontSize: 56,
+        ...Typography.logo(),
+        color: theme.colors.text,
+        textAlign: 'center',
+        marginBottom: 12,
+    },
+    heroMeta: {
+        marginTop: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    heroMetaLabel: {
+        fontSize: 12,
+        color: theme.colors.textSecondary,
+        marginRight: 6,
+    },
+    heroMetaValue: {
+        fontSize: 12,
+        color: theme.colors.text,
+        fontWeight: '600',
+    },
+    sectionSpacingFirst: {
+        marginTop: 12,
+    },
+    sectionSpacing: {
+        marginTop: 4,
+    },
+    sectionHeader: {
+        paddingTop: 12,
+        paddingBottom: 6,
+        paddingHorizontal: 24,
+    },
+    sectionHeading: {
+        flexDirection: 'row',
+        alignItems: 'baseline',
+        justifyContent: 'space-between',
+    },
+    sectionHeadingLabel: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: theme.colors.text,
+    },
+    sectionHeadingHelper: {
+        fontSize: 12,
+        color: theme.colors.textSecondary,
+        marginLeft: 8,
+        flexShrink: 1,
+        textAlign: 'right',
+    },
+    sectionContainer: {
+        borderRadius: 24,
+    },
+    manualModal: {
+        width: 320,
+        maxWidth: '100%',
+        padding: 24,
+        backgroundColor: theme.colors.surface,
+        borderRadius: 20,
+    },
+    manualModalTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: theme.colors.text,
+        marginBottom: 6,
+    },
+    manualModalDescription: {
+        fontSize: 14,
+        lineHeight: 20,
+        color: theme.colors.textSecondary,
+        marginBottom: 16,
+    },
+    manualInput: {
+        borderWidth: 1,
+        borderColor: theme.colors.divider,
+        borderRadius: 12,
+        paddingVertical: 12,
+        paddingHorizontal: 14,
+        fontSize: 14,
+        color: theme.colors.input.text,
+        backgroundColor: theme.colors.input.background,
+        marginBottom: 16,
+    },
+    manualActions: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+    },
+    manualAction: {
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 999,
+    },
+    manualActionText: {
+        fontSize: 15,
+        color: theme.colors.textSecondary,
+    },
+    manualActionPrimary: {
+        marginLeft: 12,
+    },
+    manualActionPrimaryText: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: theme.colors.brand.primary,
+    },
+    manualActionDisabled: {
+        opacity: 0.4,
+    },
+}));
+
 function ManualAuthModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (url: string) => void }) {
+    const styles = stylesheet;
     const { theme } = useUnistyles();
     const [url, setUrl] = React.useState('');
+    const trimmed = url.trim();
+    const isDisabled = trimmed.length === 0;
+
+    const handleSubmit = React.useCallback(() => {
+        if (isDisabled) {
+            return;
+        }
+        onSubmit(trimmed);
+        onClose();
+    }, [isDisabled, onSubmit, onClose, trimmed]);
 
     return (
-        <View style={{ padding: 20, backgroundColor: theme.colors.surface, borderRadius: 12, minWidth: 300 }}>
-            <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8 }}>
-                {t('modals.authenticateTerminal')}
-            </Text>
-            <Text style={{ fontSize: 14, color: theme.colors.textSecondary, marginBottom: 16 }}>
-                {t('modals.pasteUrlFromTerminal')}
-            </Text>
+        <View style={styles.manualModal}>
+            <Text style={styles.manualModalTitle}>{t('modals.authenticateTerminal')}</Text>
+            <Text style={styles.manualModalDescription}>{t('modals.pasteUrlFromTerminal')}</Text>
             <TextInput
-                style={{
-                    borderWidth: 1,
-                    borderColor: theme.colors.divider,
-                    borderRadius: 8,
-                    padding: 12,
-                    fontSize: 14,
-                    marginBottom: 20,
-                    color: theme.colors.input.text,
-                    backgroundColor: theme.colors.input.background
-                }}
+                style={styles.manualInput}
                 value={url}
                 onChangeText={setUrl}
                 placeholder={'vibe://terminal?...'}
                 placeholderTextColor={theme.colors.input.placeholder}
                 autoCapitalize="none"
                 autoCorrect={false}
+                keyboardType="url"
                 autoFocus
+                onSubmitEditing={handleSubmit}
             />
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
-                <Pressable
-                    onPress={onClose}
-                    style={{ paddingVertical: 8, paddingHorizontal: 16, marginRight: 8 }}
-                >
-                    <Text style={{ color: '#007AFF', fontSize: 16 }}>{t('common.cancel')}</Text>
+            <View style={styles.manualActions}>
+                <Pressable onPress={onClose} style={styles.manualAction}>
+                    <Text style={styles.manualActionText}>{t('common.cancel')}</Text>
                 </Pressable>
                 <Pressable
-                    onPress={() => {
-                        if (url.trim()) {
-                            onSubmit(url.trim());
-                            onClose();
-                        }
-                    }}
-                    style={{ paddingVertical: 8, paddingHorizontal: 16 }}
+                    onPress={handleSubmit}
+                    disabled={isDisabled}
+                    style={[styles.manualAction, styles.manualActionPrimary, isDisabled && styles.manualActionDisabled]}
                 >
-                    <Text style={{ color: '#007AFF', fontSize: 16, fontWeight: '600' }}>
-                        {t('common.authenticate')}
-                    </Text>
+                    <Text style={styles.manualActionPrimaryText}>{t('common.authenticate')}</Text>
                 </Pressable>
             </View>
         </View>
@@ -87,6 +223,7 @@ function ManualAuthModal({ onClose, onSubmit }: { onClose: () => void; onSubmit:
 }
 
 export const SettingsView = React.memo(function SettingsView() {
+    const styles = stylesheet;
     const { theme } = useUnistyles();
     const router = useRouter();
     const appVersion = Constants.expoConfig?.version || '1.0.0';
@@ -94,7 +231,6 @@ export const SettingsView = React.memo(function SettingsView() {
     const [devModeEnabled, setDevModeEnabled] = useLocalSettingMutable('devModeEnabled');
     const isPro = __DEV__ || useEntitlement('pro');
     const experiments = useSetting('experiments');
-    const isCustomServer = isUsingCustomServer();
     const allMachines = useAllMachines();
     const profile = useProfile();
     const displayName = getDisplayName(profile);
@@ -103,23 +239,18 @@ export const SettingsView = React.memo(function SettingsView() {
 
     const { connectTerminal, connectWithUrl, isLoading } = useConnectTerminal();
 
-    const handleGitHub = async () => {
-        const url = 'https://github.com/SGranquist13/vibe-mobile';
-        const supported = await Linking.canOpenURL(url);
-        if (supported) {
-            await Linking.openURL(url);
+    const openExternalLink = React.useCallback(async (url: string) => {
+        try {
+            const supported = await Linking.canOpenURL(url);
+            if (supported) {
+                await Linking.openURL(url);
+            }
+        } catch (error) {
+            console.error('Failed to open URL', error);
         }
-    };
+    }, []);
 
-    const handleReportIssue = async () => {
-        const url = 'https://github.com/SGranquist13/vibe-mobile/issues';
-        const supported = await Linking.canOpenURL(url);
-        if (supported) {
-            await Linking.openURL(url);
-        }
-    };
-
-    const handleSubscribe = async () => {
+    const handleSubscribe = React.useCallback(async () => {
         trackPaywallButtonClicked();
         const result = await sync.presentPaywall();
         if (!result.success) {
@@ -127,11 +258,9 @@ export const SettingsView = React.memo(function SettingsView() {
         } else if (result.purchased) {
             console.log('Purchase successful!');
         }
-    };
+    }, []);
 
-    // Use the multi-click hook for version clicks
     const handleVersionClick = useMultiClick(() => {
-        // Toggle dev mode
         const newDevMode = !devModeEnabled;
         setDevModeEnabled(newDevMode);
         Modal.alert(
@@ -143,17 +272,14 @@ export const SettingsView = React.memo(function SettingsView() {
         resetTimeout: 2000
     });
 
-    // Connection status
     const isGitHubConnected = !!profile.github;
     const isAnthropicConnected = profile.connectedServices?.includes('anthropic') || false;
 
-    // GitHub connection
     const [connectingGitHub, connectGitHub] = useVibeAction(async () => {
         const params = await getGitHubOAuthParams(auth.credentials!);
         await Linking.openURL(params.url);
     });
 
-    // GitHub disconnection
     const [disconnectingGitHub, handleDisconnectGitHub] = useVibeAction(async () => {
         const confirmed = await Modal.confirm(
             t('modals.disconnectGithub'),
@@ -165,12 +291,10 @@ export const SettingsView = React.memo(function SettingsView() {
         }
     });
 
-    // Anthropic connection
     const [connectingAnthropic, connectAnthropic] = useVibeAction(async () => {
         router.push('/settings/connect/claude');
     });
 
-    // Anthropic disconnection
     const [disconnectingAnthropic, handleDisconnectAnthropic] = useVibeAction(async () => {
         const confirmed = await Modal.confirm(
             t('modals.disconnectService', { service: 'Claude' }),
@@ -183,17 +307,145 @@ export const SettingsView = React.memo(function SettingsView() {
         }
     });
 
+    const showManualAuthModal = React.useCallback(() => {
+        Modal.show({
+            component: ManualAuthModal,
+            props: {
+                onSubmit: (url: string) => {
+                    connectWithUrl(url.trim());
+                }
+            }
+        });
+    }, [connectWithUrl]);
+
+    const machines = React.useMemo(() => {
+        return [...allMachines].sort((a, b) => {
+            const aOnline = isMachineOnline(a);
+            const bOnline = isMachineOnline(b);
+            if (aOnline !== bOnline) {
+                return aOnline ? -1 : 1;
+            }
+            return (b.activeAt ?? 0) - (a.activeAt ?? 0);
+        });
+    }, [allMachines]);
+
+    const sectionProps = React.useMemo(() => ({
+        accent: 'none' as const,
+        elevated: false,
+        headerStyle: styles.sectionHeader,
+        containerStyle: styles.sectionContainer,
+    }), [styles.sectionHeader, styles.sectionContainer]);
+
+    const renderSectionHeading = (label: string, helper?: string) => (
+        <View style={styles.sectionHeading}>
+            <Text style={styles.sectionHeadingLabel}>{label}</Text>
+            {helper ? (
+                <Text style={styles.sectionHeadingHelper} numberOfLines={1}>
+                    {helper}
+                </Text>
+            ) : null}
+        </View>
+    );
+
+    const featureItems: Array<{ key: string; title: string; subtitle: string; route: string; icon: IoniconName }> = [
+        {
+            key: 'account',
+            title: t('settings.account'),
+            subtitle: t('settings.accountSubtitle'),
+            icon: 'person-circle-outline',
+            route: '/settings/account'
+        },
+        {
+            key: 'appearance',
+            title: t('settings.appearance'),
+            subtitle: t('settings.appearanceSubtitle'),
+            icon: 'color-palette-outline',
+            route: '/settings/appearance'
+        },
+        {
+            key: 'voice',
+            title: t('settings.voiceAssistant'),
+            subtitle: t('settings.voiceAssistantSubtitle'),
+            icon: 'mic-outline',
+            route: '/settings/voice'
+        },
+        {
+            key: 'features',
+            title: t('settings.featuresTitle'),
+            subtitle: t('settings.featuresSubtitle'),
+            icon: 'flask-outline',
+            route: '/settings/features'
+        },
+        {
+            key: 'providers',
+            title: t('providerSettings.title'),
+            subtitle: t('providerSettings.subtitle'),
+            icon: 'settings-outline',
+            route: '/settings/providers'
+        }
+    ];
+
+    if (experiments) {
+        featureItems.push({
+            key: 'usage',
+            title: t('settings.usage'),
+            subtitle: t('settings.usageSubtitle'),
+            icon: 'analytics-outline',
+            route: '/settings/usage'
+        });
+    }
+
+    const aboutItems: Array<{ key: string; title: string; subtitle?: string; detail?: string; icon: IoniconName; onPress: () => void }> = [
+        {
+            key: 'whats-new',
+            title: t('settings.whatsNew'),
+            subtitle: t('settings.whatsNewSubtitle'),
+            icon: 'sparkles-outline',
+            onPress: () => openExternalLink('https://github.com/SGranquist13/vibe-mobile/releases')
+        },
+        {
+            key: 'repo',
+            title: t('settings.github'),
+            detail: 'SGranquist13/vibe-mobile',
+            icon: 'logo-github',
+            onPress: () => openExternalLink('https://github.com/SGranquist13/vibe-mobile')
+        },
+        {
+            key: 'issues',
+            title: t('settings.reportIssue'),
+            icon: 'bug-outline',
+            onPress: () => openExternalLink('https://github.com/SGranquist13/vibe-mobile/issues')
+        },
+        {
+            key: 'privacy',
+            title: t('settings.privacyPolicy'),
+            icon: 'shield-checkmark-outline',
+            onPress: () => openExternalLink('https://github.com/SGranquist13/vibe-mobile/blob/main/PRIVACY.md')
+        },
+        {
+            key: 'terms',
+            title: t('settings.termsOfService'),
+            icon: 'document-text-outline',
+            onPress: () => openExternalLink('https://github.com/SGranquist13/vibe-mobile/blob/main/TERMS.md')
+        }
+    ];
+
+    if (Platform.OS === 'ios') {
+        aboutItems.push({
+            key: 'eula',
+            title: t('settings.eula'),
+            icon: 'document-text-outline',
+            onPress: () => openExternalLink('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/')
+        });
+    }
 
     return (
-
-        <ItemList style={{ paddingTop: 0 }}>
-            {/* App Info Header */}
-            <View style={{ maxWidth: layout.maxWidth, alignSelf: 'center', width: '100%' }}>
-                <View style={{ alignItems: 'center', paddingVertical: 24, backgroundColor: theme.colors.surface, marginTop: 16, borderRadius: 12, marginHorizontal: 16 }}>
+        <ItemList style={styles.list} containerStyle={styles.listContent}>
+            <View style={styles.heroWrapper}>
+                <View style={styles.heroCard}>
                     {profile.firstName ? (
-                        // Profile view: Avatar + name + version
                         <>
-                            <View style={{ marginBottom: 12 }}>
+                            <View style={styles.heroAvatar}>
                                 <Avatar
                                     id={profile.id}
                                     size={90}
@@ -201,35 +453,29 @@ export const SettingsView = React.memo(function SettingsView() {
                                     thumbhash={profile.avatar?.thumbhash}
                                 />
                             </View>
-                            <Text style={{ fontSize: 20, fontWeight: '600', color: theme.colors.text, marginBottom: bio ? 4 : 8 }}>
-                                {displayName}
-                            </Text>
-                            {bio && (
-                                <Text style={{ fontSize: 14, color: theme.colors.textSecondary, textAlign: 'center', marginBottom: 8, paddingHorizontal: 16 }}>
-                                    {bio}
-                                </Text>
-                            )}
+                            <Text style={styles.heroName}>{displayName}</Text>
+                            {bio ? (
+                                <Text style={styles.heroBio}>{bio}</Text>
+                            ) : null}
                         </>
                     ) : (
-                        // Logo view: Original logo + version
-                        <>
-                            <Text style={{ 
-                                fontSize: 64, 
-                                ...Typography.logo(), 
-                                color: theme.colors.text,
-                                textAlign: 'center',
-                                marginBottom: 12
-                            }}>
-                                VOTG
-                            </Text>
-                        </>
+                        <Text style={styles.heroLogo}>VOTG</Text>
                     )}
+                    <Pressable onPress={handleVersionClick} hitSlop={10}>
+                        <View style={styles.heroMeta}>
+                            <Text style={styles.heroMetaLabel}>{t('common.version')}</Text>
+                            <Text style={styles.heroMetaValue}>{appVersion}</Text>
+                        </View>
+                    </Pressable>
                 </View>
             </View>
 
-            {/* Connect Terminal - Only show on native platforms */}
             {Platform.OS !== 'web' && (
-                <ItemGroup accent="none" elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
+                <ItemGroup
+                    {...sectionProps}
+                    style={styles.sectionSpacingFirst}
+                    title={renderSectionHeading(t('tabs.sessions'), t('settings.scanQrCodeToAuthenticate'))}
+                >
                     <Item
                         title={t('settings.scanQrCodeToAuthenticate')}
                         icon={<Ionicons name="qr-code-outline" size={29} color={theme.colors.text} />}
@@ -240,69 +486,45 @@ export const SettingsView = React.memo(function SettingsView() {
                     <Item
                         title={t('connect.enterUrlManually')}
                         icon={<Ionicons name="link-outline" size={29} color={theme.colors.text} />}
-                        onPress={() => {
-                            if (Platform.OS === 'ios') {
-                                Alert.prompt(
-                                    t('modals.authenticateTerminal'),
-                                    t('modals.pasteUrlFromTerminal'),
-                                    [
-                                        { text: 'Cancel', style: 'cancel' },
-                                        {
-                                            text: 'Authenticate',
-                                            onPress: (url?: string) => {
-                                                if (url?.trim()) {
-                                                    connectWithUrl(url.trim());
-                                                }
-                                            }
-                                        }
-                                    ],
-                                    'plain-text',
-                                    '',
-                                    'vibe://terminal?...'
-                                );
-                            } else {
-                                // For Android, show a custom modal
-                                Modal.show({
-                                    component: ManualAuthModal,
-                                    props: {
-                                        onSubmit: (url: string) => {
-                                            connectWithUrl(url);
-                                        }
-                                    }
-                                });
-                            }
-                        }}
+                        onPress={showManualAuthModal}
                         showChevron={false}
                     />
                 </ItemGroup>
             )}
 
-            {/* Support Us */}
-            <ItemGroup accent="none" elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
+            <ItemGroup
+                {...sectionProps}
+                style={styles.sectionSpacing}
+                title={renderSectionHeading(t('settings.supportUs'))}
+            >
                 <Item
                     title={t('settings.supportUs')}
                     subtitle={isPro ? t('settings.supportUsSubtitlePro') : t('settings.supportUsSubtitle')}
                     icon={<Ionicons name="heart" size={29} color={theme.colors.text} />}
-                    showChevron={false}
+                    showChevron={!isPro}
                     onPress={isPro ? undefined : handleSubscribe}
                 />
             </ItemGroup>
 
-            <ItemGroup title={t('settings.connectedAccounts')} accent="none" elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
+            <ItemGroup
+                {...sectionProps}
+                style={styles.sectionSpacing}
+                title={renderSectionHeading(t('settings.connectedAccounts'), t('settings.connectAccount'))}
+            >
                 <Item
                     title="Claude Code"
                     subtitle={isAnthropicConnected
                         ? t('settingsAccount.statusActive')
                         : t('settings.connectAccount')
                     }
-                    icon={
+                    icon={(
                         <Image
                             source={require('@/assets/images/icon-claude.png')}
                             style={{ width: 29, height: 29 }}
                             contentFit="contain"
                             tintColor={theme.colors.text}
                         />
-                    }
+                    )}
                     onPress={isAnthropicConnected ? handleDisconnectAnthropic : connectAnthropic}
                     loading={connectingAnthropic || disconnectingAnthropic}
                     showChevron={false}
@@ -313,63 +535,46 @@ export const SettingsView = React.memo(function SettingsView() {
                         ? t('settings.githubConnected', { login: profile.github?.login! })
                         : t('settings.connectGithubAccount')
                     }
-                    icon={
-                        <Ionicons
-                            name="logo-github"
-                            size={29}
-                            color={theme.colors.text}
-                        />
-                    }
+                    icon={<Ionicons name="logo-github" size={29} color={theme.colors.text} />}
                     onPress={isGitHubConnected ? handleDisconnectGitHub : connectGitHub}
                     loading={connectingGitHub || disconnectingGitHub}
                     showChevron={false}
                 />
             </ItemGroup>
 
-            {/* Social */}
-            {/* <ItemGroup title={t('settings.social')}>
-                <Item
-                    title={t('navigation.friends')}
-                    subtitle={t('friends.manageFriends')}
-                    icon={<Ionicons name="people-outline" size={29} color={theme.colors.text} />}
-                    onPress={() => router.push('/friends')}
-                />
-            </ItemGroup> */}
-
-            {/* Machines (sorted: online first, then last seen desc) */}
-            {allMachines.length > 0 && (
-                <ItemGroup title={t('settings.machines')} accent="none" elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
-                    {[...allMachines].map((machine) => {
+            {machines.length > 0 && (
+                <ItemGroup
+                    {...sectionProps}
+                    style={styles.sectionSpacing}
+                    title={renderSectionHeading(t('settings.machines'))}
+                >
+                    {machines.map((machine) => {
                         const isOnline = isMachineOnline(machine);
-                        const host = machine.metadata?.host || 'Unknown';
-                        const displayName = machine.metadata?.displayName;
-                        const platform = machine.metadata?.platform || '';
-
-                        // Use displayName if available, otherwise use host
-                        const title = displayName || host;
-
-                        // Build subtitle: show hostname if different from title, plus platform and status
-                        let subtitle = '';
-                        if (displayName && displayName !== host) {
-                            subtitle = host;
+                        const host = machine.metadata?.host || t('settingsAccount.notAvailable');
+                        const display = machine.metadata?.displayName || host;
+                        const platformLabel = machine.metadata?.platform;
+                        const subtitleParts: string[] = [];
+                        if (machine.metadata?.displayName && machine.metadata.displayName !== host) {
+                            subtitleParts.push(host);
                         }
-                        if (platform) {
-                            subtitle = subtitle ? `${subtitle} • ${platform}` : platform;
+                        if (platformLabel) {
+                            subtitleParts.push(platformLabel);
                         }
-                        subtitle = subtitle ? `${subtitle} • ${isOnline ? t('status.online') : t('status.offline')}` : (isOnline ? t('status.online') : t('status.offline'));
+                        subtitleParts.push(isOnline ? t('status.online') : t('status.offline'));
 
                         return (
                             <Item
                                 key={machine.id}
-                                title={title}
-                                subtitle={subtitle}
-                                icon={
+                                title={display}
+                                subtitle={subtitleParts.join(' • ')}
+                                subtitleLines={0}
+                                icon={(
                                     <Ionicons
                                         name="desktop-outline"
                                         size={29}
                                         color={isOnline ? theme.colors.status.connected : theme.colors.status.disconnected}
                                     />
-                                }
+                                )}
                                 onPress={() => router.push(`/machine/${machine.id}`)}
                             />
                         );
@@ -377,51 +582,28 @@ export const SettingsView = React.memo(function SettingsView() {
                 </ItemGroup>
             )}
 
-            {/* Features */}
-            <ItemGroup title={t('settings.features')} accent="none" elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
-                <Item
-                    title={t('settings.account')}
-                    subtitle={t('settings.accountSubtitle')}
-                    icon={<Ionicons name="person-circle-outline" size={29} color={theme.colors.text} />}
-                    onPress={() => router.push('/settings/account')}
-                />
-                <Item
-                    title={t('settings.appearance')}
-                    subtitle={t('settings.appearanceSubtitle')}
-                    icon={<Ionicons name="color-palette-outline" size={29} color={theme.colors.text} />}
-                    onPress={() => router.push('/settings/appearance')}
-                />
-                <Item
-                    title={t('settings.voiceAssistant')}
-                    subtitle={t('settings.voiceAssistantSubtitle')}
-                    icon={<Ionicons name="mic-outline" size={29} color={theme.colors.text} />}
-                    onPress={() => router.push('/settings/voice')}
-                />
-                <Item
-                    title={t('settings.featuresTitle')}
-                    subtitle={t('settings.featuresSubtitle')}
-                    icon={<Ionicons name="flask-outline" size={29} color={theme.colors.text} />}
-                    onPress={() => router.push('/settings/features')}
-                />
-                <Item
-                    title={t('providerSettings.title')}
-                    subtitle={t('providerSettings.subtitle')}
-                    icon={<Ionicons name="settings-outline" size={29} color={theme.colors.text} />}
-                    onPress={() => router.push('/settings/providers')}
-                />
-                {experiments && (
+            <ItemGroup
+                {...sectionProps}
+                style={styles.sectionSpacing}
+                title={renderSectionHeading(t('settings.features'), t('settings.featuresSubtitle'))}
+            >
+                {featureItems.map((item) => (
                     <Item
-                        title={t('settings.usage')}
-                        subtitle={t('settings.usageSubtitle')}
-                        icon={<Ionicons name="analytics-outline" size={29} color={theme.colors.text} />}
-                        onPress={() => router.push('/settings/usage')}
+                        key={item.key}
+                        title={item.title}
+                        subtitle={item.subtitle}
+                        icon={<Ionicons name={item.icon} size={29} color={theme.colors.text} />}
+                        onPress={() => router.push(item.route)}
                     />
-                )}
+                ))}
             </ItemGroup>
 
-            {/* Developer */}
             {(__DEV__ || devModeEnabled) && (
-                <ItemGroup title={t('settings.developer')} accent="none" elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
+                <ItemGroup
+                    {...sectionProps}
+                    style={styles.sectionSpacing}
+                    title={renderSectionHeading(t('settings.developer'), t('settings.developerTools'))}
+                >
                     <Item
                         title={t('settings.developerTools')}
                         icon={<Ionicons name="construct-outline" size={29} color={theme.colors.text} />}
@@ -430,66 +612,22 @@ export const SettingsView = React.memo(function SettingsView() {
                 </ItemGroup>
             )}
 
-            {/* About */}
-            <ItemGroup title={t('settings.about')} footer={t('settings.aboutFooter')} accent="none" elevated={false} headerStyle={{ paddingTop: Platform.select({ ios: 12, default: 8 }) }} containerStyle={{ borderRadius: Platform.select({ ios: 8, default: 10 }) }}>
-                <Item
-                    title={t('settings.whatsNew')}
-                    subtitle={t('settings.whatsNewSubtitle')}
-                    icon={<Ionicons name="sparkles-outline" size={29} color={theme.colors.text} />}
-                    onPress={async () => {
-                        const url = 'https://github.com/SGranquist13/vibe-mobile/releases';
-                        const supported = await Linking.canOpenURL(url);
-                        if (supported) {
-                            await Linking.openURL(url);
-                        }
-                    }}
-                />
-                <Item
-                    title={t('settings.github')}
-                    icon={<Ionicons name="logo-github" size={29} color={theme.colors.text} />}
-                    detail="SGranquist13/vibe-mobile"
-                    onPress={handleGitHub}
-                />
-                <Item
-                    title={t('settings.reportIssue')}
-                    icon={<Ionicons name="bug-outline" size={29} color={theme.colors.text} />}
-                    onPress={handleReportIssue}
-                />
-                <Item
-                    title={t('settings.privacyPolicy')}
-                    icon={<Ionicons name="shield-checkmark-outline" size={29} color={theme.colors.text} />}
-                    onPress={async () => {
-                        const url = 'https://github.com/SGranquist13/vibe-mobile/blob/main/PRIVACY.md';
-                        const supported = await Linking.canOpenURL(url);
-                        if (supported) {
-                            await Linking.openURL(url);
-                        }
-                    }}
-                />
-                <Item
-                    title={t('settings.termsOfService')}
-                    icon={<Ionicons name="document-text-outline" size={29} color={theme.colors.text} />}
-                    onPress={async () => {
-                        const url = 'https://github.com/SGranquist13/vibe-mobile/blob/main/TERMS.md';
-                        const supported = await Linking.canOpenURL(url);
-                        if (supported) {
-                            await Linking.openURL(url);
-                        }
-                    }}
-                />
-                {Platform.OS === 'ios' && (
+            <ItemGroup
+                {...sectionProps}
+                style={styles.sectionSpacing}
+                title={renderSectionHeading(t('settings.about'))}
+                footer={t('settings.aboutFooter')}
+            >
+                {aboutItems.map((item) => (
                     <Item
-                        title={t('settings.eula')}
-                        icon={<Ionicons name="document-text-outline" size={29} color={theme.colors.text} />}
-                        onPress={async () => {
-                            const url = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
-                            const supported = await Linking.canOpenURL(url);
-                            if (supported) {
-                                await Linking.openURL(url);
-                            }
-                        }}
+                        key={item.key}
+                        title={item.title}
+                        subtitle={item.subtitle}
+                        detail={item.detail}
+                        icon={<Ionicons name={item.icon} size={29} color={theme.colors.text} />}
+                        onPress={item.onPress}
                     />
-                )}
+                ))}
                 <Item
                     title={t('common.version')}
                     detail={appVersion}
@@ -498,7 +636,6 @@ export const SettingsView = React.memo(function SettingsView() {
                     showChevron={false}
                 />
             </ItemGroup>
-
         </ItemList>
     );
 });
